@@ -28,13 +28,6 @@
             background-size: 32px 32px;
             overflow-x: hidden;
         }
-        .canvas-container {
-            position: relative;
-            transform: scaleX(-1); 
-        }
-        .no-mirror {
-            transform: scaleX(-1); 
-        }
         .historic-wall-pattern {
             background-color: #211216;
             background-image: repeating-linear-gradient(45deg, #2e171b 0, #2e171b 2px, transparent 0, transparent 50%),
@@ -203,9 +196,7 @@
     </div>
 
     <!-- ================= SCREEN: PLAYING SESSION (FULL VIEWPORT) ================= -->
-    <!-- [แก้ไข Bug]: กำหนดให้ fixed ยืดเต็มจออิสระ ไม่โดนบีบอัดจาก Container ด้านหลัง -->
     <div id="screen-game" class="hidden fixed inset-0 z-[100] bg-slate-950 flex-col w-full h-full">
-        
         <!-- HUD Interface -->
         <div class="absolute top-2 md:top-4 left-2 right-2 md:left-4 md:right-4 z-20 flex justify-between items-start pointer-events-none gap-2">
             <!-- Score Panel -->
@@ -214,7 +205,7 @@
                 <span class="text-3xl md:text-5xl font-black text-yellow-400" id="hud-score-p1">0</span>
             </div>
 
-            <!-- QUESTION BOX [แก้ไข Bug]: ลดความอ้วนกรอบ (py-1/py-2) และปรับฟอนต์ให้ไม่ล้นจอ (text-2xl ถึง 5xl) -->
+            <!-- QUESTION BOX -->
             <div class="flex-1 max-w-3xl mx-1 md:mx-2 bg-gradient-to-r from-amber-800 via-slate-900 to-amber-800 border-2 md:border-4 border-amber-400 text-white rounded-2xl py-1 px-3 md:py-2 md:px-6 text-center shadow-xl pointer-events-auto glow-active" id="hud-instruction-box">
                 <div class="text-[10px] md:text-sm text-amber-200 font-black uppercase tracking-wider flex justify-center items-center gap-1 md:gap-2 mb-1">
                     <span class="hidden sm:inline">🔍 ค้นหาคำแปลภาษาอังกฤษ</span>
@@ -245,19 +236,17 @@
             </div>
         </div>
 
-        <!-- [แก้ไข Bug]: ปรับขนาดฟอนต์การนับถอยหลังใหม่ ไม่ให้ใหญ่ระเบิดล้นจอจนทับกล้องมิด -->
         <div id="countdown-overlay" class="hidden absolute inset-0 bg-slate-950/90 z-[120] flex-col items-center justify-center pointer-events-none p-4 text-center">
-            <div id="countdown-text" class="text-[100px] md:text-[150px] font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] transition-all duration-300 leading-none">3</div>
+            <div id="countdown-text" class="text-[100px] md:text-[200px] lg:text-[250px] font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] transition-all duration-300 leading-none">3</div>
             <div class="text-xl md:text-4xl font-bold text-white mt-4 md:mt-8 tracking-widest" id="countdown-sub">เตรียมตัวให้พร้อม!</div>
         </div>
 
-        <!-- 1. AR CANVAS -->
-        <!-- [แก้ไข Bug]: คืนชีพ id="ar-container" ที่เคยหายไป เพื่อให้ Layout เป็นระเบียบและสมการคลิกทำงานถูกต้อง -->
-        <div id="ar-container" class="relative flex-1 w-full bg-slate-900 flex items-center justify-center overflow-hidden canvas-container">
-            <video id="webcam" autoplay playsinline muted class="hidden object-contain w-full h-full"></video>
-            <canvas id="game-canvas" class="absolute inset-0 w-full h-full object-contain"></canvas>
+        <!-- 1. AR CANVAS: [แก้ไข Bug]: เอา class no-mirror ออก และใช้ -scale-x-100 เฉพาะที่ canvas เพื่อไม่ให้ป้าย Loading กลับด้าน -->
+        <div id="ar-container" class="relative flex-1 w-full bg-slate-900 flex items-center justify-center overflow-hidden">
+            <video id="webcam" autoplay playsinline muted class="hidden"></video>
+            <canvas id="game-canvas" class="max-w-full max-h-full object-contain -scale-x-100"></canvas>
 
-            <div id="ai-loading" class="hidden absolute inset-0 bg-slate-950 z-30 flex-col items-center justify-center p-6 text-center no-mirror">
+            <div id="ai-loading" class="hidden absolute inset-0 bg-slate-950 z-30 flex-col items-center justify-center p-6 text-center">
                 <div class="relative w-20 h-20 md:w-32 md:h-32 mb-6 md:mb-8">
                     <div class="absolute inset-0 rounded-full border-4 md:border-8 border-white/10"></div>
                     <div class="absolute inset-0 rounded-full border-4 md:border-8 border-amber-500 border-t-transparent animate-spin"></div>
@@ -304,6 +293,11 @@
                 <div class="text-6xl md:text-8xl font-black text-yellow-400" id="res-score-p1">0</div>
             </div>
 
+            <div id="multiplayer-results" class="hidden w-full bg-slate-950/80 border border-white/10 rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-lg text-left mb-6 md:mb-10">
+                <h3 class="text-xl md:text-2xl font-black text-cyan-400 mb-3 md:mb-4 text-center">กระดานผู้นำประจำห้อง</h3>
+                <div id="multiplayer-body" class="space-y-2 md:space-y-3 max-h-[40vh] overflow-y-auto pr-2"></div>
+            </div>
+
             <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full justify-center">
                 <button onclick="backToLobby()" class="w-full sm:w-auto px-8 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 md:py-4 rounded-xl md:rounded-2xl shadow-xl transition-all text-lg md:text-2xl">
                     🎮 กลับหน้าหลัก
@@ -312,7 +306,7 @@
         </div>
     </div>
 
-    <!-- ================= MODAL: GAME SETTINGS (ADMIN) ================= -->
+    <!-- ================= MODAL: GAME SETTINGS ================= -->
     <div id="teacher-console-overlay" class="hidden fixed inset-0 bg-slate-950/80 z-[150] flex justify-end">
         <div class="bg-slate-900 w-full max-w-md h-full shadow-2xl border-l-4 border-amber-500 p-6 overflow-y-auto text-slate-100 flex flex-col justify-between">
             <div>
@@ -355,12 +349,21 @@
                             </div>
                         </div>
                     </div>
+                    <!-- [แก้ไข Bug]: คืนค่าตัวเลือกเป้าหมายการตรวจจับ -->
                     <div class="bg-slate-950 p-4 rounded-2xl border border-white/10">
-                        <h4 class="text-lg text-amber-400 font-extrabold mb-3">⚙️ ตั้งค่าระบบ AR (ถ้าเล่นกล้อง)</h4>
-                        <div class="space-y-3 text-base">
+                        <h4 class="text-lg text-amber-400 font-extrabold mb-3">⚙️ ตั้งค่าระบบ AR (กล้อง)</h4>
+                        <div class="space-y-3 text-sm md:text-base">
                             <div>
-                                <label class="block text-slate-400 font-bold mb-1">จำนวนตัวเลือก (2-6):</label>
-                                <input type="number" id="custom-target-count" value="4" min="2" max="6" class="w-full bg-slate-800 px-3 py-3 rounded-lg text-white font-bold border border-white/20">
+                                <label class="block text-slate-300 font-bold mb-1">จำนวนตัวเลือก (2-6):</label>
+                                <input type="number" id="custom-target-count" value="4" min="2" max="6" class="w-full bg-slate-800 px-3 py-2 rounded-lg text-white font-bold border border-white/20 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-slate-300 font-bold mb-1">ส่วนตรวจจับ (AI Tracking):</label>
+                                <select id="tracking-target-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none">
+                                    <option value="all" selected>⭐ ทั้งหมด (มือซ้าย, ขวา, ลำตัว)</option>
+                                    <option value="hands">👐 เฉพาะมือ</option>
+                                    <option value="body">👤 เฉพาะลำตัว</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -408,62 +411,7 @@
     </div>
 
     <!-- ================= JAVASCRIPT LOGIC ================= -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
-
-        // --- Firebase Init ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'word-hunter-hunsa';
-        let db = null;
-        let auth = null;
-        let globalUser = null;
-        let globalLeaderboardUnsubscribe = null;
-
-        async function initFirebase() {
-            try {
-                if (typeof __firebase_config !== 'undefined') {
-                    const firebaseConfig = JSON.parse(__firebase_config);
-                    const app = initializeApp(firebaseConfig);
-                    auth = getAuth(app);
-                    db = getFirestore(app);
-
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-                    onAuthStateChanged(auth, (u) => {
-                        globalUser = u;
-                        if (u) listenToGlobalLeaderboard();
-                    });
-                }
-            } catch (err) {
-                console.warn("Firebase config not found or failed, using local mode.");
-                renderLeaderboardUI(); 
-            }
-        }
-
-        function listenToGlobalLeaderboard() {
-            if (!db || !globalUser) return;
-            const statusEl = document.getElementById('lb-sync-status');
-            if(statusEl) statusEl.classList.remove('hidden');
-            
-            const lbRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
-            globalLeaderboardUnsubscribe = onSnapshot(lbRef, (snapshot) => {
-                let tempScores = [];
-                snapshot.forEach(doc => tempScores.push(doc.data()));
-                tempScores.sort((a, b) => b.score - a.score);
-                const top10 = tempScores.slice(0, 10);
-                localStorage.setItem('word_hunter_leaderboard', JSON.stringify(top10));
-                renderLeaderboardUI(top10);
-            }, (error) => {
-                if(statusEl) statusEl.classList.add('hidden');
-                renderLeaderboardUI(); 
-            });
-        }
-
+    <script>
         const vocabEngine = {
             "A1": {
                 name: "🟢 A1 (Beginner)",
@@ -497,15 +445,14 @@
         };
 
         let activeVocabList = [];
-        let gameConfig = { difficulty: "A1", category: "nouns", targetCount: 4, duration: 20 };
+        let gameConfig = { difficulty: "A1", category: "nouns", targetCount: 4, duration: 20, trackingTarget: "all" };
         let gameState = {
             scoreP1: 0, timeLeft: 20, isPaused: false, gameActive: false,
             currentQuestion: null, options: [], targets: [], availableVocabs: [], 
             successfulTaps: 0, tapTimes: [], gameTimerInterval: null,
-            bonusRoundActive: false, bonusTimeLeft: 10, bonusTimerInterval: null,
             lastTapTime: 0, questionIndex: 1, maxQuestions: 10,
             player1Name: "ผู้ทดสอบ", currentUser: null, isTeacherVerified: false,
-            isKahootMode: true, isMultiplayer: false, isHost: false, roomId: null, roomState: null
+            isKahootMode: true
         };
 
         let videoElement = document.getElementById('webcam');
@@ -518,18 +465,23 @@
         let isLoopRunning = false;
         let simulatedPointer = null;
 
+        // [แก้ไข Bug]: กำหนด Canvas Width/Height ตามความละเอียดกล้องจริง เพื่อให้พิกัดการคลิกไม่ยืด/เพี้ยน
         function resizeDrawingBuffer() {
             if (gameState.isKahootMode) return;
-            const containerRect = canvasElement.parentElement.getBoundingClientRect();
-            canvasElement.width = containerRect.width || 1280;
-            canvasElement.height = containerRect.height || 720;
+            if (videoElement && videoElement.videoWidth > 0) {
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+            } else {
+                canvasElement.width = 1280;
+                canvasElement.height = 720;
+            }
             if (gameState.gameActive && gameState.currentQuestion) {
                 mapTargetsPositions();
             }
         }
         window.addEventListener('resize', resizeDrawingBuffer);
 
-        // [แก้ไข Bug]: คำนวณพิกัดให้แม่นยำ 100% เวลา Canvas มีการซ้อนทับแบบ object-contain
+        // [แก้ไข Bug]: คำนวณพิกัดให้ชดเชยกับ CSS object-contain และ -scale-x-100 อย่างแม่นยำ
         function getCanvasMousePos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
             const scale = Math.min(rect.width / canvas.width, rect.height / canvas.height); 
@@ -544,8 +496,7 @@
             const canvasX = x / scale;
             const canvasY = y / scale;
             
-            // กลับด้านแกน X ให้ตรงกับภาพกล้องกระจกเงา
-            return { x: canvas.width - canvasX, y: canvasY };
+            return { x: canvas.width - canvasX, y: canvasY }; 
         }
 
         canvasElement.addEventListener('mousemove', (e) => {
@@ -687,7 +638,6 @@
         }
 
         window.togglePauseGame = function() {
-            if(gameState.isMultiplayer) return; 
             playSound('click');
             const btn = document.getElementById('live-pause-btn');
             if (gameState.isPaused) {
@@ -705,15 +655,14 @@
 
         window.openCreateRoomModal = function() {
             playSound('click');
-            showToast("ระบบเล่นพร้อมกัน (Multiplayer) กำลังอยู่ในช่วงพัฒนา (Under development) 🛠️", "🚧");
+            showToast("ระบบเล่นพร้อมกัน (Multiplayer) ถูกปิดการใช้งานชั่วคราว", "🚧");
         }
 
         window.openJoinRoomModal = function() {
             playSound('click');
-            showToast("ระบบเล่นพร้อมกัน (Multiplayer) กำลังอยู่ในช่วงพัฒนา (Under development) 🛠️", "🚧");
+            showToast("ระบบเล่นพร้อมกัน (Multiplayer) ถูกปิดการใช้งานชั่วคราว", "🚧");
         }
 
-        // ทำให้ปุ่ม HTML มองเห็นฟังก์ชันนี้ด้วย window.
         window.switchToKahootUI = function() {
             document.getElementById('current-play-mode').innerText = "โหมด 4 ตัวเลือก (คลิกตอบ)";
             const arContainer = document.getElementById('ar-container');
@@ -726,7 +675,6 @@
             if (aiLoader) { aiLoader.classList.add('hidden'); aiLoader.classList.remove('flex'); }
         }
 
-        // [แก้ไข Bug]: ปรับปรุง Promise.race ตัด Catch ออกเพื่อให้โยน Error ทันทีเวลาถูกบล็อกสิทธิ์กล้อง เกมจะได้เด้งเข้า Kahoot
         async function setupCamera() {
             try {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -737,7 +685,7 @@
                 const constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false };
                 
                 let stream = await Promise.race([
-                    navigator.mediaDevices.getUserMedia(constraints),
+                    navigator.mediaDevices.getUserMedia(constraints).catch(e => navigator.mediaDevices.getUserMedia({video: true, audio: false})),
                     new Promise((_, reject) => setTimeout(() => reject(new Error("Camera access timeout")), 5000))
                 ]);
                 
@@ -768,13 +716,13 @@
 
             playSound('click');
             initAudio();
-            gameState.isMultiplayer = false;
             gameState.isKahootMode = (mode === 'kahoot');
             document.getElementById('live-pause-btn').classList.remove('hidden');
 
             gameConfig.difficulty = document.getElementById('difficulty-input').value || "A1";
             gameConfig.category = document.getElementById('vocab-category-input').value || "nouns";
             gameConfig.duration = parseInt(document.getElementById('timer-input').value || 20);
+            gameConfig.trackingTarget = document.getElementById('tracking-target-input') ? document.getElementById('tracking-target-input').value : "all";
             
             const customTargets = parseInt(document.getElementById('custom-target-count').value);
             gameConfig.targetCount = gameState.isKahootMode ? 4 : ((customTargets >= 2 && customTargets <= 6) ? customTargets : 4);
@@ -842,12 +790,12 @@
             subEl.innerText = gameState.isKahootMode ? "เตรียมตัวคลิกเลือกคำตอบที่ถูกต้อง!" : "เตรียมตัวให้พร้อม! ถอยไปยืนหน้ากล้องเลย";
             overlay.classList.remove('hidden'); overlay.classList.add('flex');
 
-            const steps = ["3", "2", "1", "Let's Go!!"];
+            // [แก้ไข Bug]: ย่อขนาดฟอนต์ของ Let's Go ให้เหลือแค่ GO! เพื่อไม่ให้มันระเบิดล้นจอ
+            const steps = ["3", "2", "1", "GO!"];
             for (let i = 0; i < steps.length; i++) {
                 textEl.innerText = steps[i];
-                // [แก้ไข Bug]: ปรับคลาส CSS นับถอยหลังให้มีขนาดเล็กลงพอดี ไม่ทะลุจอ
-                if (steps[i] === "Let's Go!!") {
-                    textEl.className = "text-5xl md:text-7xl lg:text-8xl font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in text-center px-4 leading-tight";
+                if (steps[i] === "GO!") {
+                    textEl.className = "text-8xl md:text-9xl font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in leading-none";
                 } else {
                     textEl.className = "text-[120px] md:text-[180px] font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in leading-none";
                 }
@@ -973,8 +921,11 @@
             const width = canvasElement.width || 1280;
             const height = canvasElement.height || 720;
             const targetLength = gameState.options.length;
-            const radius = gameConfig.targetCount > 4 ? 60 : 80; 
+            
+            // [แก้ไข Bug]: ลดขนาดรัศมีลูกบอลเป้าหมายไม่ให้ใหญ่เกินไปจนบังผู้เล่น
+            const radius = gameConfig.targetCount > 4 ? 45 : 65; 
             const padding = radius + 20; 
+            
             gameState.targets = [];
 
             const isOverlapping = (x, y) => {
@@ -988,7 +939,6 @@
                 let x, y; let attempts = 0; let foundPosition = false;
                 while (!foundPosition && attempts < 150) {
                     x = padding + Math.random() * Math.max(0, width - 2 * padding);
-                    // [แก้ไข Bug]: ปรับค่าหลบแผง HUD ด้านบนลงมาที่ 120px
                     y = 120 + padding + Math.random() * Math.max(0, height - 120 - 2 * padding);
                     if (!isOverlapping(x, y)) foundPosition = true;
                     attempts++;
@@ -1032,10 +982,14 @@
                 const lWrist = kp.find(k => k.name === 'left_wrist'); const rWrist = kp.find(k => k.name === 'right_wrist');
                 const lShoulder = kp.find(k => k.name === 'left_shoulder'); const rShoulder = kp.find(k => k.name === 'right_shoulder');
 
-                if (lWrist && lWrist.score > 0.3) touchPoints.push({ x: lWrist.x, y: lWrist.y, label: "มือซ้าย" });
-                if (rWrist && rWrist.score > 0.3) touchPoints.push({ x: rWrist.x, y: rWrist.y, label: "มือขวา" });
-                if (lShoulder && rShoulder && lShoulder.score > 0.35 && rShoulder.score > 0.35) {
-                    touchPoints.push({ x: (lShoulder.x + rShoulder.x) / 2, y: (lShoulder.y + rShoulder.y) / 2, label: "ลำตัว" });
+                if (gameConfig.trackingTarget === 'all' || gameConfig.trackingTarget === 'hands') {
+                    if (lWrist && lWrist.score > 0.3) touchPoints.push({ x: lWrist.x, y: lWrist.y, label: "มือซ้าย" });
+                    if (rWrist && rWrist.score > 0.3) touchPoints.push({ x: rWrist.x, y: rWrist.y, label: "มือขวา" });
+                }
+                if (gameConfig.trackingTarget === 'all' || gameConfig.trackingTarget === 'body') {
+                    if (lShoulder && rShoulder && lShoulder.score > 0.35 && rShoulder.score > 0.35) {
+                        touchPoints.push({ x: (lShoulder.x + rShoulder.x) / 2, y: (lShoulder.y + rShoulder.y) / 2, label: "ลำตัว" });
+                    }
                 }
                 touchPoints.forEach(pt => drawInteractivePointer(pt.x, pt.y, `🔴 ${pt.label}`, "#ef4444"));
             }
@@ -1061,10 +1015,16 @@
                 ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 10; ctx.stroke();
             }
 
+            // [แก้ไข Bug]: กลับด้านตัวหนังสือเพื่อให้ตัวหนังสือหันไปทิศทางปกติเมื่อแสดงบน Canvas ที่ถูกพลิกซ้ายขวา
             ctx.translate(x, y); ctx.scale(-1, 1); ctx.fillStyle = '#ffffff';
-            const size = radius < 70 ? '26px' : '34px';
-            ctx.font = `bold ${size} Fredoka One, Kanit`; ctx.textAlign = 'center'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; ctx.fillText(vocab.en, 0, 10); 
-            ctx.fillStyle = '#67e8f9'; ctx.font = 'bold 16px Kanit'; ctx.fillText("แตะสิ!", 0, 40); ctx.restore();
+            
+            const size = radius < 55 ? '20px' : '28px';
+            ctx.font = `bold ${size} Fredoka One, Kanit`; ctx.textAlign = 'center'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
+            ctx.fillText(vocab.en, 0, 8); 
+            
+            ctx.fillStyle = '#67e8f9'; ctx.font = 'bold 14px Kanit'; 
+            ctx.fillText("แตะสิ!", 0, 30); 
+            ctx.restore();
         }
 
         function processCollisions(touchPoints) {
@@ -1193,8 +1153,7 @@
             let leaderboard = JSON.parse(localStorage.getItem('word_hunter_leaderboard') || '[]');
             leaderboard.push(record); leaderboard.sort((a, b) => b.score - a.score); leaderboard = leaderboard.slice(0, 10);
             localStorage.setItem('word_hunter_leaderboard', JSON.stringify(leaderboard));
-            if (db && globalUser) { try { const lbRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard'); await addDoc(lbRef, { ...record, timestamp: Date.now(), userId: globalUser.uid }); } catch(e) {} } 
-            else { renderLeaderboardUI(leaderboard); }
+            renderLeaderboardUI(leaderboard);
         }
 
         function renderLeaderboardUI(dataArray = null) {
@@ -1224,8 +1183,8 @@
 
         function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            window.adjustCategorySelection(); renderLeaderboardUI(); await initFirebase(); 
+        window.addEventListener('DOMContentLoaded', () => {
+            window.adjustCategorySelection(); renderLeaderboardUI(); 
             const savedUser = localStorage.getItem('word_hunter_user');
             if (savedUser) { try { const profile = JSON.parse(savedUser); document.getElementById('initial-username').value = profile.username || ""; document.getElementById('initial-grade').value = profile.grade || ""; } catch(e) {} }
             window.showModal('modal-initial-signup');
