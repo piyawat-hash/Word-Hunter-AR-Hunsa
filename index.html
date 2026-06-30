@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Word Hunter AR Hunsa</title>
+    <title>Words Hunter AR Hunsa</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,6 +20,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            touch-action: pan-y; 
         }
         body {
             font-family: 'Kanit', sans-serif;
@@ -61,15 +62,22 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 4px; }
+        
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center p-2 md:p-4 text-slate-100">
+<body class="flex flex-col items-center justify-center p-2 md:p-4 text-slate-100 no-select">
 
     <!-- ================= 1. MODAL: SIGN UP ================= -->
     <div id="modal-initial-signup" class="fixed inset-0 bg-slate-950/95 z-[200] flex items-center justify-center p-4">
         <div class="bg-gradient-to-b from-[#261619] to-[#0f090a] border-4 border-amber-500 rounded-3xl max-w-xl w-full shadow-2xl overflow-y-auto max-h-[95vh] text-center flex flex-col relative glow-active">
             <div class="relative w-full h-40 md:h-56 bg-slate-900 shrink-0">
-                <img src="image_93433a.png" alt="ประตูชุมพล" class="w-full h-full object-cover opacity-80 border-b-4 border-amber-500" onerror="this.src='https://placehold.co/600x300/451a03/f59e0b?text=Word+Hunter+AR+Hunsa'">
+                <img src="image_93433a.png" alt="ประตูชุมพล" class="w-full h-full object-cover opacity-80 border-b-4 border-amber-500" onerror="this.src='https://placehold.co/600x300/451a03/f59e0b?text=Words+Hunter+AR+Hunsa'">
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
                 <div class="absolute bottom-4 left-0 right-0 px-4">
                     <h2 class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
@@ -78,7 +86,7 @@
                 </div>
             </div>
             <div class="p-6 md:p-8 space-y-4">
-                <p class="text-sm text-slate-300">ยินดีต้อนรับสู่ Word Hunter AR Hunsa! โปรดลงชื่อเพื่อบันทึกคะแนน</p>
+                <p class="text-sm text-slate-300">ยินดีต้อนรับสู่ Words Hunter AR Hunsa! โปรดลงชื่อเพื่อบันทึกคะแนน</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left text-sm">
                     <div>
                         <label class="block text-amber-400 font-bold mb-1">🧑‍🎓 ชื่อผู้เล่น:</label>
@@ -101,8 +109,8 @@
         
         <!-- HEADER -->
         <div class="historic-wall-pattern p-4 md:p-6 text-center border-b-4 border-amber-500 relative shrink-0">
-            <h1 class="text-4xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] tracking-wide">
-                Word Hunter AR
+            <h1 class="text-4xl md:text-5xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] tracking-wide">
+                Words Hunter AR Hunsa
             </h1>
             <p class="text-xs md:text-sm font-semibold text-amber-100/90 tracking-widest uppercase mt-2">
                 ระบบเรียนรู้คำศัพท์มาตรฐานสากล (A1-B2)
@@ -174,10 +182,15 @@
 
             <!-- LEADERBOARD DISPLAY -->
             <div class="w-full max-w-6xl bg-slate-950/40 border border-white/10 rounded-3xl p-5 md:p-6 shadow-lg text-left">
-                <h3 class="text-xl md:text-2xl font-black text-amber-400 mb-4 pb-3 border-b border-white/5 flex items-center gap-2">
-                    🏆 กระดานผู้นำระดับชาติ (Top 10)
-                    <span id="lb-sync-status" class="text-[10px] md:text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/50 animate-pulse hidden">Live</span>
-                </h3>
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-white/5">
+                    <h3 class="text-xl md:text-2xl font-black text-amber-400 flex items-center gap-2">
+                        🏆 กระดานผู้นำระดับชาติ (Top 10)
+                        <span id="lb-sync-status" class="text-[10px] md:text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/50 animate-pulse hidden">Live</span>
+                    </h3>
+                    <button onclick="promptResetLeaderboard()" class="bg-slate-800 hover:bg-rose-600/90 text-slate-300 hover:text-white border border-slate-600 hover:border-rose-500 px-3 py-1.5 md:px-4 md:py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 font-bold text-xs md:text-sm">
+                        <span>🗑️</span> <span class="hidden sm:inline">รีเซ็ตอันดับ</span>
+                    </button>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm md:text-base whitespace-nowrap">
                         <thead>
@@ -185,6 +198,7 @@
                                 <th class="p-3 md:p-4 text-center">อันดับ</th>
                                 <th class="p-3 md:p-4">ชื่อนักเรียน</th>
                                 <th class="p-3 md:p-4 text-center">ระดับ</th>
+                                <th class="p-3 md:p-4 text-center">หมวดหมู่</th>
                                 <th class="p-3 md:p-4 text-center">คะแนน</th>
                             </tr>
                         </thead>
@@ -208,7 +222,7 @@
             <!-- QUESTION BOX -->
             <div class="flex-1 max-w-3xl mx-1 md:mx-2 bg-gradient-to-r from-amber-800 via-slate-900 to-amber-800 border-2 md:border-4 border-amber-400 text-white rounded-2xl py-1 px-3 md:py-2 md:px-6 text-center shadow-xl pointer-events-auto glow-active" id="hud-instruction-box">
                 <div class="text-[10px] md:text-sm text-amber-200 font-black uppercase tracking-wider flex justify-center items-center gap-1 md:gap-2 mb-1">
-                    <span class="hidden sm:inline">🔍 ค้นหาคำแปลภาษาอังกฤษ</span>
+                    <span class="hidden sm:inline">🔍 ค้นหาคำแปล</span>
                     <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-extrabold" id="hud-question-count">ข้อ 1/10</span>
                 </div>
                 <div class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-white to-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate" id="hud-instruction-text">
@@ -241,10 +255,10 @@
             <div class="text-xl md:text-4xl font-bold text-white mt-4 md:mt-8 tracking-widest" id="countdown-sub">เตรียมตัวให้พร้อม!</div>
         </div>
 
-        <!-- 1. AR CANVAS: [แก้ไข Bug]: เอา class no-mirror ออก และใช้ -scale-x-100 เฉพาะที่ canvas เพื่อไม่ให้ป้าย Loading กลับด้าน -->
+        <!-- 1. AR CANVAS -->
         <div id="ar-container" class="relative flex-1 w-full bg-slate-900 flex items-center justify-center overflow-hidden">
-            <video id="webcam" autoplay playsinline muted class="hidden"></video>
-            <canvas id="game-canvas" class="max-w-full max-h-full object-contain -scale-x-100"></canvas>
+            <video id="webcam" autoplay playsinline muted class="absolute pointer-events-none" style="opacity: 0.01; width: 10px; height: 10px;"></video>
+            <canvas id="game-canvas" class="max-w-full max-h-full object-contain -scale-x-100" style="touch-action: none;"></canvas>
 
             <div id="ai-loading" class="hidden absolute inset-0 bg-slate-950 z-30 flex-col items-center justify-center p-6 text-center">
                 <div class="relative w-20 h-20 md:w-32 md:h-32 mb-6 md:mb-8">
@@ -252,7 +266,7 @@
                     <div class="absolute inset-0 rounded-full border-4 md:border-8 border-amber-500 border-t-transparent animate-spin"></div>
                 </div>
                 <h3 class="text-2xl md:text-4xl font-black text-white mb-2 md:mb-4">กำลังเปิดระบบกล้อง AI...</h3>
-                <p class="text-xs md:text-base text-slate-400 max-w-sm">โปรดอนุญาตให้สิทธิ์การเข้าถึงกล้อง หากไม่อนุญาตระบบจะสลับเป็นโหมดกดตอบอัตโนมัติ</p>
+                <p class="text-xs md:text-base text-slate-400 max-w-sm">โปรดอนุญาตให้สิทธิ์การเข้าถึงกล้อง ระบบจะโหลดทันทีที่ได้รับอนุญาต</p>
             </div>
         </div>
 
@@ -282,15 +296,21 @@
     </div>
 
     <!-- ================= RESULTS DISPLAY SCREEN ================= -->
-    <div id="screen-results" class="hidden fixed inset-0 z-[100] bg-slate-950 overflow-y-auto p-4 md:p-10 text-center flex-col items-center">
+    <div id="screen-results" class="hidden fixed inset-0 z-[100] bg-slate-950 overflow-y-auto p-4 md:p-10 text-center flex-col items-center justify-center">
         <div class="max-w-4xl w-full mx-auto my-auto py-8">
             <div class="text-6xl md:text-8xl mb-4 md:mb-6 animate-bounce">🏆</div>
             <h1 class="text-3xl md:text-5xl font-black text-amber-400 mb-2 md:mb-4">สรุปผลการแข่งขัน!</h1>
             <p class="text-sm md:text-xl text-slate-300 font-bold mb-6 md:mb-10" id="res-mode-label">หมวดหมู่และระดับความยาก</p>
 
-            <div class="bg-slate-900 border-2 md:border-4 border-amber-500/30 rounded-2xl md:rounded-3xl p-6 md:p-10 flex flex-col justify-center shadow-xl mb-6 md:mb-10 w-full">
-                <div class="text-sm md:text-xl text-amber-400 font-black uppercase tracking-wider mb-1 md:mb-2">คะแนนที่ทำได้ของคุณ</div>
-                <div class="text-6xl md:text-8xl font-black text-yellow-400" id="res-score-p1">0</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-6 md:mb-10">
+                <div class="bg-slate-900 border-2 md:border-4 border-amber-500/30 rounded-2xl md:rounded-3xl p-6 flex flex-col justify-center shadow-xl">
+                    <div class="text-sm md:text-xl text-amber-400 font-black uppercase tracking-wider mb-1 md:mb-2">คะแนนที่ทำได้ของคุณ</div>
+                    <div class="text-6xl md:text-8xl font-black text-yellow-400" id="res-score-p1">0</div>
+                </div>
+                <div class="bg-slate-900 border-2 md:border-4 border-cyan-500/30 rounded-2xl md:rounded-3xl p-6 flex flex-col justify-center shadow-xl">
+                    <div class="text-sm md:text-xl text-cyan-400 font-black uppercase tracking-wider mb-1 md:mb-2">ความเร็วเฉลี่ยต่อข้อ</div>
+                    <div class="text-5xl md:text-7xl font-black text-cyan-400" id="res-avg-time">0.00s</div>
+                </div>
             </div>
 
             <div id="multiplayer-results" class="hidden w-full bg-slate-950/80 border border-white/10 rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-lg text-left mb-6 md:mb-10">
@@ -299,6 +319,9 @@
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full justify-center">
+                <button onclick="shareResult()" class="w-full sm:w-auto px-8 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-3 md:py-4 rounded-xl md:rounded-2xl shadow-xl transition-all text-lg md:text-2xl">
+                    📤 แชร์ผลลัพธ์
+                </button>
                 <button onclick="backToLobby()" class="w-full sm:w-auto px-8 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 md:py-4 rounded-xl md:rounded-2xl shadow-xl transition-all text-lg md:text-2xl">
                     🎮 กลับหน้าหลัก
                 </button>
@@ -347,9 +370,15 @@
                                     <option value="30">30 วินาที</option>
                                 </select>
                             </div>
+                            <div>
+                                <label class="block text-slate-300 font-bold mb-1">รูปแบบคำถาม (ภาษา):</label>
+                                <select id="question-lang-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none">
+                                    <option value="th-en" selected>🇹🇭 ถามไทย ➔ 🇬🇧 ตอบอังกฤษ</option>
+                                    <option value="en-th">🇬🇧 ถามอังกฤษ ➔ 🇹🇭 ตอบไทย</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <!-- [แก้ไข Bug]: คืนค่าตัวเลือกเป้าหมายการตรวจจับ -->
                     <div class="bg-slate-950 p-4 rounded-2xl border border-white/10">
                         <h4 class="text-lg text-amber-400 font-extrabold mb-3">⚙️ ตั้งค่าระบบ AR (กล้อง)</h4>
                         <div class="space-y-3 text-sm md:text-base">
@@ -360,8 +389,8 @@
                             <div>
                                 <label class="block text-slate-300 font-bold mb-1">ส่วนตรวจจับ (AI Tracking):</label>
                                 <select id="tracking-target-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none">
-                                    <option value="all" selected>⭐ ทั้งหมด (มือซ้าย, ขวา, ลำตัว)</option>
-                                    <option value="hands">👐 เฉพาะมือ</option>
+                                    <option value="all" selected>⭐ ทั้งหมด (นิ้วชี้ซ้าย, ขวา, ลำตัว)</option>
+                                    <option value="hands">👆 เฉพาะนิ้วชี้ (มือ)</option>
                                     <option value="body">👤 เฉพาะลำตัว</option>
                                 </select>
                             </div>
@@ -401,6 +430,19 @@
             <div class="flex gap-3 md:gap-4 text-base md:text-lg font-bold">
                 <button onclick="confirmQuit(true)" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-3 md:py-4 rounded-xl transition">ออกเลย</button>
                 <button onclick="confirmQuit(false)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 md:py-4 rounded-xl transition">เล่นต่อ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: RESET LEADERBOARD CONFIRM -->
+    <div id="modal-reset-confirm" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-rose-500 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl">
+            <div class="text-5xl md:text-6xl mb-3 md:mb-4 animate-pulse">🗑️</div>
+            <h3 class="text-2xl md:text-3xl font-bold text-white mb-2">ล้างข้อมูลผู้นำ?</h3>
+            <p class="text-sm md:text-base text-slate-400 mb-6 md:mb-8">กระดานผู้นำทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้ ยืนยันหรือไม่?</p>
+            <div class="flex gap-3 md:gap-4 text-base md:text-lg font-bold">
+                <button onclick="executeResetLeaderboard()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-3 md:py-4 rounded-xl transition">ลบข้อมูล</button>
+                <button onclick="hideModal('modal-reset-confirm')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 md:py-4 rounded-xl transition">ยกเลิก</button>
             </div>
         </div>
     </div>
@@ -445,7 +487,7 @@
         };
 
         let activeVocabList = [];
-        let gameConfig = { difficulty: "A1", category: "nouns", targetCount: 4, duration: 20, trackingTarget: "all" };
+        let gameConfig = { difficulty: "A1", category: "nouns", targetCount: 4, duration: 20, trackingTarget: "all", questionLang: "th-en" };
         let gameState = {
             scoreP1: 0, timeLeft: 20, isPaused: false, gameActive: false,
             currentQuestion: null, options: [], targets: [], availableVocabs: [], 
@@ -464,24 +506,29 @@
         let isProcessingPose = false;
         let isLoopRunning = false;
         let simulatedPointer = null;
+        
+        let lastAiFrameTime = 0; 
+        let renderLoopId = null; 
 
-        // [แก้ไข Bug]: กำหนด Canvas Width/Height ตามความละเอียดกล้องจริง เพื่อให้พิกัดการคลิกไม่ยืด/เพี้ยน
         function resizeDrawingBuffer() {
             if (gameState.isKahootMode) return;
             if (videoElement && videoElement.videoWidth > 0) {
                 canvasElement.width = videoElement.videoWidth;
                 canvasElement.height = videoElement.videoHeight;
             } else {
-                canvasElement.width = 1280;
-                canvasElement.height = 720;
+                canvasElement.width = window.innerWidth;
+                canvasElement.height = window.innerHeight;
             }
             if (gameState.gameActive && gameState.currentQuestion) {
                 mapTargetsPositions();
             }
         }
+        
         window.addEventListener('resize', resizeDrawingBuffer);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resizeDrawingBuffer, 500); 
+        });
 
-        // [แก้ไข Bug]: คำนวณพิกัดให้ชดเชยกับ CSS object-contain และ -scale-x-100 อย่างแม่นยำ
         function getCanvasMousePos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
             const scale = Math.min(rect.width / canvas.width, rect.height / canvas.height); 
@@ -491,7 +538,7 @@
             const offsetY = (rect.height - actualHeight) / 2;
             
             const x = e.clientX - rect.left - offsetX;
-            const y = e.clientY - rect.top - offsetY;
+            const y = e.clientY - rect.top - offsetY; // [แก้ไข Bug]: เปลี่ยน 'top' เป็น 'rect.top' ป้องกันค่าพิกัดเป็น NaN ที่ทำให้การใช้เมาส์/จิ้มบนจอพัง
             
             const canvasX = x / scale;
             const canvasY = y / scale;
@@ -504,14 +551,27 @@
             const pos = getCanvasMousePos(e, canvasElement);
             simulatedPointer = { x: pos.x, y: pos.y, label: "เมาส์" };
         });
+        
         canvasElement.addEventListener('mouseleave', () => { simulatedPointer = null; });
-        canvasElement.addEventListener('touchmove', (e) => {
+        
+        canvasElement.addEventListener('touchstart', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
+            e.preventDefault(); 
             if (e.touches.length > 0) {
                 const pos = getCanvasMousePos(e.touches[0], canvasElement);
                 simulatedPointer = { x: pos.x, y: pos.y, label: "นิ้ว" };
             }
-        }, { passive: true });
+        }, { passive: false });
+
+        canvasElement.addEventListener('touchmove', (e) => {
+            if (gameState.isKahootMode || !gameState.gameActive) return;
+            e.preventDefault(); 
+            if (e.touches.length > 0) {
+                const pos = getCanvasMousePos(e.touches[0], canvasElement);
+                simulatedPointer = { x: pos.x, y: pos.y, label: "นิ้ว" };
+            }
+        }, { passive: false });
+        
         canvasElement.addEventListener('touchend', () => { simulatedPointer = null; });
 
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -563,6 +623,7 @@
         window.showModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); } }
 
         window.executeInitialSignup = function() {
+            initAudio(); 
             playSound('click');
             const username = document.getElementById('initial-username').value.trim();
             const grade = document.getElementById('initial-grade').value.trim();
@@ -645,6 +706,7 @@
                 btn.innerText = "⏸️ พัก";
                 btn.className = "bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
                 showToast("กลับเข้าสู่เกม!", "🎯");
+                lastAiFrameTime = performance.now(); 
             } else {
                 gameState.isPaused = true;
                 btn.innerText = "▶️ ต่อ";
@@ -653,15 +715,8 @@
             }
         }
 
-        window.openCreateRoomModal = function() {
-            playSound('click');
-            showToast("ระบบเล่นพร้อมกัน (Multiplayer) ถูกปิดการใช้งานชั่วคราว", "🚧");
-        }
-
-        window.openJoinRoomModal = function() {
-            playSound('click');
-            showToast("ระบบเล่นพร้อมกัน (Multiplayer) ถูกปิดการใช้งานชั่วคราว", "🚧");
-        }
+        window.openCreateRoomModal = function() { playSound('click'); showToast("ระบบเล่นพร้อมกัน (Multiplayer) ถูกปิดการใช้งานชั่วคราว", "🚧"); }
+        window.openJoinRoomModal = function() { playSound('click'); showToast("ระบบเล่นพร้อมกัน (Multiplayer) ถูกปิดการใช้งานชั่วคราว", "🚧"); }
 
         window.switchToKahootUI = function() {
             document.getElementById('current-play-mode').innerText = "โหมด 4 ตัวเลือก (คลิกตอบ)";
@@ -678,36 +733,73 @@
         async function setupCamera() {
             try {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error("getUserMedia is not supported by this browser");
+                    throw new Error("เบราว์เซอร์ไม่รองรับ หรือ ไม่ได้เปิดบน HTTPS");
                 }
-                if (videoElement.srcObject) videoElement.srcObject.getTracks().forEach(track => track.stop());
                 
-                const constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false };
+                if (videoElement.srcObject) {
+                    videoElement.srcObject.getTracks().forEach(track => track.stop());
+                    videoElement.srcObject = null;
+                }
                 
-                let stream = await Promise.race([
-                    navigator.mediaDevices.getUserMedia(constraints).catch(e => navigator.mediaDevices.getUserMedia({video: true, audio: false})),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error("Camera access timeout")), 5000))
-                ]);
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, 
+                        audio: false 
+                    });
+                } catch (e) {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                }
                 
+                videoElement.setAttribute('autoplay', '');
+                videoElement.setAttribute('muted', '');
+                videoElement.setAttribute('playsinline', '');
+                videoElement.muted = true; // บังคับเพื่อแก้บั๊ก Safari
                 videoElement.srcObject = stream;
                 
                 return new Promise((resolve) => {
-                    let isResolved = false;
-                    videoElement.onloadedmetadata = () => {
-                        if(isResolved) return;
-                        videoElement.play().then(() => { isResolved = true; resolve(true); })
-                        .catch(() => { isResolved = true; resolve(false); });
+                    let attempts = 0;
+                    const checkReady = () => {
+                        if (videoElement.readyState >= 2 && videoElement.videoWidth > 0) {
+                            videoElement.play().catch(e => console.warn("Autoplay Prevented:", e));
+                            resolve(true);
+                        } else if (attempts < 100) { // รอให้โหลดพิกเซลวิดีโอ (10 วิหลังจากการกดอนุญาต)
+                            attempts++;
+                            setTimeout(checkReady, 100);
+                        } else {
+                            resolve(false); 
+                        }
                     };
-                    setTimeout(() => { if(!isResolved) { isResolved = true; resolve(false); } }, 5000);
+                    checkReady();
                 });
             } catch (err) {
-                console.warn("ไม่สามารถเข้าถึงกล้องได้: สลับเข้าสู่โหมด Kahoot อัตโนมัติ", err);
-                showToast("ไม่สามารถเปิดกล้องได้ สลับเป็นโหมดคลิกตอบ!", "⚠️");
+                console.warn("Camera Error:", err);
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    showToast("คุณไม่อนุญาตสิทธิ์กล้อง! สลับโหมดอัตโนมัติ", "🚫");
+                } else {
+                    showToast("กล้องมีปัญหา สลับเป็นโหมดคลิกตอบ!", "⚠️");
+                }
                 return false;
             }
         }
 
+        function startGameLoops() {
+            if (isLoopRunning) return;
+            isLoopRunning = true;
+            lastAiFrameTime = performance.now();
+            runRenderLoop(lastAiFrameTime);
+            runAiLoop();
+        }
+
+        function stopGameLoops() {
+            isLoopRunning = false;
+            if (renderLoopId) cancelAnimationFrame(renderLoopId);
+        }
+
         window.runStartSequence = async function(mode) {
+            // ป้องกันปุ่มเบิ้ล 
+            if (gameState.gameActive || isLoopRunning) return; 
+
             if (!gameState.currentUser) {
                 showToast("โปรดลงชื่อก่อนเริ่มเกมเด้อจ้า!", "⚠️");
                 showModal('modal-initial-signup');
@@ -719,13 +811,29 @@
             gameState.isKahootMode = (mode === 'kahoot');
             document.getElementById('live-pause-btn').classList.remove('hidden');
 
-            gameConfig.difficulty = document.getElementById('difficulty-input').value || "A1";
-            gameConfig.category = document.getElementById('vocab-category-input').value || "nouns";
-            gameConfig.duration = parseInt(document.getElementById('timer-input').value || 20);
-            gameConfig.trackingTarget = document.getElementById('tracking-target-input') ? document.getElementById('tracking-target-input').value : "all";
+            const diff = document.getElementById('difficulty-input').value || "A1";
+            gameConfig.difficulty = diff;
             
-            const customTargets = parseInt(document.getElementById('custom-target-count').value);
-            gameConfig.targetCount = gameState.isKahootMode ? 4 : ((customTargets >= 2 && customTargets <= 6) ? customTargets : 4);
+            let cat = document.getElementById('vocab-category-input').value;
+            // ดักป้องกันกรณีเปลี่ยนหมวดหมู่แต่หมวดเดิมไม่มีอยู่จริง
+            if (!cat || !vocabEngine[diff].categories[cat]) {
+                cat = Object.keys(vocabEngine[diff].categories)[0];
+            }
+            gameConfig.category = cat;
+
+            gameConfig.duration = parseInt(document.getElementById('timer-input').value || 20);
+            
+            const trackingTargetEl = document.getElementById('tracking-target-input');
+            if (trackingTargetEl) gameConfig.trackingTarget = trackingTargetEl.value;
+            
+            const langEl = document.getElementById('question-lang-input');
+            if (langEl) gameConfig.questionLang = langEl.value;
+
+            const customTargetCountEl = document.getElementById('custom-target-count');
+            if (customTargetCountEl) {
+                const customTargets = parseInt(customTargetCountEl.value);
+                gameConfig.targetCount = gameState.isKahootMode ? 4 : ((customTargets >= 2 && customTargets <= 6) ? customTargets : 4);
+            }
 
             activeVocabList = [...vocabEngine[gameConfig.difficulty].categories[gameConfig.category].words];
             
@@ -745,11 +853,15 @@
             gameState.isPaused = false;
             gameState.questionIndex = 1;
             gameState.availableVocabs = shuffleArray(activeVocabList);
+            simulatedPointer = null; 
             
             document.getElementById('hud-score-p1').innerText = "0";
             document.getElementById('hud-timer').innerText = `${gameConfig.duration}s`;
 
             if (!gameState.isKahootMode) {
+                const aiLoader = document.getElementById('ai-loading');
+                if (aiLoader) { aiLoader.classList.remove('hidden'); aiLoader.classList.add('flex'); }
+                
                 const cameraSuccess = await setupCamera();
                 if (cameraSuccess) {
                     document.getElementById('current-play-mode').innerText = "โหมด AR กล้อง";
@@ -758,8 +870,14 @@
                     const kahootContainer = document.getElementById('kahoot-container');
                     if (kahootContainer) { kahootContainer.classList.add('hidden'); kahootContainer.classList.remove('flex'); }
                     
-                    await loadAiModel();
-                    resizeDrawingBuffer();
+                    const aiSuccess = await loadAiModel();
+                    if (aiSuccess) {
+                        resizeDrawingBuffer();
+                    } else {
+                        gameState.isKahootMode = true;
+                        gameConfig.targetCount = 4;
+                        window.switchToKahootUI();
+                    }
                 } else {
                     gameState.isKahootMode = true;
                     gameConfig.targetCount = 4; 
@@ -777,8 +895,7 @@
             startCountdownLoop();
 
             if (!gameState.isKahootMode && !isLoopRunning) {
-                isLoopRunning = true;
-                runAiDetection();
+                startGameLoops();
             }
         }
 
@@ -790,7 +907,6 @@
             subEl.innerText = gameState.isKahootMode ? "เตรียมตัวคลิกเลือกคำตอบที่ถูกต้อง!" : "เตรียมตัวให้พร้อม! ถอยไปยืนหน้ากล้องเลย";
             overlay.classList.remove('hidden'); overlay.classList.add('flex');
 
-            // [แก้ไข Bug]: ย่อขนาดฟอนต์ของ Let's Go ให้เหลือแค่ GO! เพื่อไม่ให้มันระเบิดล้นจอ
             const steps = ["3", "2", "1", "GO!"];
             for (let i = 0; i < steps.length; i++) {
                 textEl.innerText = steps[i];
@@ -832,13 +948,17 @@
             const title = document.getElementById('feedback-title');
             title.innerText = `หมดเวลา!`;
             title.className = "text-4xl md:text-7xl font-black text-rose-500";
-            document.getElementById('feedback-detail').innerText = `ข้อนี้แปลว่า "${gameState.currentQuestion.th}" โดนหัก (-5 แต้ม)`;
+            
+            // [แก้ไข Bug]: เฉลยคำแปลที่ถูกต้องให้ชัดเจนเมื่อหมดเวลา
+            document.getElementById('feedback-detail').innerText = `เฉลย: "${gameState.currentQuestion.en}" = "${gameState.currentQuestion.th}" (-5 แต้ม)`;
 
             popup.classList.remove('hidden'); card.classList.remove('scale-50', 'opacity-0'); card.classList.add('scale-100', 'opacity-100');
 
             setTimeout(() => {
                 card.classList.add('scale-50', 'opacity-0'); card.classList.remove('scale-100', 'opacity-100');
                 setTimeout(() => {
+                    if (document.getElementById('screen-game').classList.contains('hidden')) return;
+
                     popup.classList.add('hidden');
                     gameState.questionIndex++;
                     if (gameState.questionIndex <= gameState.maxQuestions) {
@@ -863,10 +983,22 @@
             const targetLength = Math.min(gameConfig.targetCount, activeVocabList.length);
             const distractors = shuffleArray(activeVocabList.filter(v => v.en !== correctVocab.en));
             let selection = [correctVocab];
-            for (let i = 0; i < targetLength - 1; i++) selection.push(distractors[i]);
+            
+            // ดักป้องกัน undefined หากหมวดหมู่มีจำนวนคำศัพท์ไม่เพียงพอ
+            for (let i = 0; i < targetLength - 1; i++) {
+                if (distractors[i]) {
+                    selection.push(distractors[i]);
+                }
+            }
             gameState.options = shuffleArray(selection);
 
-            document.getElementById('hud-instruction-text').innerText = `"${gameState.currentQuestion.th}"`;
+            const isEnTh = gameConfig.questionLang === 'en-th';
+            document.getElementById('hud-instruction-text').innerText = `"${isEnTh ? gameState.currentQuestion.en : gameState.currentQuestion.th}"`;
+            
+            const instructionSpan = document.querySelector('#hud-instruction-box span.hidden.sm\\:inline');
+            if(instructionSpan) instructionSpan.innerText = isEnTh ? "🔍 ค้นหาคำแปลภาษาไทย" : "🔍 ค้นหาคำแปลภาษาอังกฤษ";
+            
+            simulatedPointer = null; 
 
             if (gameState.isKahootMode) {
                 buildKahootGrid();
@@ -900,7 +1032,8 @@
                 shape.innerText = shapes[index % shapes.length];
                 
                 const text = document.createElement('span');
-                text.innerText = vocab.en;
+                const isEnTh = gameConfig.questionLang === 'en-th';
+                text.innerText = isEnTh ? vocab.th : vocab.en;
                 text.className = "z-10 px-2 text-center leading-tight break-words";
 
                 btn.appendChild(shape);
@@ -920,9 +1053,7 @@
             if (!gameState.options || gameState.options.length === 0) return;
             const width = canvasElement.width || 1280;
             const height = canvasElement.height || 720;
-            const targetLength = gameState.options.length;
             
-            // [แก้ไข Bug]: ลดขนาดรัศมีลูกบอลเป้าหมายไม่ให้ใหญ่เกินไปจนบังผู้เล่น
             const radius = gameConfig.targetCount > 4 ? 45 : 65; 
             const padding = radius + 20; 
             
@@ -951,28 +1082,49 @@
             });
         }
 
-        async function runAiDetection() {
-            if (!isLoopRunning) return; 
-
-            if (detector && videoElement.readyState >= 2 && !isProcessingPose && gameState.gameActive && !gameState.isPaused && !gameState.isKahootMode) {
-                isProcessingPose = true;
-                try {
-                    const poses = await detector.estimatePoses(videoElement, { maxPoses: 1, flipHorizontal: false });
-                    currentPoses = poses;
-                } catch (err) { console.error("Pose engine failure:", err); } 
-                finally { isProcessingPose = false; }
+        async function runAiLoop() {
+            while (isLoopRunning) {
+                if (detector && videoElement.readyState >= 2 && videoElement.videoWidth > 0 && gameState.gameActive && !gameState.isPaused && !gameState.isKahootMode) {
+                    isProcessingPose = true;
+                    try {
+                        currentPoses = await detector.estimatePoses(videoElement, { maxPoses: 1, flipHorizontal: false });
+                    } catch (err) { 
+                        console.warn("Pose err", err);
+                    } finally { 
+                        isProcessingPose = false; 
+                    }
+                    await new Promise(resolve => requestAnimationFrame(resolve));
+                } else {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
             }
-
-            try { if (!gameState.isKahootMode) renderGameCanvas(); } catch (err) {}
-
-            if (!gameState.isKahootMode && isLoopRunning) { requestAnimationFrame(runAiDetection); } 
-            else { isLoopRunning = false; }
         }
 
-        function renderGameCanvas() {
+        function runRenderLoop(timestamp) {
+            if (!isLoopRunning) return;
+            if (!timestamp) timestamp = performance.now();
+
+            let dt = (lastAiFrameTime === 0) ? 0.016 : (timestamp - lastAiFrameTime) / 1000;
+            dt = Math.min(dt, 0.1); 
+            lastAiFrameTime = timestamp;
+
+            try { 
+                if (!gameState.isKahootMode) renderGameCanvas(dt); 
+            } catch (err) {}
+
+            renderLoopId = requestAnimationFrame(runRenderLoop);
+        }
+
+        function renderGameCanvas(dt) {
             if (!ctx) return;
-            if (videoElement.readyState >= 2) { ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height); } 
-            else { ctx.fillStyle = '#0c080d'; ctx.fillRect(0, 0, canvasElement.width, canvasElement.height); }
+            if (videoElement.readyState >= 2) { 
+                if (canvasElement.width !== videoElement.videoWidth && videoElement.videoWidth > 0) {
+                    resizeDrawingBuffer();
+                }
+                ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height); 
+            } else { 
+                ctx.fillStyle = '#0c080d'; ctx.fillRect(0, 0, canvasElement.width, canvasElement.height); 
+            }
 
             let touchPoints = [];
             if (simulatedPointer) { touchPoints.push(simulatedPointer); drawInteractivePointer(simulatedPointer.x, simulatedPointer.y, `🔴 ${simulatedPointer.label}`, "#ef4444"); }
@@ -983,8 +1135,9 @@
                 const lShoulder = kp.find(k => k.name === 'left_shoulder'); const rShoulder = kp.find(k => k.name === 'right_shoulder');
 
                 if (gameConfig.trackingTarget === 'all' || gameConfig.trackingTarget === 'hands') {
-                    if (lWrist && lWrist.score > 0.3) touchPoints.push({ x: lWrist.x, y: lWrist.y, label: "มือซ้าย" });
-                    if (rWrist && rWrist.score > 0.3) touchPoints.push({ x: rWrist.x, y: rWrist.y, label: "มือขวา" });
+                    // [แก้ไข Feature]: ปรับพิกัดแกน Y ขึ้น 25px เพื่อจำลองให้กลายเป็นจุด "ปลายนิ้วชี้" และเปลี่ยนป้ายกำกับ
+                    if (lWrist && lWrist.score > 0.3) touchPoints.push({ x: lWrist.x, y: lWrist.y - 25, label: "นิ้วชี้ซ้าย" });
+                    if (rWrist && rWrist.score > 0.3) touchPoints.push({ x: rWrist.x, y: rWrist.y - 25, label: "นิ้วชี้ขวา" });
                 }
                 if (gameConfig.trackingTarget === 'all' || gameConfig.trackingTarget === 'body') {
                     if (lShoulder && rShoulder && lShoulder.score > 0.35 && rShoulder.score > 0.35) {
@@ -994,7 +1147,7 @@
                 touchPoints.forEach(pt => drawInteractivePointer(pt.x, pt.y, `🔴 ${pt.label}`, "#ef4444"));
             }
 
-            if (gameState.gameActive && !gameState.isPaused) { processCollisions(touchPoints); }
+            if (gameState.gameActive && !gameState.isPaused) { processCollisions(touchPoints, dt); }
             gameState.targets.forEach(target => drawTargetNode(target));
         }
 
@@ -1015,32 +1168,36 @@
                 ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 10; ctx.stroke();
             }
 
-            // [แก้ไข Bug]: กลับด้านตัวหนังสือเพื่อให้ตัวหนังสือหันไปทิศทางปกติเมื่อแสดงบน Canvas ที่ถูกพลิกซ้ายขวา
             ctx.translate(x, y); ctx.scale(-1, 1); ctx.fillStyle = '#ffffff';
             
             const size = radius < 55 ? '20px' : '28px';
             ctx.font = `bold ${size} Fredoka One, Kanit`; ctx.textAlign = 'center'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
-            ctx.fillText(vocab.en, 0, 8); 
+            
+            const isEnTh = gameConfig.questionLang === 'en-th';
+            ctx.fillText(isEnTh ? vocab.th : vocab.en, 0, 8); 
             
             ctx.fillStyle = '#67e8f9'; ctx.font = 'bold 14px Kanit'; 
             ctx.fillText("แตะสิ!", 0, 30); 
             ctx.restore();
         }
 
-        function processCollisions(touchPoints) {
+        function processCollisions(touchPoints, dt) {
             if (!gameState.gameActive) return; 
             let triggered = false;
             gameState.targets.forEach(target => {
                 let hit = false;
                 touchPoints.forEach(pt => { if (Math.hypot(pt.x - target.x, pt.y - target.y) < target.radius + 20) hit = true; });
                 if (hit) {
-                    target.hoverProgress += 25; 
+                    target.hoverProgress += 120 * dt; 
                     if (target.hoverProgress >= 100 && !triggered) { registerDynamicTap(target); triggered = true; }
-                } else { target.hoverProgress = Math.max(0, target.hoverProgress - 10); }
+                } else { 
+                    target.hoverProgress = Math.max(0, target.hoverProgress - 200 * dt); 
+                }
             });
         }
 
         function registerDynamicTap(target) {
+            if (!gameState.gameActive) return; // [แก้ไข Bug]: ดักการคลิกซ้ำซ้อน (Double Click/Touch) ที่ทำให้คะแนนบวกเบิ้ลและคิวเกมรวน
             gameState.gameActive = false; 
             const duration = (Date.now() - gameState.lastTapTime) / 1000;
             gameState.tapTimes.push(duration); gameState.lastTapTime = Date.now(); gameState.successfulTaps++;
@@ -1049,16 +1206,19 @@
             popup.classList.remove('hidden'); setTimeout(() => { card.classList.remove('scale-50', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 10);
 
             const pts = 10;
+            const isEnTh = gameConfig.questionLang === 'en-th';
+            
             if (target.isCorrect) {
                 playSound('success'); gameState.scoreP1 += pts;
                 document.getElementById('feedback-emoji').innerText = "✅";
                 const title = document.getElementById('feedback-title'); title.innerText = `ยอดเยี่ยม!`; title.className = "text-4xl md:text-7xl font-black text-emerald-400";
-                document.getElementById('feedback-detail').innerText = `"${target.vocab.en}" แปลว่า "${target.vocab.th}" (+${pts} แต้ม)`;
+                document.getElementById('feedback-detail').innerText = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}" (+${pts} แต้ม)`;
             } else {
                 playSound('fail'); const deduction = 5; gameState.scoreP1 = Math.max(0, gameState.scoreP1 - deduction);
                 document.getElementById('feedback-emoji').innerText = "❌";
                 const title = document.getElementById('feedback-title'); title.innerText = `ผิดนะจ๊ะ!`; title.className = "text-4xl md:text-7xl font-black text-rose-500";
-                document.getElementById('feedback-detail').innerText = `อันนี้คือ "${target.vocab.en}" หักคะแนน (-${deduction} แต้ม)`;
+                // [แก้ไข Bug]: เปลี่ยนเป็น innerHTML และใช้ <br> แทน \n เพราะใน HTML ปกติ \n จะไม่เว้นบรรทัด ทำให้ข้อความติดกันอ่านยาก
+                document.getElementById('feedback-detail').innerHTML = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}"<br><span class="text-emerald-400 text-2xl md:text-4xl mt-2 block">(เฉลยข้อนี้: ${isEnTh ? gameState.currentQuestion.th : gameState.currentQuestion.en})</span><br>หัก ${deduction} แต้ม`;
             }
 
             document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
@@ -1066,6 +1226,8 @@
             setTimeout(() => {
                 card.classList.add('scale-50', 'opacity-0'); card.classList.remove('scale-100', 'opacity-100');
                 setTimeout(() => {
+                    if (document.getElementById('screen-game').classList.contains('hidden')) return;
+
                     popup.classList.add('hidden'); gameState.questionIndex++;
                     if (gameState.questionIndex <= gameState.maxQuestions) { gameState.gameActive = true; gameState.lastTapTime = Date.now(); generateNewQuestion(); } 
                     else { window.endGame(); }
@@ -1074,8 +1236,11 @@
         }
 
         window.endGame = async function() {
-            gameState.gameActive = false; isLoopRunning = false; clearInterval(gameState.gameTimerInterval);
-            if (videoElement.srcObject) videoElement.srcObject.getTracks().forEach(track => track.stop());
+            gameState.gameActive = false; stopGameLoops(); clearInterval(gameState.gameTimerInterval);
+            if (videoElement.srcObject) {
+                videoElement.srcObject.getTracks().forEach(track => track.stop());
+                videoElement.srcObject = null;
+            }
 
             playSound('gameover');
             let avg = 0; if (gameState.tapTimes.length > 0) avg = gameState.tapTimes.reduce((a, b) => a + b, 0) / gameState.tapTimes.length;
@@ -1083,26 +1248,36 @@
             await saveScore(gameState.player1Name, gameState.scoreP1);
 
             document.getElementById('screen-game').classList.add('hidden'); document.getElementById('screen-game').classList.remove('flex'); 
+            
             document.getElementById('screen-results').classList.remove('hidden');
+            document.getElementById('screen-results').classList.add('flex');
 
             document.getElementById('res-mode-label').innerText = `ระดับ CEFR: ${vocabEngine[gameConfig.difficulty].name} | หมวด: ${vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title}`;
-            document.getElementById('res-score-p1').innerText = `${gameState.scoreP1}`; document.getElementById('res-avg-time').innerText = `${avg.toFixed(2)}s`;
+            document.getElementById('res-score-p1').innerText = `${gameState.scoreP1}`; 
+            document.getElementById('res-avg-time').innerText = `${avg.toFixed(2)}s`;
         }
 
         async function loadAiModel() {
             const el = document.getElementById('ai-loading');
-            if (isAiModelLoaded) { if (el) { el.classList.add('hidden'); el.classList.remove('flex'); } return; }
+            if (isAiModelLoaded) { if (el) { el.classList.add('hidden'); el.classList.remove('flex'); } return true; }
             try {
                 if (el) { el.classList.remove('hidden'); el.classList.add('flex'); }
                 await Promise.race([
                     tf.ready().then(async () => {
                         const model = poseDetection.SupportedModels.MoveNet;
-                        detector = await poseDetection.createDetector(model, { modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING, enableSmoothing: true });
+                        detector = await poseDetection.createDetector(model, { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING, enableSmoothing: true });
                     }),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('AI Load Timeout')), 10000))
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('AI Load Timeout')), 30000))
                 ]);
-                isAiModelLoaded = true; if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
-            } catch (err) { if (el) { el.classList.add('hidden'); el.classList.remove('flex'); } }
+                isAiModelLoaded = true; 
+                if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
+                return true;
+            } catch (err) { 
+                console.warn("AI ล้มเหลว สลับโหมดอัตโนมัติ", err);
+                if (el) { el.classList.add('hidden'); el.classList.remove('flex'); } 
+                showToast("เครื่องไม่รองรับ AI สลับเป็นโหมดกดตอบให้จ้า!", "⚠️");
+                return false; 
+            }
         }
 
         window.showQuitConfirmation = function() { playSound('click'); gameState.gameActive = false; showModal('modal-quit-confirm'); }
@@ -1110,19 +1285,31 @@
         window.confirmQuit = function(quit) {
             playSound('click'); hideModal('modal-quit-confirm');
             if (quit) {
-                clearInterval(gameState.gameTimerInterval); isLoopRunning = false; 
-                if (videoElement.srcObject) videoElement.srcObject.getTracks().forEach(track => track.stop());
+                clearInterval(gameState.gameTimerInterval); stopGameLoops(); 
+                if (videoElement.srcObject) {
+                    videoElement.srcObject.getTracks().forEach(track => track.stop());
+                    videoElement.srcObject = null;
+                }
                 window.backToLobby();
-            } else { gameState.gameActive = true; gameState.lastTapTime = Date.now(); }
+            } else { 
+                gameState.gameActive = true; 
+                gameState.lastTapTime = Date.now();
+                lastAiFrameTime = performance.now(); 
+            }
         }
 
         window.backToLobby = function() {
             playSound('click');
             document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('flex');
+
             const screenGame = document.getElementById('screen-game'); screenGame.classList.add('hidden'); screenGame.classList.remove('flex'); 
             document.getElementById('screen-lobby').classList.remove('hidden');
-            clearInterval(gameState.gameTimerInterval); isLoopRunning = false; 
-            if (videoElement.srcObject) { videoElement.srcObject.getTracks().forEach(track => track.stop()); videoElement.srcObject = null; }
+            clearInterval(gameState.gameTimerInterval); stopGameLoops(); 
+            if (videoElement.srcObject) { 
+                videoElement.srcObject.getTracks().forEach(track => track.stop()); 
+                videoElement.srcObject = null; 
+            }
             renderLeaderboardUI();
         }
 
@@ -1163,16 +1350,36 @@
             leaderboard.forEach((record, index) => {
                 let rankIcon = `${index + 1}`; if (index === 0) rankIcon = '🥇'; else if (index === 1) rankIcon = '🥈'; else if (index === 2) rankIcon = '🥉';
                 const tr = document.createElement('tr'); tr.className = "border-b border-white/5 hover:bg-slate-800/40 transition-colors";
-                tr.innerHTML = `<td class="p-4 text-center font-black text-amber-400 text-xl">${rankIcon}</td><td class="p-4 font-bold text-white">${escapeHtml(record.name)}</td><td class="p-4 text-center text-slate-300 font-bold">${escapeHtml(record.difficulty)}</td><td class="p-4 text-center text-cyan-300 text-xs">${escapeHtml(record.category)}</td><td class="p-4 text-center font-black text-yellow-400 text-xl">${record.score}</td>`;
+                tr.innerHTML = `
+                    <td class="p-4 text-center font-black text-amber-400 text-xl">${rankIcon}</td>
+                    <td class="p-4 font-bold text-white">${escapeHtml(record.name)}</td>
+                    <td class="p-4 text-center text-slate-300 font-bold">${escapeHtml(record.difficulty)}</td>
+                    <td class="p-4 text-center text-cyan-300 text-xs">${escapeHtml(record.category)}</td>
+                    <td class="p-4 text-center font-black text-yellow-400 text-xl">${record.score}</td>
+                `;
                 tbody.appendChild(tr);
             });
         }
 
         window.shareResult = function() {
-            playSound('click'); const text = `ฉันทำได้ ${gameState.scoreP1} คะแนน ในเกม Word Hunter AR Hunsa! มาประลองความเร็วกัน!`;
+            playSound('click'); 
+            const text = `ฉันทำได้ ${gameState.scoreP1} คะแนน ในเกม Words Hunter AR Hunsa! มาประลองความเร็วกัน!`;
             const textArea = document.createElement("textarea"); textArea.value = text; document.body.appendChild(textArea); textArea.select();
             try { document.execCommand('copy'); showToast("คัดลอกคะแนนเพื่อแชร์แล้วจ้า!", "📋"); } catch (err) { showToast("ไม่สามารถคัดลอกได้", "❌"); }
             document.body.removeChild(textArea);
+        }
+
+        window.promptResetLeaderboard = function() {
+            playSound('click');
+            showModal('modal-reset-confirm');
+        }
+
+        window.executeResetLeaderboard = function() {
+            playSound('click');
+            localStorage.removeItem('word_hunter_leaderboard');
+            renderLeaderboardUI();
+            hideModal('modal-reset-confirm');
+            showToast("รีเซ็ตกระดานผู้นำเรียบร้อยแล้ว!", "🗑️");
         }
 
         window.showToast = function(message, icon = "✨") {
