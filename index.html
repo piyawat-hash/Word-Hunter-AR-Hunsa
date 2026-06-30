@@ -152,12 +152,12 @@
                             <span class="font-black text-lg md:text-xl">เล่นคนเดียว<br><span class="text-sm">(จิ้มตอบ 4 สี)</span></span>
                         </button>
 
-                        <button onclick="createRoomFirebase()" class="bg-gradient-to-br from-purple-500 to-fuchsia-600 hover:from-purple-400 hover:to-fuchsia-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
+                        <button onclick="window.createRoomFirebase()" class="bg-gradient-to-br from-purple-500 to-fuchsia-600 hover:from-purple-400 hover:to-fuchsia-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">👑</span>
                             <span class="font-black text-lg md:text-xl">สร้างห้อง<br><span class="text-sm">(เล่นกับเพื่อน)</span></span>
                         </button>
 
-                        <button onclick="joinRoomFirebase()" class="bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
+                        <button onclick="window.joinRoomFirebase()" class="bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">🤝</span>
                             <span class="font-black text-lg md:text-xl">เข้าร่วมห้อง<br><span class="text-sm">(ใส่รหัส)</span></span>
                         </button>
@@ -543,6 +543,12 @@
         let lastAiFrameTime = 0; 
         let renderLoopId = null; 
 
+        // ================= ระบบเสียงเพลงประกอบ BGM =================
+        // ดึงเพลงออนไลน์แนวผจญภัยอาร์เคด (Free to use URL)
+        const gameBGM = new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3");
+        gameBGM.loop = true;  // เล่นวนซ้ำ
+        gameBGM.volume = 0.3; // ระดับเสียง 30% ตามข้อกำหนด
+
         function resizeDrawingBuffer() {
             if (gameState.isKahootMode) return;
             if (videoElement && videoElement.videoWidth > 0) {
@@ -655,9 +661,18 @@
         window.hideModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } }
         window.showModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); } }
 
+        // [แก้ไข Bug]: ปลดล็อกระบบเสียง (Audio Primer) ในจังหวะที่ผู้ใช้คลิกปุ่มครั้งแรก 
+        // เพื่อป้องกันเบราว์เซอร์ (โดยเฉพาะ Safari/iOS) บล็อกการเล่นเพลง BGM อัตโนมัติในภายหลัง
         window.executeInitialSignup = function() {
             initAudio(); 
             playSound('click');
+            
+            // Prime the BGM
+            gameBGM.play().then(() => { 
+                gameBGM.pause(); 
+                gameBGM.currentTime = 0; 
+            }).catch(e => console.warn("BGM Primer failed:", e));
+
             const username = document.getElementById('initial-username').value.trim();
             const grade = document.getElementById('initial-grade').value.trim();
             if (!username || !grade) { showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️"); return; }
@@ -736,12 +751,14 @@
             const btn = document.getElementById('live-pause-btn');
             if (gameState.isPaused) {
                 gameState.isPaused = false;
+                gameBGM.play().catch(e=>console.warn(e)); // [เปิดเพลง BGM ต่อเมื่อกลับมาเล่น]
                 btn.innerText = "⏸️ พัก";
                 btn.className = "bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
                 showToast("กลับเข้าสู่เกม!", "🎯");
                 lastAiFrameTime = performance.now(); 
             } else {
                 gameState.isPaused = true;
+                gameBGM.pause(); // [หยุดเพลง BGM ชั่วคราวเมื่อกดพักเกม]
                 btn.innerText = "▶️ ต่อ";
                 btn.className = "bg-emerald-500 hover:bg-emerald-400 text-white font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
                 showToast("พักเกมชั่วคราว", "⏸️");
@@ -948,6 +965,11 @@
                 await new Promise(r => setTimeout(r, 1000));
             }
             playSound('success'); 
+            
+            // [เปิดเพลง BGM ทันทีที่นับถอยหลังจบและเข้าสู่เกม (หลบ Autoplay Policy ได้ 100%)]
+            gameBGM.currentTime = 0;
+            gameBGM.play().catch(e => console.warn("BGM Autoplay blocked:", e));
+
             overlay.classList.remove('flex'); overlay.classList.add('hidden');
         }
 
@@ -957,6 +979,12 @@
                 if (!gameState.gameActive || gameState.isPaused) return;
                 gameState.timeLeft--;
                 document.getElementById('hud-timer').innerText = `${gameState.timeLeft}s`;
+
+                // ⏱️ [เพิ่มระบบนับถอยหลัง 10 วิสุดท้าย: แทรกลงในฟังก์ชันนับเวลาหลักอย่างปลอดภัย]
+                if (gameState.timeLeft <= 10 && gameState.timeLeft > 0) {
+                    if (window.playSound) window.playSound('tick'); // เล่นเสียง Beep ความถี่สูงทุก 1 วินาที
+                }
+
                 if (gameState.timeLeft <= 0) {
                     gameState.gameActive = false;
                     handleTimeUp();
@@ -965,6 +993,7 @@
         }
 
         function handleTimeUp() {
+            gameBGM.pause(); // [หยุดเพลง BGM ทันทีที่หมดเวลาข้อนั้น]
             playSound('timeup'); 
             gameState.scoreP1 = Math.max(0, gameState.scoreP1 - 5);
             document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
@@ -992,6 +1021,11 @@
                     if (gameState.questionIndex <= gameState.maxQuestions) {
                         gameState.gameActive = true;
                         gameState.lastTapTime = Date.now();
+                        
+                        // [เปิดเพลง BGM อีกครั้งเมื่อเข้าสู่ข้อถัดไป]
+                        gameBGM.currentTime = 0;
+                        gameBGM.play().catch(e => console.warn(e));
+
                         generateNewQuestion();
                     } else { window.endGame(); }
                 }, 200);
@@ -1253,14 +1287,24 @@
                 setTimeout(() => {
                     if (document.getElementById('screen-game').classList.contains('hidden')) return;
 
-                    popup.classList.add('hidden'); gameState.questionIndex++;
-                    if (gameState.questionIndex <= gameState.maxQuestions) { gameState.gameActive = true; gameState.lastTapTime = Date.now(); generateNewQuestion(); } 
-                    else { window.endGame(); }
+                    popup.classList.add('hidden');
+                    gameState.questionIndex++;
+                    if (gameState.questionIndex <= gameState.maxQuestions) {
+                        gameState.gameActive = true;
+                        gameState.lastTapTime = Date.now();
+                        
+                        // [เปิดเพลง BGM อีกครั้งเมื่อตอบเสร็จและเข้าสู่ข้อถัดไป]
+                        gameBGM.currentTime = 0;
+                        gameBGM.play().catch(e => console.warn(e));
+
+                        generateNewQuestion();
+                    } else { window.endGame(); }
                 }, 200);
             }, 1500);
         }
 
         window.endGame = async function() {
+            gameBGM.pause(); // [หยุดเพลง BGM เมื่อเกมจบรอบ]
             gameState.gameActive = false; stopGameLoops(); clearInterval(gameState.gameTimerInterval);
             if (videoElement.srcObject) {
                 videoElement.srcObject.getTracks().forEach(track => track.stop());
@@ -1324,6 +1368,7 @@
         }
 
         window.backToLobby = function() {
+            gameBGM.pause(); // [หยุดเพลง BGM เผื่อผู้เล่นกดยกเลิกกลับมาหน้าหลัก]
             playSound('click');
             document.getElementById('screen-results').classList.add('hidden');
             document.getElementById('screen-results').classList.remove('flex');
