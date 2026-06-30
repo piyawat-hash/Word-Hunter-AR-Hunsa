@@ -152,12 +152,12 @@
                             <span class="font-black text-lg md:text-xl">เล่นคนเดียว<br><span class="text-sm">(จิ้มตอบ 4 สี)</span></span>
                         </button>
 
-                        <button id="btn-create-room" class="bg-gradient-to-br from-purple-500 to-fuchsia-600 hover:from-purple-400 hover:to-fuchsia-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
+                        <button onclick="createRoomFirebase()" class="bg-gradient-to-br from-purple-500 to-fuchsia-600 hover:from-purple-400 hover:to-fuchsia-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">👑</span>
                             <span class="font-black text-lg md:text-xl">สร้างห้อง<br><span class="text-sm">(เล่นกับเพื่อน)</span></span>
                         </button>
 
-                        <button id="btn-join-room" class="bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
+                        <button onclick="joinRoomFirebase()" class="bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">🤝</span>
                             <span class="font-black text-lg md:text-xl">เข้าร่วมห้อง<br><span class="text-sm">(ใส่รหัส)</span></span>
                         </button>
@@ -447,15 +447,35 @@
         </div>
     </div>
     
-    <!-- MODAL: JOIN ROOM PROMPT (Custom UI แทน prompt ของระบบ) -->
+    <!-- MODAL: JOIN ROOM PROMPT -->
     <div id="modal-join-room" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-cyan-500 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl relative">
             <button onclick="hideModal('modal-join-room')" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
             <h3 class="text-2xl md:text-3xl font-bold text-white mb-4">เข้าร่วมห้องเพื่อน</h3>
             <p class="text-sm md:text-base text-slate-400 mb-4">กรุณากรอกรหัสห้อง 6 หลักเพื่อเข้าร่วม:</p>
             <input type="text" id="join-room-input" maxlength="6" class="w-full bg-slate-950 text-white font-bold text-center text-3xl tracking-[0.5em] px-4 py-4 rounded-xl border border-white/10 focus:outline-none focus:border-cyan-500 mb-6" placeholder="------">
-            <button id="btn-confirm-join" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl">
+            <button onclick="window.WordHunterFirebase.submitJoinRoom()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl">
                 เข้าร่วมเลย!
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: LOBBY WAITING ROOM (หน้าต่างรอผู้เล่น) -->
+    <div id="modal-lobby" class="hidden fixed inset-0 bg-black/90 z-[250] items-center justify-center p-4">
+        <div class="bg-slate-900 border-4 border-amber-500 p-6 md:p-10 rounded-3xl max-w-md w-full text-center shadow-[0_0_40px_rgba(245,158,11,0.3)] relative">
+            <div class="flex justify-center mb-6">
+                <span class="relative flex h-16 w-16">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-16 w-16 bg-amber-500 flex items-center justify-center text-3xl">⏳</span>
+                </span>
+            </div>
+            <h3 id="lobby-status-text" class="text-2xl md:text-3xl font-black text-white mb-2">กำลังรอผู้เล่น...</h3>
+            <p class="text-sm md:text-base text-slate-400 mb-6">บอกรหัสนี้ให้เพื่อนของคุณเพื่อเข้าร่วม</p>
+            <div class="bg-slate-950 border border-white/10 rounded-2xl py-6 mb-8">
+                <span id="lobby-room-id" class="text-5xl md:text-6xl font-black text-amber-400 tracking-[0.2em] drop-shadow-md">------</span>
+            </div>
+            <button onclick="window.WordHunterFirebase.cancelRoom()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl shadow-lg">
+                🛑 ยกเลิกการสร้างห้อง
             </button>
         </div>
     </div>
@@ -1402,85 +1422,287 @@
             window.showModal('modal-initial-signup');
         });
     </script>
-    
-    <!-- ดึงเครื่องมือจาก Firebase SDK มาใช้งาน -->
+
+    <!-- [เพิ่ม Fallback]: เกราะป้องกันกรณีผู้เล่นโหลดไฟล์บนเครื่องตัวเองตรงๆ (Offline Mode: file://) ป้องกันบั๊ก ReferenceError -->
+    <script>
+        window.createRoomFirebase = function() {
+            if (window.showToast) window.showToast("ระบบ Multiplayer ต้องรันผ่าน Web Server (https://) หรือ Live Server เท่านั้นจ้า!", "⚠️");
+            else alert("ระบบ Multiplayer ต้องรันผ่าน Web Server (https://) หรือ Live Server เท่านั้นจ้า!");
+        };
+        window.joinRoomFirebase = function() {
+            if (window.showToast) window.showToast("ระบบ Multiplayer ต้องรันผ่าน Web Server (https://) หรือ Live Server เท่านั้นจ้า!", "⚠️");
+            else alert("ระบบ Multiplayer ต้องรันผ่าน Web Server (https://) หรือ Live Server เท่านั้นจ้า!");
+        };
+        // ป้องกัน Error เวลาหา Object Firebase ไม่เจอ
+        window.WordHunterFirebase = {
+            cancelRoom: function() { window.hideModal('modal-lobby'); },
+            submitJoinRoom: function() { window.hideModal('modal-join-room'); }
+        };
+    </script>
+
+    <!-- โมดูล Firebase แบบแยก Scope ป้องกันตัวแปรชนกัน 100% -->
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-      import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-      // 🔑 ใส่กุญแจเชื่อมต่อของคุณตรงนี้ (ที่ได้มาจากหน้า General Settings ของ Firebase)
-      const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "word-hunter-ar-hunsa.firebaseapp.com",
-        projectId: "word-hunter-ar-hunsa",
-        storageBucket: "word-hunter-ar-hunsa.appspot.com",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID"
-      };
+        // รวบรวมฟังก์ชัน Firebase ทั้งหมดเข้าเป็น Object เดียว ป้องกัน Global Scope Pollution (ตามกฎเหล็ก)
+        window.WordHunterFirebase = {
+            app: null,
+            db: null,
+            currentRoomId: null,
+            unsubscribeLobby: null,
+            isProcessing: false, // ป้องกันบัค Spam Clicks (Race Condition)
 
-      // เริ่มต้นเชื่อมต่อฐานข้อมูล
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
+            config: {
+                apiKey: "AIzaSyAKAPwkT-WefQ4KWCLrdLJtl7DHfNgmdq8",
+                authDomain: "word-hunter-ar-hunsa.firebaseapp.com",
+                projectId: "word-hunter-ar-hunsa",
+                storageBucket: "word-hunter-ar-hunsa.firebasestorage.app",
+                messagingSenderId: "443417643469",
+                appId: "1:443417643469:web:d41dc7cfe744d8783bdc84",
+                measurementId: "G-FDZ1M84WLL"
+            },
 
-      // 💜 ฟังก์ชันสำหรับปุ่ม "สร้างห้อง"
-      async function createRoom() {
-        if(window.playSound) window.playSound('click');
-        const roomId = Math.floor(100000 + Math.random() * 900000).toString(); // สุ่มเลขห้อง 6 หลัก
-        try {
-          await setDoc(doc(db, "room", roomId), {
-            roomId: roomId,
-            hostId: window.gameState?.player1Name || "player_01",
-            status: "waiting"
-          });
-          window.showToast("สร้างห้องสำเร็จ! รหัสห้องคือ: " + roomId, "✅");
-          // พิมพ์คำสั่งเปลี่ยนหน้าจอหรือแสดงเลขห้องตรงนี้ต่อได้เลย
-        } catch (error) {
-          window.showToast("เกิดข้อผิดพลาด: " + error.message, "❌");
-        }
-      }
+            init: function() {
+                console.log("[Firebase Debug]: 🚀 Initializing Firebase Module...");
+                try {
+                    // หากไม่ได้เปลี่ยนรหัส API จะไม่เชื่อมต่อ ป้องกันเว็บล่ม
+                    if (this.config.apiKey === "YOUR_API_KEY") {
+                        console.warn("[Firebase Debug]: ⚠️ รหัส Firebase ยังเป็นค่าเริ่มต้น ระบบออนไลน์จะไม่ทำงาน แต่โหมดออฟไลน์เล่นได้ปกติ");
+                        return;
+                    }
 
-      // 💗 ฟังก์ชันสำหรับจัดการข้อมูล "เข้าร่วมห้อง"
-      async function processJoinRoom(roomId) {
-        if (!roomId) return;
-        const roomRef = doc(db, "room", roomId);
-        const roomSnap = await getDoc(roomRef);
+                    this.app = initializeApp(this.config);
+                    this.db = getFirestore(this.app);
+                    console.log("[Firebase Debug]: ✅ Firebase Connection Success.");
 
-        if (roomSnap.exists()) {
-          if (roomSnap.data().status === "waiting") {
-            window.hideModal('modal-join-room');
-            window.showToast("เข้าร่วมห้อง " + roomId + " สำเร็จ!", "🤝");
-            // พิมพ์คำสั่งพาเข้าสู่หน้าเล่นเกมกับเพื่อนตรงนี้ต่อได้เลย
-          } else {
-            window.showToast("ห้องนี้เริ่มเล่นไปแล้วครับ", "⏳");
-          }
-        } else {
-          window.showToast("ไม่พบรหัสห้องนี้ในระบบ!", "🔍");
-        }
-      }
+                } catch (error) {
+                    console.warn("[Firebase Debug]: ❌ Firebase Init Error: ", error);
+                }
+            },
 
-      // แสดงหน้าต่าง Prompt Modal
-      function joinRoomPrompt() {
-          if(window.playSound) window.playSound('click');
-          document.getElementById('join-room-input').value = "";
-          window.showModal('modal-join-room');
-      }
+            // อิงตาม Collection "room" จากหน้า Firestore ของคุณ
+            getRoomRef: function(roomId) {
+                return doc(this.db, 'room', roomId);
+            },
 
-      // 🛠️ ผูกฟังก์ชันเข้ากับปุ่มบนหน้าเว็บ
-      window.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('btn-create-room')?.addEventListener('click', createRoom);
-        document.getElementById('btn-join-room')?.addEventListener('click', joinRoomPrompt);
-        
-        // ผูกปุ่มยืนยันรหัสห้องในหน้าต่าง Modal
-        document.getElementById('btn-confirm-join')?.addEventListener('click', () => {
-            if(window.playSound) window.playSound('click');
-            const roomId = document.getElementById('join-room-input').value.trim();
-            if (roomId.length === 6) {
-                processJoinRoom(roomId);
-            } else {
-                window.showToast("กรุณากรอกรหัสให้ครบ 6 หลัก", "⚠️");
+            // ถอดตัวดักฟัง (Unsubscribe) ทันทีเพื่อป้องกัน Memory Leak
+            cleanup: function() {
+                console.log("[Firebase Debug]: 🧹 Cleaning up Firebase Listeners...");
+                if (this.unsubscribeLobby) {
+                    this.unsubscribeLobby();
+                    this.unsubscribeLobby = null;
+                    console.log("[Firebase Debug]: 🛑 Unsubscribed from Real-time Listener.");
+                }
+            },
+
+            createRoom: async function() {
+                if (window.playSound) window.playSound('click');
+                if (this.isProcessing) {
+                    console.log("[Firebase Debug]: ⏳ Prevented Spam Click (Create Room)");
+                    return; 
+                }
+
+                if (!this.db) {
+                    if (window.showToast) window.showToast("กรุณาตรวจสอบการตั้งค่า Firebase Config!", "❌");
+                    return;
+                }
+
+                const usernameInput = document.getElementById('initial-username');
+                const hostId = usernameInput ? usernameInput.value.trim() : "";
+                
+                if (!hostId) {
+                    if (window.showToast) window.showToast("โปรดลงชื่อผู้เล่นก่อนสร้างห้อง!", "⚠️");
+                    if (window.showModal) window.showModal('modal-initial-signup');
+                    return;
+                }
+
+                this.isProcessing = true;
+                console.log("[Firebase Debug]: 👑 Starting Create Room Process for Host:", hostId);
+                if (window.showToast) window.showToast("กำลังสุ่มรหัสสร้างห้อง...", "⏳");
+
+                try {
+                    let roomId;
+                    let isUnique = false;
+                    let roomRef;
+
+                    // ป้องกัน Race Condition: หาห้องว่างที่แท้จริง
+                    while (!isUnique) {
+                        roomId = Math.floor(100000 + Math.random() * 900000).toString();
+                        console.log(`[Firebase Debug]: 🎲 Checking Room ID: ${roomId}`);
+                        roomRef = this.getRoomRef(roomId);
+                        const snap = await getDoc(roomRef);
+                        if (!snap.exists()) {
+                            isUnique = true; 
+                        }
+                    }
+
+                    console.log(`[Firebase Debug]: 📝 Saving Room ${roomId} to Firestore...`);
+                    await setDoc(roomRef, {
+                        roomId: roomId,
+                        hostId: hostId,
+                        status: "waiting",
+                        createdAt: new Date().toISOString()
+                    });
+
+                    this.currentRoomId = roomId;
+                    document.getElementById('lobby-room-id').innerText = roomId;
+                    document.getElementById('lobby-status-text').innerText = "กำลังรอผู้เล่น...";
+                    if (window.showModal) window.showModal('modal-lobby');
+                    console.log("[Firebase Debug]: 📺 Lobby Modal Opened.");
+
+                    // สร้าง Real-time Listener รอดูคนเข้าห้อง
+                    this.cleanup(); 
+                    console.log("[Firebase Debug]: 👂 Listening for room updates (onSnapshot)...");
+                    
+                    this.unsubscribeLobby = onSnapshot(roomRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            console.log("[Firebase Debug]: 📥 Room Update Received:", data);
+                            
+                            if (data.status === "playing") {
+                                console.log("[Firebase Debug]: 🚀 Status is 'playing'. Starting game sequence...");
+                                document.getElementById('lobby-status-text').innerText = "เพื่อนเข้าห้องแล้ว! กำลังเริ่มเกม...";
+                                
+                                // ปิดตัวดักฟังทันที
+                                this.cleanup();
+                                
+                                setTimeout(() => {
+                                    if (window.hideModal) window.hideModal('modal-lobby');
+                                    if (window.runStartSequence) window.runStartSequence('kahoot'); 
+                                }, 1500);
+                            }
+                        }
+                    }, (error) => {
+                        console.error("[Firebase Debug]: 🚨 onSnapshot Error:", error);
+                        this.cleanup();
+                    });
+
+                } catch (error) {
+                    console.error("[Firebase Debug]: ❌ Create Room Firebase Error:", error);
+                    if (window.showToast) window.showToast("สร้างห้องล้มเหลว (ลองรันผ่าน Live Server)", "❌");
+                } finally {
+                    this.isProcessing = false;
+                }
+            },
+
+            cancelRoom: async function() {
+                if (window.playSound) window.playSound('click');
+                console.log("[Firebase Debug]: 🛑 Canceling Room...");
+
+                if (window.hideModal) window.hideModal('modal-lobby');
+                this.cleanup();
+
+                if (this.currentRoomId && this.db) {
+                    try {
+                        console.log(`[Firebase Debug]: 🗑️ Deleting Room Document ${this.currentRoomId}...`);
+                        const roomRef = this.getRoomRef(this.currentRoomId);
+                        await deleteDoc(roomRef);
+                        if (window.showToast) window.showToast("ยกเลิกการสร้างห้องแล้ว", "🗑️");
+                        console.log("[Firebase Debug]: ✅ Room successfully deleted.");
+                    } catch (error) {
+                        console.error("[Firebase Debug]: ❌ Cancel Room Error:", error);
+                    }
+                }
+                this.currentRoomId = null;
+            },
+
+            openJoinModal: function() {
+                if (window.playSound) window.playSound('click');
+                
+                if (!this.db) {
+                    if (window.showToast) window.showToast("กรุณาตรวจสอบการตั้งค่า Firebase Config!", "❌");
+                    return;
+                }
+                
+                const usernameInput = document.getElementById('initial-username');
+                const playerName = usernameInput ? usernameInput.value.trim() : "";
+                
+                if (!playerName) {
+                    if (window.showToast) window.showToast("โปรดลงชื่อผู้เล่นก่อนเข้าร่วมห้อง!", "⚠️");
+                    if (window.showModal) window.showModal('modal-initial-signup');
+                    return;
+                }
+
+                document.getElementById('join-room-input').value = "";
+                if (window.showModal) window.showModal('modal-join-room');
+                console.log("[Firebase Debug]: 🤝 Join Modal Opened.");
+            },
+
+            submitJoinRoom: function() {
+                if (window.playSound) window.playSound('click');
+                const roomId = document.getElementById('join-room-input').value.trim();
+                if (roomId.length === 6 && !isNaN(roomId)) {
+                    this.processJoinRoom(roomId);
+                } else {
+                    if (window.showToast) window.showToast("กรุณากรอกรหัสตัวเลขให้ครบ 6 หลัก", "⚠️");
+                }
+            },
+
+            processJoinRoom: async function(roomId) {
+                if (this.isProcessing) {
+                    console.log("[Firebase Debug]: ⏳ Prevented Spam Click (Join Room)");
+                    return; 
+                }
+                this.isProcessing = true;
+                
+                console.log(`[Firebase Debug]: 🔍 Processing Join Room for ID: ${roomId}...`);
+                if (window.showToast) window.showToast("กำลังค้นหาห้อง...", "🔍");
+
+                const usernameInput = document.getElementById('initial-username');
+                const playerName = usernameInput ? usernameInput.value.trim() : "Player2";
+
+                try {
+                    const roomRef = this.getRoomRef(roomId);
+                    console.log("[Firebase Debug]: 📡 Fetching room document...");
+                    const roomSnap = await getDoc(roomRef);
+
+                    if (roomSnap.exists()) {
+                        const roomData = roomSnap.data();
+                        console.log("[Firebase Debug]: 📄 Room Data Found:", roomData);
+                        
+                        if (roomData.status === "waiting") {
+                            console.log("[Firebase Debug]: ✏️ Updating room status to 'playing'...");
+                            await updateDoc(roomRef, {
+                                status: "playing",
+                                joinerId: playerName
+                            });
+
+                            if (window.hideModal) window.hideModal('modal-join-room');
+                            if (window.showToast) window.showToast("เข้าร่วมห้อง " + roomId + " สำเร็จ!", "🤝");
+                            console.log("[Firebase Debug]: ✅ Join Success. Starting game sequence...");
+                            
+                            // [แก้ไข Bug]: หน่วงเวลา 1.5 วิ ให้ผู้เล่นที่กด Join เข้าเกมพร้อมกันกับฝั่ง Host ป้องกันการได้เปรียบ
+                            setTimeout(() => {
+                                if (window.runStartSequence) {
+                                    window.runStartSequence('kahoot'); 
+                                }
+                            }, 1500);
+
+                        } else {
+                            console.warn("[Firebase Debug]: ⚠️ Room is not waiting. Current status:", roomData.status);
+                            if (window.showToast) window.showToast("ห้องนี้กำลังเล่นอยู่หรือปิดไปแล้วครับ", "⏳");
+                        }
+                    } else {
+                        console.warn("[Firebase Debug]: ⚠️ Room not found in database.");
+                        if (window.showToast) window.showToast("ไม่พบรหัสห้องนี้ในระบบ!", "❌");
+                    }
+                } catch (error) {
+                    console.error("[Firebase Debug]: ❌ Firebase Join Room Error:", error);
+                    if (window.showToast) window.showToast("เข้าร่วมห้องล้มเหลว (ลองรันผ่าน Live Server)", "❌");
+                } finally {
+                    this.isProcessing = false;
+                }
             }
-        });
-      });
+        };
+
+        // เริ่มต้นการทำงาน Firebase ทันทีที่โหลดไฟล์
+        window.WordHunterFirebase.init();
+
+        // 🌟 ส่งออกคำสั่งให้ HTML เรียกใช้ได้อย่างอิสระ ผ่าน Onclick ได้ 100% (เขียนทับ Fallback สคริปต์ด้านบน)
+        window.createRoomFirebase = () => window.WordHunterFirebase.createRoom();
+        window.joinRoomFirebase = () => window.WordHunterFirebase.openJoinModal();
+
     </script>
 </body>
 </html>
