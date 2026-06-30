@@ -152,12 +152,12 @@
                             <span class="font-black text-lg md:text-xl">เล่นคนเดียว<br><span class="text-sm">(จิ้มตอบ 4 สี)</span></span>
                         </button>
 
-                        <button onclick="openCreateRoomModal()" class="bg-gradient-to-br from-purple-500 to-fuchsia-600 hover:from-purple-400 hover:to-fuchsia-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
+                        <button id="btn-create-room" class="bg-gradient-to-br from-purple-500 to-fuchsia-600 hover:from-purple-400 hover:to-fuchsia-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">👑</span>
                             <span class="font-black text-lg md:text-xl">สร้างห้อง<br><span class="text-sm">(เล่นกับเพื่อน)</span></span>
                         </button>
 
-                        <button onclick="openJoinRoomModal()" class="bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
+                        <button id="btn-join-room" class="bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">🤝</span>
                             <span class="font-black text-lg md:text-xl">เข้าร่วมห้อง<br><span class="text-sm">(ใส่รหัส)</span></span>
                         </button>
@@ -446,6 +446,19 @@
             </div>
         </div>
     </div>
+    
+    <!-- MODAL: JOIN ROOM PROMPT (Custom UI แทน prompt ของระบบ) -->
+    <div id="modal-join-room" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-cyan-500 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl relative">
+            <button onclick="hideModal('modal-join-room')" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
+            <h3 class="text-2xl md:text-3xl font-bold text-white mb-4">เข้าร่วมห้องเพื่อน</h3>
+            <p class="text-sm md:text-base text-slate-400 mb-4">กรุณากรอกรหัสห้อง 6 หลักเพื่อเข้าร่วม:</p>
+            <input type="text" id="join-room-input" maxlength="6" class="w-full bg-slate-950 text-white font-bold text-center text-3xl tracking-[0.5em] px-4 py-4 rounded-xl border border-white/10 focus:outline-none focus:border-cyan-500 mb-6" placeholder="------">
+            <button id="btn-confirm-join" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl">
+                เข้าร่วมเลย!
+            </button>
+        </div>
+    </div>
 
     <div id="toast-notification" class="fixed bottom-6 right-6 z-[300] bg-slate-900 border-2 border-amber-500/50 text-white font-bold rounded-xl md:rounded-2xl px-4 py-3 md:px-6 md:py-4 shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2 md:gap-3 max-w-[90vw]">
         <span class="text-xl md:text-3xl shrink-0" id="toast-icon">✨</span>
@@ -538,7 +551,7 @@
             const offsetY = (rect.height - actualHeight) / 2;
             
             const x = e.clientX - rect.left - offsetX;
-            const y = e.clientY - rect.top - offsetY; // [แก้ไข Bug]: เปลี่ยน 'top' เป็น 'rect.top' ป้องกันค่าพิกัดเป็น NaN ที่ทำให้การใช้เมาส์/จิ้มบนจอพัง
+            const y = e.clientY - rect.top - offsetY; 
             
             const canvasX = x / scale;
             const canvasY = y / scale;
@@ -715,9 +728,6 @@
             }
         }
 
-        window.openCreateRoomModal = function() { playSound('click'); showToast("ระบบเล่นพร้อมกัน (Multiplayer) ถูกปิดการใช้งานชั่วคราว", "🚧"); }
-        window.openJoinRoomModal = function() { playSound('click'); showToast("ระบบเล่นพร้อมกัน (Multiplayer) ถูกปิดการใช้งานชั่วคราว", "🚧"); }
-
         window.switchToKahootUI = function() {
             document.getElementById('current-play-mode').innerText = "โหมด 4 ตัวเลือก (คลิกตอบ)";
             const arContainer = document.getElementById('ar-container');
@@ -754,7 +764,7 @@
                 videoElement.setAttribute('autoplay', '');
                 videoElement.setAttribute('muted', '');
                 videoElement.setAttribute('playsinline', '');
-                videoElement.muted = true; // บังคับเพื่อแก้บั๊ก Safari
+                videoElement.muted = true; 
                 videoElement.srcObject = stream;
                 
                 return new Promise((resolve) => {
@@ -763,7 +773,7 @@
                         if (videoElement.readyState >= 2 && videoElement.videoWidth > 0) {
                             videoElement.play().catch(e => console.warn("Autoplay Prevented:", e));
                             resolve(true);
-                        } else if (attempts < 100) { // รอให้โหลดพิกเซลวิดีโอ (10 วิหลังจากการกดอนุญาต)
+                        } else if (attempts < 100) { 
                             attempts++;
                             setTimeout(checkReady, 100);
                         } else {
@@ -797,7 +807,6 @@
         }
 
         window.runStartSequence = async function(mode) {
-            // ป้องกันปุ่มเบิ้ล 
             if (gameState.gameActive || isLoopRunning) return; 
 
             if (!gameState.currentUser) {
@@ -815,7 +824,6 @@
             gameConfig.difficulty = diff;
             
             let cat = document.getElementById('vocab-category-input').value;
-            // ดักป้องกันกรณีเปลี่ยนหมวดหมู่แต่หมวดเดิมไม่มีอยู่จริง
             if (!cat || !vocabEngine[diff].categories[cat]) {
                 cat = Object.keys(vocabEngine[diff].categories)[0];
             }
@@ -949,7 +957,7 @@
             title.innerText = `หมดเวลา!`;
             title.className = "text-4xl md:text-7xl font-black text-rose-500";
             
-            // [แก้ไข Bug]: เฉลยคำแปลที่ถูกต้องให้ชัดเจนเมื่อหมดเวลา
+            const isEnTh = gameConfig.questionLang === 'en-th';
             document.getElementById('feedback-detail').innerText = `เฉลย: "${gameState.currentQuestion.en}" = "${gameState.currentQuestion.th}" (-5 แต้ม)`;
 
             popup.classList.remove('hidden'); card.classList.remove('scale-50', 'opacity-0'); card.classList.add('scale-100', 'opacity-100');
@@ -984,7 +992,6 @@
             const distractors = shuffleArray(activeVocabList.filter(v => v.en !== correctVocab.en));
             let selection = [correctVocab];
             
-            // ดักป้องกัน undefined หากหมวดหมู่มีจำนวนคำศัพท์ไม่เพียงพอ
             for (let i = 0; i < targetLength - 1; i++) {
                 if (distractors[i]) {
                     selection.push(distractors[i]);
@@ -1135,7 +1142,6 @@
                 const lShoulder = kp.find(k => k.name === 'left_shoulder'); const rShoulder = kp.find(k => k.name === 'right_shoulder');
 
                 if (gameConfig.trackingTarget === 'all' || gameConfig.trackingTarget === 'hands') {
-                    // [แก้ไข Feature]: ปรับพิกัดแกน Y ขึ้น 25px เพื่อจำลองให้กลายเป็นจุด "ปลายนิ้วชี้" และเปลี่ยนป้ายกำกับ
                     if (lWrist && lWrist.score > 0.3) touchPoints.push({ x: lWrist.x, y: lWrist.y - 25, label: "นิ้วชี้ซ้าย" });
                     if (rWrist && rWrist.score > 0.3) touchPoints.push({ x: rWrist.x, y: rWrist.y - 25, label: "นิ้วชี้ขวา" });
                 }
@@ -1197,7 +1203,7 @@
         }
 
         function registerDynamicTap(target) {
-            if (!gameState.gameActive) return; // [แก้ไข Bug]: ดักการคลิกซ้ำซ้อน (Double Click/Touch) ที่ทำให้คะแนนบวกเบิ้ลและคิวเกมรวน
+            if (!gameState.gameActive) return; 
             gameState.gameActive = false; 
             const duration = (Date.now() - gameState.lastTapTime) / 1000;
             gameState.tapTimes.push(duration); gameState.lastTapTime = Date.now(); gameState.successfulTaps++;
@@ -1217,7 +1223,6 @@
                 playSound('fail'); const deduction = 5; gameState.scoreP1 = Math.max(0, gameState.scoreP1 - deduction);
                 document.getElementById('feedback-emoji').innerText = "❌";
                 const title = document.getElementById('feedback-title'); title.innerText = `ผิดนะจ๊ะ!`; title.className = "text-4xl md:text-7xl font-black text-rose-500";
-                // [แก้ไข Bug]: เปลี่ยนเป็น innerHTML และใช้ <br> แทน \n เพราะใน HTML ปกติ \n จะไม่เว้นบรรทัด ทำให้ข้อความติดกันอ่านยาก
                 document.getElementById('feedback-detail').innerHTML = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}"<br><span class="text-emerald-400 text-2xl md:text-4xl mt-2 block">(เฉลยข้อนี้: ${isEnTh ? gameState.currentQuestion.th : gameState.currentQuestion.en})</span><br>หัก ${deduction} แต้ม`;
             }
 
@@ -1346,7 +1351,7 @@
         function renderLeaderboardUI(dataArray = null) {
             const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = '';
             let leaderboard = dataArray || JSON.parse(localStorage.getItem('word_hunter_leaderboard') || '[]');
-            if (leaderboard.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic font-bold">ยังไม่มีข้อมูลในระบบ เป็นคนแรกที่พิชิตสถิติเลย!</td></tr>`; return; }
+            if (leaderboard.length === 0) { tbody.innerHTML = `<tr><td colspan=\"5\" class=\"p-6 text-center text-slate-400 italic font-bold\">ยังไม่มีข้อมูลในระบบ เป็นคนแรกที่พิชิตสถิติเลย!</td></tr>`; return; }
             leaderboard.forEach((record, index) => {
                 let rankIcon = `${index + 1}`; if (index === 0) rankIcon = '🥇'; else if (index === 1) rankIcon = '🥈'; else if (index === 2) rankIcon = '🥉';
                 const tr = document.createElement('tr'); tr.className = "border-b border-white/5 hover:bg-slate-800/40 transition-colors";
@@ -1396,6 +1401,86 @@
             if (savedUser) { try { const profile = JSON.parse(savedUser); document.getElementById('initial-username').value = profile.username || ""; document.getElementById('initial-grade').value = profile.grade || ""; } catch(e) {} }
             window.showModal('modal-initial-signup');
         });
+    </script>
+    
+    <!-- ดึงเครื่องมือจาก Firebase SDK มาใช้งาน -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+      // 🔑 ใส่กุญแจเชื่อมต่อของคุณตรงนี้ (ที่ได้มาจากหน้า General Settings ของ Firebase)
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "word-hunter-ar-hunsa.firebaseapp.com",
+        projectId: "word-hunter-ar-hunsa",
+        storageBucket: "word-hunter-ar-hunsa.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
+
+      // เริ่มต้นเชื่อมต่อฐานข้อมูล
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // 💜 ฟังก์ชันสำหรับปุ่ม "สร้างห้อง"
+      async function createRoom() {
+        if(window.playSound) window.playSound('click');
+        const roomId = Math.floor(100000 + Math.random() * 900000).toString(); // สุ่มเลขห้อง 6 หลัก
+        try {
+          await setDoc(doc(db, "room", roomId), {
+            roomId: roomId,
+            hostId: window.gameState?.player1Name || "player_01",
+            status: "waiting"
+          });
+          window.showToast("สร้างห้องสำเร็จ! รหัสห้องคือ: " + roomId, "✅");
+          // พิมพ์คำสั่งเปลี่ยนหน้าจอหรือแสดงเลขห้องตรงนี้ต่อได้เลย
+        } catch (error) {
+          window.showToast("เกิดข้อผิดพลาด: " + error.message, "❌");
+        }
+      }
+
+      // 💗 ฟังก์ชันสำหรับจัดการข้อมูล "เข้าร่วมห้อง"
+      async function processJoinRoom(roomId) {
+        if (!roomId) return;
+        const roomRef = doc(db, "room", roomId);
+        const roomSnap = await getDoc(roomRef);
+
+        if (roomSnap.exists()) {
+          if (roomSnap.data().status === "waiting") {
+            window.hideModal('modal-join-room');
+            window.showToast("เข้าร่วมห้อง " + roomId + " สำเร็จ!", "🤝");
+            // พิมพ์คำสั่งพาเข้าสู่หน้าเล่นเกมกับเพื่อนตรงนี้ต่อได้เลย
+          } else {
+            window.showToast("ห้องนี้เริ่มเล่นไปแล้วครับ", "⏳");
+          }
+        } else {
+          window.showToast("ไม่พบรหัสห้องนี้ในระบบ!", "🔍");
+        }
+      }
+
+      // แสดงหน้าต่าง Prompt Modal
+      function joinRoomPrompt() {
+          if(window.playSound) window.playSound('click');
+          document.getElementById('join-room-input').value = "";
+          window.showModal('modal-join-room');
+      }
+
+      // 🛠️ ผูกฟังก์ชันเข้ากับปุ่มบนหน้าเว็บ
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('btn-create-room')?.addEventListener('click', createRoom);
+        document.getElementById('btn-join-room')?.addEventListener('click', joinRoomPrompt);
+        
+        // ผูกปุ่มยืนยันรหัสห้องในหน้าต่าง Modal
+        document.getElementById('btn-confirm-join')?.addEventListener('click', () => {
+            if(window.playSound) window.playSound('click');
+            const roomId = document.getElementById('join-room-input').value.trim();
+            if (roomId.length === 6) {
+                processJoinRoom(roomId);
+            } else {
+                window.showToast("กรุณากรอกรหัสให้ครบ 6 หลัก", "⚠️");
+            }
+        });
+      });
     </script>
 </body>
 </html>
