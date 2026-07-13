@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Words Hunter AR Hunsa</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;900&family=Fredoka+One&display=swap" rel="stylesheet">
     
+    <!-- TensorFlow.js & MediaPipe Pose -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
 
@@ -50,9 +53,6 @@
             50% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .animate-pop-in {
-            animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
         .kahoot-btn:active {
             transform: scale(0.95);
         }
@@ -66,52 +66,42 @@
             -ms-user-select: none;
             user-select: none;
         }
-        .avatar-box {
+
+        /* Styles for Avatar Selection */
+        .avatar-option {
             cursor: pointer;
             transition: all 0.2s;
+            filter: grayscale(100%) opacity(0.3);
         }
-        .avatar-box.active {
-            border-color: #f59e0b;
-            background-color: rgba(245, 158, 11, 0.2);
+        .avatar-option:hover {
+            filter: grayscale(50%) opacity(0.8);
             transform: scale(1.1);
         }
-        @keyframes kahoot-bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-        .player-badge {
-            animation: kahoot-bounce 2s infinite ease-in-out;
+        .avatar-option.selected {
+            filter: grayscale(0%) opacity(1);
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.8);
+            border-color: #f59e0b;
+            background-color: rgba(245, 158, 11, 0.2);
         }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center p-2 md:p-4 text-slate-100 no-select">
 
+    <!-- ================= 1. MODAL: SIGN UP ================= -->
     <div id="modal-initial-signup" class="fixed inset-0 bg-slate-950/95 z-[200] flex items-center justify-center p-4">
         <div class="bg-gradient-to-b from-[#261619] to-[#0f090a] border-4 border-amber-500 rounded-3xl max-w-xl w-full shadow-2xl overflow-y-auto max-h-[95vh] text-center flex flex-col relative glow-active">
-            <div class="relative w-full h-32 bg-slate-900 shrink-0">
-                <img src="image_93433a.png" alt="ประตูชุมพล" class="w-full h-full object-cover opacity-80 border-b-4 border-amber-500" onerror="this.src='https://placehold.co/600x300/451a03/f59e0b?text=Words+Hunter+AR+Hunsa'">
+            <div class="relative w-full h-40 md:h-48 bg-slate-900 shrink-0">
+                <img src="https://placehold.co/600x300/451a03/f59e0b?text=Words+Hunter+AR+Hunsa" alt="Cover" class="w-full h-full object-cover opacity-80 border-b-4 border-amber-500">
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                <div class="absolute bottom-3 left-0 right-0 px-4">
-                    <h2 class="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-                        สร้างโปรไฟล์ผู้เข้าทดสอบถาวร
+                <div class="absolute bottom-4 left-0 right-0 px-4">
+                    <h2 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                        ลงชื่อเข้าสู่เกม
                     </h2>
                 </div>
             </div>
             <div class="p-6 md:p-8 space-y-4">
-                <p class="text-xs text-slate-300">สร้างไอดีผูกเข้ากับคลาวด์ถาวรอัตโนมัติ (ไม่ต้องกรอกรหัสผ่าน)</p>
-                
-                <div class="text-left">
-                    <label class="block text-amber-400 font-bold text-sm mb-2">🎭 เลือกรูปอวตารของคุณ:</label>
-                    <div class="grid grid-cols-6 gap-2 bg-slate-950 p-3 rounded-2xl border border-white/5" id="signup-avatar-grid">
-                        <div onclick="window.selectAvatar('🦊', 'signup')" id="av-signup-🦊" class="avatar-box active border-2 border-transparent rounded-xl p-2 text-center text-2xl md:text-3xl">🦊</div>
-                        <div onclick="window.selectAvatar('🥷', 'signup')" id="av-signup-🥷" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-2xl md:text-3xl">🥷</div>
-                        <div onclick="window.selectAvatar('🧑‍💻', 'signup')" id="av-signup-🧑‍💻" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-2xl md:text-3xl">🧑‍💻</div>
-                        <div onclick="window.selectAvatar('🐼', 'signup')" id="av-signup-🐼" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-2xl md:text-3xl">🐼</div>
-                        <div onclick="window.selectAvatar('🦁', 'signup')" id="av-signup-🦁" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-2xl md:text-3xl">🦁</div>
-                        <div onclick="window.selectAvatar('🧙‍♂️', 'signup')" id="av-signup-🧙‍♂️" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-2xl md:text-3xl">🧙‍♂️</div>
-                    </div>
-                </div>
-
+                <p class="text-sm text-slate-300 font-bold">ยินดีต้อนรับสู่ Words Hunter! (กรอกชื่อเพื่อเข้าเล่นและบันทึกสถิติลงคลาวด์)</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left text-sm">
                     <div>
                         <label class="block text-amber-400 font-bold mb-1">🧑‍🎓 ชื่อผู้เล่น:</label>
@@ -122,15 +112,26 @@
                         <input type="text" id="initial-grade" placeholder="เช่น ป.4/2..." class="w-full bg-slate-950 text-white font-semibold px-4 py-3 rounded-xl border border-amber-500/30 focus:outline-none focus:border-amber-500">
                     </div>
                 </div>
-                <button onclick="executeInitialSignup()" class="mt-4 w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black py-4 rounded-xl shadow-xl transition-all text-xl transform hover:scale-[1.03]">
-                    บันทึกข้อมูลและเข้าสู่เกม!
+                
+                <!-- Avatar Selector -->
+                <div class="text-left mt-2">
+                    <label class="block text-amber-400 font-bold mb-2 text-sm">🎭 เลือกรูปโปรไฟล์ประจำตัว:</label>
+                    <div id="avatar-container-signup" class="flex flex-wrap gap-2 justify-center bg-slate-900/80 p-4 rounded-xl border border-white/10 shadow-inner">
+                        <!-- Avatars generated via JS -->
+                    </div>
+                </div>
+
+                <button onclick="window.WordHunterFirebase.executeInitialSignup()" class="mt-4 w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black py-4 rounded-xl shadow-xl transition-all text-xl transform hover:scale-[1.03] flex justify-center items-center gap-2">
+                    🕹️ เข้าสู่เกม!
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- ================= MAIN LOBBY CONTAINER ================= -->
     <div id="game-container" class="w-full h-full max-w-7xl glass-card-amber rounded-3xl shadow-2xl overflow-hidden relative border border-amber-500/20 flex flex-col">
         
+        <!-- HEADER -->
         <div class="historic-wall-pattern p-4 md:p-6 text-center border-b-4 border-amber-500 relative shrink-0">
             <h1 class="text-4xl md:text-5xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] tracking-wide">
                 Words Hunter AR Hunsa
@@ -140,22 +141,26 @@
             </p>
         </div>
 
+        <!-- STATUS BAR -->
         <div class="bg-slate-950/80 border-b border-white/5 px-4 md:px-6 py-3 flex flex-wrap justify-between items-center text-xs md:text-sm font-bold gap-4 shrink-0">
             <div class="flex items-center gap-3">
                 <span id="user-status-dot" class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+                <span id="topbar-avatar" class="text-2xl hidden drop-shadow-md">👨‍🚀</span>
                 <span id="user-display-name" class="text-amber-200 text-sm md:text-base truncate max-w-[150px] md:max-w-xs">รอการเชื่อมต่อ...</span>
             </div>
             <div class="flex gap-3 md:gap-4">
-                <button onclick="toggleAuthModal()" class="text-cyan-400 hover:text-cyan-300 transition underline">🔑 แก้ไขโปรไฟล์/รูป</button>
+                <button onclick="toggleAuthModal()" class="text-cyan-400 hover:text-cyan-300 transition underline">🔑 เปลี่ยนชื่อ/โปรไฟล์</button>
                 <button onclick="toggleTeacherConsole()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 md:px-5 py-1.5 rounded-lg font-black transition shadow-lg flex items-center gap-2">
                     ⚙️ ตั้งค่า
                 </button>
             </div>
         </div>
 
+        <!-- LOBBY SCREEN -->
         <div id="screen-lobby" class="p-4 md:p-10 flex flex-col items-center flex-1 overflow-y-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 w-full max-w-6xl mb-8">
                 
+                <!-- MODE SELECTION -->
                 <div class="bg-slate-950/60 rounded-3xl border border-white/5 p-5 md:p-6 text-left shadow-xl flex flex-col justify-center h-full">
                     <h3 class="text-2xl md:text-3xl font-black text-amber-400 mb-4 md:mb-6 pb-3 border-b border-white/10 text-center">
                         🎮 เลือกโหมดการเล่น
@@ -184,6 +189,7 @@
                     </div>
                 </div>
 
+                <!-- AI TUTOR -->
                 <div class="bg-slate-950/60 rounded-3xl border border-white/5 p-5 md:p-6 text-left flex flex-col shadow-xl h-full">
                     <h3 class="text-xl md:text-2xl font-black text-cyan-400 mb-2 pb-3 border-b border-white/10 flex items-center gap-2">
                         💬 ติวเตอร์ย่าโม AI
@@ -199,44 +205,40 @@
                 </div>
             </div>
 
+            <!-- LEADERBOARD DISPLAY -->
             <div class="w-full max-w-6xl bg-slate-950/40 border border-white/10 rounded-3xl p-5 md:p-6 shadow-lg text-left">
-                <div class="flex flex-wrap justify-between items-center gap-4 mb-4 pb-3 border-b border-white/5">
-                    <h3 class="text-xl md:text-2xl font-black text-amber-400 flex items-center gap-2">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 pb-3 border-b border-white/5 gap-4">
+                    <h3 class="text-xl md:text-2xl font-black text-amber-400 flex items-center gap-2 shrink-0">
                         🏆 กระดานผู้นำระดับชาติ (Top 10)
                         <span id="lb-sync-status" class="text-[10px] md:text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/50 animate-pulse hidden">Live</span>
                     </h3>
                     
-                    <div class="flex flex-wrap gap-2 text-xs md:text-sm">
-                        <select id="filter-difficulty" onchange="window.WordHunterFirebase.loadGlobalLeaderboard()" class="bg-slate-900 border border-white/10 text-white font-bold px-3 py-1.5 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer">
-                            <option value="🟢 A1 (Beginner)" selected>🟢 A1 (Beginner)</option>
-                            <option value="🟡 A2 (Elementary)">🟡 A2 (Elementary)</option>
-                            <option value="🟠 B1 (Intermediate)">🟠 B1 (Intermediate)</option>
-                            <option value="🔴 B2 (Upper-Intermediate)">🔴 B2 (Upper-Intermediate)</option>
+                    <!-- โซนตัวกรองคะแนน (Filter Controls) -->
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <select id="lb-filter-diff" onchange="window.updateLeaderboardCategoryFilter()" class="bg-slate-800 border border-white/20 text-amber-400 px-3 py-1.5 rounded-lg font-bold focus:outline-none text-xs md:text-sm w-full sm:w-auto">
+                            <option value="A1" selected>🟢 A1 (Beginner)</option>
+                            <option value="A2">🟡 A2 (Elementary)</option>
+                            <option value="B1">🟠 B1 (Intermediate)</option>
+                            <option value="B2">🔴 B2 (Upper-Intermediate)</option>
                         </select>
-                        <select id="filter-category" onchange="window.WordHunterFirebase.loadGlobalLeaderboard()" class="bg-slate-900 border border-white/10 text-white font-bold px-3 py-1.5 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer">
-                            <option value="📦 คำนามรอบตัว" selected>📦 คำนามรอบตัว</option>
-                            <option value="🏃 คำกริยา">🏃 คำกริยา</option>
-                            <option value="✨ ทั่วไป">✨ ทั่วไป</option>
-                            <option value="✈️ ชีวิตประจำวัน">✈️ ชีวิตประจำวัน</option>
-                            <option value="🎨 คำคุณศัพท์">🎨 คำคุณศัพท์</option>
-                            <option value="🏃 กริยาวิชาการ">🏃 กริยาวิชาการ</option>
-                            <option value="📦 นามวิชาการ">📦 นามวิชาการ</option>
+                        <select id="lb-filter-cat" onchange="window.loadLeaderboardSafe()" class="bg-slate-800 border border-white/20 text-cyan-400 px-3 py-1.5 rounded-lg font-bold focus:outline-none text-xs md:text-sm w-full sm:w-auto">
+                            <!-- จะถูกใส่ค่าอัตโนมัติด้วย JavaScript -->
                         </select>
-                        <button onclick="promptResetLeaderboard()" class="bg-slate-800 hover:bg-rose-600/90 text-slate-300 hover:text-white border border-slate-600 hover:border-rose-500 px-3 py-1.5 rounded-xl transition-all shadow-md font-bold">
-                            🗑️ ล้างบอร์ดจำลอง
+                        <button onclick="window.loadLeaderboardSafe()" class="bg-slate-800 hover:bg-emerald-600/90 text-slate-300 hover:text-white border border-slate-600 hover:border-emerald-500 px-3 py-1.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 font-bold text-xs md:text-sm w-full sm:w-auto">
+                            <span>🔄</span> <span class="hidden sm:inline">โหลดใหม่</span>
                         </button>
                     </div>
                 </div>
-                
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm md:text-base whitespace-nowrap">
                         <thead>
                             <tr class="bg-slate-900/60 text-amber-300 font-black border-b border-white/5">
                                 <th class="p-3 md:p-4 text-center">อันดับ</th>
-                                <th class="p-3 md:p-4">รูปอวตาร</th>
-                                <th class="p-3 md:p-4">ชื่อนักเรียน</th>
-                                <th class="p-3 md:p-4 text-center">ความเร็ว</th>
+                                <th class="p-3 md:p-4">โปรไฟล์ผู้เล่น</th>
+                                <th class="p-3 md:p-4 text-center">ระดับ</th>
+                                <th class="p-3 md:p-4 text-center">หมวดหมู่</th>
                                 <th class="p-3 md:p-4 text-center">คะแนน</th>
+                                <th class="p-3 md:p-4 text-center">เวลา/ข้อ</th>
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body"></tbody>
@@ -246,13 +248,17 @@
         </div>
     </div>
 
+    <!-- ================= SCREEN: PLAYING SESSION (FULL VIEWPORT) ================= -->
     <div id="screen-game" class="hidden fixed inset-0 z-[100] bg-slate-950 flex-col w-full h-full">
+        <!-- HUD Interface -->
         <div class="absolute top-2 md:top-4 left-2 right-2 md:left-4 md:right-4 z-20 flex justify-between items-start pointer-events-none gap-2">
+            <!-- Score Panel -->
             <div class="bg-slate-900/90 backdrop-blur-md border-2 md:border-4 border-amber-500/50 rounded-2xl p-2 md:p-4 text-white flex flex-col shadow-xl pointer-events-auto min-w-[80px] md:min-w-[120px] text-center">
                 <span class="text-[8px] md:text-sm text-amber-400 font-extrabold uppercase tracking-widest mb-0.5 md:mb-1">คะแนนสะสม</span>
                 <span class="text-3xl md:text-5xl font-black text-yellow-400" id="hud-score-p1">0</span>
             </div>
 
+            <!-- QUESTION BOX -->
             <div class="flex-1 max-w-3xl mx-1 md:mx-2 bg-gradient-to-r from-amber-800 via-slate-900 to-amber-800 border-2 md:border-4 border-amber-400 text-white rounded-2xl py-1 px-3 md:py-2 md:px-6 text-center shadow-xl pointer-events-auto glow-active" id="hud-instruction-box">
                 <div class="text-[10px] md:text-sm text-amber-200 font-black uppercase tracking-wider flex justify-center items-center gap-1 md:gap-2 mb-1">
                     <span class="hidden sm:inline">🔍 ค้นหาคำแปล</span>
@@ -263,6 +269,7 @@
                 </div>
             </div>
 
+            <!-- Timer Panel -->
             <div class="bg-slate-900/90 backdrop-blur-md border-2 md:border-4 border-cyan-500/50 rounded-2xl p-2 md:p-4 text-white flex flex-col text-center shadow-xl pointer-events-auto min-w-[80px] md:min-w-[120px]">
                 <span class="text-[8px] md:text-sm text-cyan-400 font-extrabold uppercase tracking-wider mb-0.5 md:mb-1">เวลา</span>
                 <span class="text-3xl md:text-5xl font-black text-rose-400 drop-shadow-md" id="hud-timer">20s</span>
@@ -287,6 +294,7 @@
             <div class="text-xl md:text-4xl font-bold text-white mt-4 md:mt-8 tracking-widest" id="countdown-sub">เตรียมตัวให้พร้อม!</div>
         </div>
 
+        <!-- 1. AR CANVAS -->
         <div id="ar-container" class="relative flex-1 w-full bg-slate-900 flex items-center justify-center overflow-hidden">
             <video id="webcam" autoplay playsinline muted class="absolute pointer-events-none" style="opacity: 0.01; width: 10px; height: 10px;"></video>
             <canvas id="game-canvas" class="max-w-full max-h-full object-contain -scale-x-100" style="touch-action: none;"></canvas>
@@ -301,11 +309,14 @@
             </div>
         </div>
 
+        <!-- 2. KAHOOT STYLE -->
         <div id="kahoot-container" class="hidden flex-1 w-full bg-slate-950 flex-col items-center justify-center p-4 md:p-8 gap-4 md:gap-6 relative overflow-y-auto">
             <div id="kahoot-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 w-full max-w-6xl pb-4 pt-28 md:pt-32">
-                </div>
+                <!-- Dynamic Buttons -->
+            </div>
         </div>
 
+        <!-- Footer Controls -->
         <div class="bg-slate-950 border-t-2 md:border-t-4 border-white/10 p-3 md:p-5 flex flex-wrap justify-between items-center text-white gap-2 md:gap-4 z-50 shrink-0">
             <div class="text-slate-300 font-bold text-xs md:text-xl truncate flex-1">
                 <span class="hidden sm:inline">🏆 โหมด: </span><span id="current-diff-lbl" class="font-black text-amber-400">-</span> | 
@@ -323,6 +334,7 @@
         </div>
     </div>
 
+    <!-- ================= RESULTS DISPLAY SCREEN ================= -->
     <div id="screen-results" class="hidden fixed inset-0 z-[100] bg-slate-950 overflow-y-auto p-4 md:p-10 text-center flex-col items-center justify-center">
         <div class="max-w-4xl w-full mx-auto my-auto py-8">
             <div class="text-6xl md:text-8xl mb-4 md:mb-6 animate-bounce">🏆</div>
@@ -351,6 +363,7 @@
         </div>
     </div>
 
+    <!-- ================= MODAL: GAME SETTINGS ================= -->
     <div id="teacher-console-overlay" class="hidden fixed inset-0 bg-slate-950/80 z-[150] flex justify-end">
         <div class="bg-slate-900 w-full max-w-md h-full shadow-2xl border-l-4 border-amber-500 p-6 overflow-y-auto text-slate-100 flex flex-col justify-between">
             <div>
@@ -358,14 +371,7 @@
                     <h2 class="text-2xl font-black text-amber-400 flex items-center gap-2">⚙️ ตั้งค่าระบบเกม</h2>
                     <button onclick="toggleTeacherConsole()" class="text-slate-400 hover:text-white font-black text-4xl">×</button>
                 </div>
-                <div id="teacher-auth-zone" class="mb-6 bg-slate-950 p-5 rounded-2xl border border-white/10">
-                    <p class="text-base text-slate-300 mb-3 font-semibold">รหัสผ่านเพื่อปลดล็อก (รหัส: 1234)</p>
-                    <div class="flex gap-2">
-                        <input type="password" id="teacher-pass-input" placeholder="รหัสผ่าน..." class="flex-1 bg-slate-800 text-white font-bold px-4 py-3 rounded-xl border border-white/20 focus:outline-none focus:border-amber-500">
-                        <button onclick="verifyTeacherAccess()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-5 py-3 rounded-xl font-black transition-colors">ยืนยัน</button>
-                    </div>
-                </div>
-                <div id="teacher-control-zone" class="hidden space-y-6">
+                <div id="teacher-control-zone" class="space-y-6">
                     <div class="bg-slate-950 p-4 rounded-2xl border border-white/10">
                         <h4 class="text-lg text-yellow-300 font-extrabold mb-3">📚 เลือกระดับและหมวดหมู่</h4>
                         <div class="space-y-3 text-sm md:text-base">
@@ -422,38 +428,37 @@
         </div>
     </div>
 
+    <!-- ================= EDIT PROFILE ================= -->
     <div id="modal-auth" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-amber-500 p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl relative text-white max-h-[95vh] overflow-y-auto">
             <button onclick="toggleAuthModal()" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
-            <h2 class="text-xl md:text-2xl font-black text-amber-400 text-center mb-4 pb-2 border-b border-white/10">🎓 แก้ไขโปรไฟล์ผู้เล่น</h2>
-            
-            <div class="space-y-4 mb-6 text-sm">
+            <h2 class="text-xl md:text-2xl font-black text-amber-400 text-center mb-4 md:mb-6 pb-2 md:pb-3 border-b border-white/10">🎓 แก้ไขข้อมูลผู้เล่น</h2>
+            <div class="space-y-4 md:space-y-5 mb-6 md:mb-8 text-sm md:text-base">
                 <div>
-                    <label class="block text-amber-400 font-bold mb-2">🎭 เปลี่ยนรูปอวตาร:</label>
-                    <div class="grid grid-cols-6 gap-2 bg-slate-950 p-3 rounded-2xl border border-white/5" id="auth-avatar-grid">
-                        <div onclick="window.selectAvatar('🦊', 'auth')" id="av-auth-🦊" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-xl md:text-2xl">🦊</div>
-                        <div onclick="window.selectAvatar('🥷', 'auth')" id="av-auth-🥷" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-xl md:text-2xl">🥷</div>
-                        <div onclick="window.selectAvatar('🧑‍💻', 'auth')" id="av-auth-🧑‍💻" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-xl md:text-2xl">🧑‍💻</div>
-                        <div onclick="window.selectAvatar('🐼', 'auth')" id="av-auth-🐼" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-xl md:text-2xl">🐼</div>
-                        <div onclick="window.selectAvatar('🦁', 'auth')" id="av-auth-🦁" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-xl md:text-2xl">🦁</div>
-                        <div onclick="window.selectAvatar('🧙‍♂️', 'auth')" id="av-auth-🧙‍♂️" class="avatar-box border-2 border-transparent rounded-xl p-2 text-center text-xl md:text-2xl">🧙‍♂️</div>
+                    <label class="block text-slate-300 font-bold mb-1 md:mb-2">ชื่อนักเรียน:</label>
+                    <input type="text" id="auth-username" class="w-full bg-slate-950 text-white font-bold px-3 py-2 md:px-4 md:py-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1 md:mb-2">ระดับชั้น:</label>
+                    <input type="text" id="auth-grade" class="w-full bg-slate-950 text-white font-bold px-3 py-2 md:px-4 md:py-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500">
+                </div>
+                
+                <!-- Avatar Selector Update -->
+                <div class="text-left mt-2">
+                    <label class="block text-amber-400 font-bold mb-2 text-sm">🎭 เปลี่ยนรูปโปรไฟล์ประจำตัว:</label>
+                    <div id="avatar-container-edit" class="flex flex-wrap gap-2 justify-center bg-slate-950 p-4 rounded-xl border border-white/10 shadow-inner">
+                        <!-- Avatars generated via JS -->
                     </div>
                 </div>
-                <div>
-                    <label class="block text-slate-300 font-bold mb-1">ชื่อนักเรียน:</label>
-                    <input type="text" id="auth-username" class="w-full bg-slate-950 text-white font-bold px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-slate-300 font-bold mb-1">ระดับชั้น:</label>
-                    <input type="text" id="auth-grade" class="w-full bg-slate-950 text-white font-bold px-3 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500">
-                </div>
+
             </div>
-            <button onclick="handleLogin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl transition-all text-lg">
-                ยืนยันการเปลี่ยนแปลง
+            <button onclick="window.WordHunterFirebase.updateProfile()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl">
+                💾 บันทึกการเปลี่ยนแปลง
             </button>
         </div>
     </div>
 
+    <!-- QUIT CONFIRM -->
     <div id="modal-quit-confirm" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-white/10 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl">
             <div class="text-5xl md:text-6xl mb-3 md:mb-4 animate-bounce">⚠️</div>
@@ -466,11 +471,12 @@
         </div>
     </div>
 
+    <!-- MODAL: RESET LEADERBOARD CONFIRM -->
     <div id="modal-reset-confirm" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-rose-500 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl">
             <div class="text-5xl md:text-6xl mb-3 md:mb-4 animate-pulse">🗑️</div>
-            <h3 class="text-2xl md:text-3xl font-bold text-white mb-2">ล้างข้อมูลผู้นำสาธารณะ?</h3>
-            <p class="text-sm md:text-base text-slate-400 mb-6 md:mb-8">กระดานผู้นำหมวดนี้จะถูกล้างเคลียร์ค่าใหม่ทั้งหมด ยืนยันหรือไม่?</p>
+            <h3 class="text-2xl md:text-3xl font-bold text-white mb-2">ล้างข้อมูลผู้นำ?</h3>
+            <p class="text-sm md:text-base text-slate-400 mb-6 md:mb-8">กระดานผู้นำทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้ ยืนยันหรือไม่?</p>
             <div class="flex gap-3 md:gap-4 text-base md:text-lg font-bold">
                 <button onclick="executeResetLeaderboard()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-3 md:py-4 rounded-xl transition">ลบข้อมูล</button>
                 <button onclick="hideModal('modal-reset-confirm')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 md:py-4 rounded-xl transition">ยกเลิก</button>
@@ -478,46 +484,65 @@
         </div>
     </div>
     
+    <!-- MODAL: JOIN ROOM PROMPT -->
     <div id="modal-join-room" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-cyan-500 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl relative">
             <button onclick="hideModal('modal-join-room')" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
             <h3 class="text-2xl md:text-3xl font-bold text-white mb-4">เข้าร่วมห้องเพื่อน</h3>
             <p class="text-sm md:text-base text-slate-400 mb-4">กรุณากรอกรหัสห้อง 6 หลักเพื่อเข้าร่วม:</p>
-            <input type="text" id="join-room-input" maxlength="6" class="w-full bg-slate-950 text-white font-bold text-center text-3xl tracking-[0.5em] px-4 py-4 rounded-xl border border-white/10 focus:outline-none focus:border-cyan-500 mb-6" placeholder="------">
-            <button onclick="window.WordHunterFirebase.submitJoinRoom()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl">
+            <input type="text" id="join-room-input" maxlength="6" class="w-full bg-slate-950 text-white font-bold text-center text-4xl tracking-[0.5em] px-4 py-4 rounded-xl border border-white/10 focus:outline-none focus:border-cyan-500 mb-6" placeholder="------">
+            <button onclick="window.submitJoinRoomSafe()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl shadow-lg">
                 เข้าร่วมเลย!
             </button>
         </div>
     </div>
 
-    <div id="modal-lobby" class="hidden fixed inset-0 bg-black/90 z-[250] items-center justify-center p-4">
-        <div class="bg-slate-900 border-4 border-amber-500 p-6 md:p-10 rounded-3xl max-w-lg w-full text-center shadow-[0_0_40px_rgba(245,158,11,0.3)] relative">
-            <div class="flex justify-center mb-4">
-                <span class="relative flex h-14 w-14">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-14 w-14 bg-amber-500 flex items-center justify-center text-2xl">⏳</span>
-                </span>
-            </div>
-            <h3 id="lobby-status-text" class="text-xl md:text-2xl font-black text-white mb-1">กำลังรอผู้ร่วมศึก...</h3>
-            <p class="text-xs text-slate-400 mb-4">บอกรหัสนี้ให้เพื่อนกดเข้าร่วมในโหมดมัลติเพลเยอร์</p>
+    <!-- MODAL: LOBBY WAITING ROOM (Kahoot Style Lobby) -->
+    <div id="modal-lobby" class="hidden fixed inset-0 bg-slate-950/95 z-[250] items-center justify-center p-4">
+        <div class="bg-slate-900 border-4 border-amber-500 p-6 md:p-8 rounded-3xl w-full max-w-3xl text-center shadow-[0_0_40px_rgba(245,158,11,0.3)] relative flex flex-col max-h-[95vh]">
             
-            <div class="bg-slate-950 border border-white/10 rounded-2xl py-4 mb-4">
-                <span id="lobby-room-id" class="text-4xl md:text-5xl font-black text-amber-400 tracking-[0.2em] drop-shadow-md">------</span>
+            <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-6 shrink-0">
+                <h3 class="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500">ห้องพักนักล่าศัพท์</h3>
+                <button onclick="window.cancelRoomSafe()" class="text-slate-400 hover:text-rose-500 font-bold text-4xl transition">×</button>
+            </div>
+            
+            <!-- Room PIN -->
+            <div class="bg-slate-950 border-2 border-white/10 rounded-2xl py-6 mb-8 shrink-0 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
+                <p class="text-sm md:text-base text-slate-400 font-bold mb-2 uppercase tracking-widest">รหัสห้อง (Room PIN)</p>
+                <span id="lobby-room-id" class="text-6xl md:text-8xl font-black text-white tracking-[0.2em] drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">------</span>
             </div>
 
-            <div class="bg-slate-950/80 rounded-2xl p-4 border border-white/5 mb-6 text-left">
-                <div class="text-amber-400 text-xs font-black mb-3 tracking-widest uppercase">🧑‍🤝‍🧑 นักล่าคำศัพท์ที่อยู่ในห้อง:</div>
-                <div id="lobby-player-list" class="flex flex-wrap gap-3 justify-center min-h-[60px]">
+            <!-- VS Area -->
+            <div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mb-8">
+                
+                <!-- Host Slot -->
+                <div class="flex-1 w-full bg-slate-800/50 border-2 border-amber-500/50 rounded-2xl p-6 flex flex-col items-center justify-center relative shadow-inner h-48 md:h-64">
+                    <span class="absolute top-3 left-3 bg-amber-500 text-slate-900 text-xs font-black px-2 py-1 rounded-md uppercase">หัวหน้าห้อง</span>
+                    <div id="lobby-host-avatar" class="text-6xl md:text-8xl mb-3 drop-shadow-xl animate-bounce">⏳</div>
+                    <div id="lobby-host-name" class="text-xl md:text-2xl font-bold text-white truncate w-full px-2">กำลังรอ...</div>
+                </div>
+
+                <!-- VS Badge -->
+                <div class="shrink-0 flex items-center justify-center">
+                    <div class="w-16 h-16 md:w-20 md:h-20 bg-rose-600 rounded-full flex items-center justify-center text-2xl md:text-3xl font-black text-white border-4 border-slate-900 shadow-[0_0_20px_rgba(225,29,72,0.8)] z-10 transform -rotate-12">
+                        VS
                     </div>
+                </div>
+
+                <!-- Joiner Slot -->
+                <div class="flex-1 w-full bg-slate-800/50 border-2 border-cyan-500/50 rounded-2xl p-6 flex flex-col items-center justify-center relative shadow-inner h-48 md:h-64">
+                    <span class="absolute top-3 right-3 bg-cyan-500 text-slate-900 text-xs font-black px-2 py-1 rounded-md uppercase">ผู้ท้าชิง</span>
+                    <div id="lobby-joiner-avatar" class="text-6xl md:text-8xl mb-3 drop-shadow-xl opacity-50">👤</div>
+                    <div id="lobby-joiner-name" class="text-xl md:text-2xl font-bold text-slate-400 truncate w-full px-2">รอเพื่อนเข้าร่วม...</div>
+                </div>
+
             </div>
 
-            <button id="lobby-start-btn" onclick="window.WordHunterFirebase.launchRoomGame()" class="hidden w-full bg-gradient-to-r from-emerald-500 to-green-500 disabled:from-slate-700 disabled:to-slate-800 disabled:text-slate-500 text-slate-950 font-black py-3.5 rounded-xl transition-all text-lg shadow-lg mb-3">
-                🚀 เริ่มเกมเลย! (รอเพื่อนก่อนเด้อ)
-            </button>
-
-            <button onclick="window.WordHunterFirebase.cancelRoom()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl transition-all text-sm shadow-md">
-                🛑 ออกจากห้องนี้
-            </button>
+            <!-- Action Button Zone -->
+            <div id="lobby-action-zone" class="shrink-0">
+                <!-- Injected dynamically via JS based on Host/Joiner status -->
+            </div>
         </div>
     </div>
 
@@ -526,6 +551,7 @@
         <span class="text-sm md:text-xl break-words" id="toast-message">แจ้งเตือน</span>
     </div>
 
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
         const vocabEngine = {
             "A1": {
@@ -559,6 +585,27 @@
             }
         };
 
+        // Avatar Options (Cool emojis for gamers)
+        const avatarList = ['🦊','🥷','🧑‍💻','🐼','🦁','🧙‍♂️','🧛‍♂️','🐉','👽','🤖','👻','💀','🎃','🦄','🦖'];
+        let selectedAvatar = '🦊'; // Default
+
+        function buildAvatarSelector(containerId) {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            container.innerHTML = '';
+            avatarList.forEach(emoji => {
+                const span = document.createElement('span');
+                span.innerText = emoji;
+                span.className = `avatar-option text-4xl p-2 rounded-xl border-2 border-transparent bg-slate-800 ${emoji === selectedAvatar ? 'selected' : ''}`;
+                span.onclick = () => {
+                    selectedAvatar = emoji;
+                    buildAvatarSelector('avatar-container-signup');
+                    buildAvatarSelector('avatar-container-edit');
+                };
+                container.appendChild(span);
+            });
+        }
+
         let activeVocabList = [];
         let gameConfig = { difficulty: "A1", category: "nouns", targetCount: 4, duration: 20, trackingTarget: "all", questionLang: "th-en" };
         let gameState = {
@@ -567,10 +614,8 @@
             successfulTaps: 0, tapTimes: [], gameTimerInterval: null,
             lastTapTime: 0, questionIndex: 1, maxQuestions: 10,
             player1Name: "ผู้ทดสอบ", currentUser: null, isTeacherVerified: false,
-            isKahootMode: true
+            isKahootMode: true, isRoomHost: false 
         };
-
-        let selectedAvatarGlobal = '🦊'; // ตัวแปรเก็บรูปอวตารปัจจุบัน
 
         let videoElement = document.getElementById('webcam');
         let canvasElement = document.getElementById('game-canvas');
@@ -585,19 +630,10 @@
         let lastAiFrameTime = 0; 
         let renderLoopId = null; 
 
+        // ================= ระบบเสียงเพลงประกอบ BGM =================
         const gameBGM = new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3");
-        gameBGM.loop = true;  
-        gameBGM.volume = 0.3; 
-
-        // 🎭 ฟังก์ชันสลับการเลือกรูป Avatar บนหน้าจอ UI
-        window.selectAvatar = function(emoji, formType) {
-            if (window.playSound) window.playSound('click');
-            selectedAvatarGlobal = emoji;
-            const targetGrid = formType === 'signup' ? 'signup-avatar-grid' : 'auth-avatar-grid';
-            document.querySelectorAll(`#${targetGrid} .avatar-box`).forEach(box => box.classList.remove('active'));
-            const activeBox = document.getElementById(`av-${formType}-${emoji}`);
-            if (activeBox) activeBox.classList.add('active');
-        };
+        gameBGM.loop = true;
+        gameBGM.volume = 0.3;
 
         function resizeDrawingBuffer() {
             if (gameState.isKahootMode) return;
@@ -608,19 +644,30 @@
                 canvasElement.width = window.innerWidth;
                 canvasElement.height = window.innerHeight;
             }
-            if (gameState.gameActive && gameState.currentQuestion) { mapTargetsPositions(); }
+            if (gameState.gameActive && gameState.currentQuestion) {
+                mapTargetsPositions();
+            }
         }
         
         window.addEventListener('resize', resizeDrawingBuffer);
-        window.addEventListener('orientationchange', () => { setTimeout(resizeDrawingBuffer, 500); });
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resizeDrawingBuffer, 500); 
+        });
 
         function getCanvasMousePos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
             const scale = Math.min(rect.width / canvas.width, rect.height / canvas.height); 
-            const actualWidth = canvas.width * scale; const actualHeight = canvas.height * scale;
-            const offsetX = (rect.width - actualWidth) / 2; const offsetY = (rect.height - actualHeight) / 2;
-            const x = e.clientX - rect.left - offsetX; const y = e.clientY - rect.top - offsetY; 
-            const canvasX = x / scale; const canvasY = y / scale;
+            const actualWidth = canvas.width * scale;
+            const actualHeight = canvas.height * scale;
+            const offsetX = (rect.width - actualWidth) / 2;
+            const offsetY = (rect.height - actualHeight) / 2;
+            
+            const x = e.clientX - rect.left - offsetX;
+            const y = e.clientY - rect.top - offsetY; 
+            
+            const canvasX = x / scale;
+            const canvasY = y / scale;
+            
             return { x: canvas.width - canvasX, y: canvasY }; 
         }
 
@@ -629,7 +676,9 @@
             const pos = getCanvasMousePos(e, canvasElement);
             simulatedPointer = { x: pos.x, y: pos.y, label: "เมาส์" };
         });
+        
         canvasElement.addEventListener('mouseleave', () => { simulatedPointer = null; });
+        
         canvasElement.addEventListener('touchstart', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
             e.preventDefault(); 
@@ -638,6 +687,7 @@
                 simulatedPointer = { x: pos.x, y: pos.y, label: "นิ้ว" };
             }
         }, { passive: false });
+
         canvasElement.addEventListener('touchmove', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
             e.preventDefault(); 
@@ -646,6 +696,7 @@
                 simulatedPointer = { x: pos.x, y: pos.y, label: "นิ้ว" };
             }
         }, { passive: false });
+        
         canvasElement.addEventListener('touchend', () => { simulatedPointer = null; });
 
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -658,8 +709,12 @@
         window.playSound = function(type) {
             try {
                 initAudio();
-                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination); const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+
                 if (type === 'success') {
                     osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.1); osc.frequency.setValueAtTime(783.99, now + 0.2);
                     gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4); osc.start(now); osc.stop(now + 0.4);
@@ -680,30 +735,34 @@
             } catch (err) {}
         }
 
-        function shuffleArray(array) {
-            const arr = [...array];
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
-
         window.hideModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } }
         window.showModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); } }
 
-        // 📝 แก้ไขฟังก์ชันเซฟหน้าสมัครแรก: เชื่อมระบบ Custom UID เข้า Firestore คลาวด์ถาวร
         window.executeInitialSignup = function() {
-            initAudio(); playSound('click');
-            gameBGM.play().then(() => { gameBGM.pause(); gameBGM.currentTime = 0; }).catch(e => console.warn(e));
-
-            const username = document.getElementById('initial-username').value.trim();
-            const grade = document.getElementById('initial-grade').value.trim();
-            if (!username || !grade) { showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️"); return; }
+            initAudio();
             
-            if (window.WordHunterFirebase && window.WordHunterFirebase.db) {
-                window.WordHunterFirebase.saveNewProfile(username, grade, selectedAvatarGlobal);
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.executeInitialSignup === 'function') {
+                window.WordHunterFirebase.executeInitialSignup();
             } else {
-                showToast("ระบบฐานข้อมูลยังไม่พร้อมใช้งานชั่วคราว!", "❌");
+                console.warn("[Firebase Debug]: Offline or Module not ready.");
+                playSound('click');
+                gameBGM.play().then(() => { gameBGM.pause(); gameBGM.currentTime = 0; }).catch(e => console.warn(e));
+
+                const username = document.getElementById('initial-username').value.trim();
+                const grade = document.getElementById('initial-grade').value.trim();
+                if (!username || !grade) { showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️"); return; }
+                
+                const profile = { username, grade, photoURL: selectedAvatar };
+                gameState.currentUser = profile;
+                gameState.player1Name = username;
+                localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                
+                document.getElementById('user-display-name').innerText = `${username} (${grade})`;
+                document.getElementById('topbar-avatar').innerText = selectedAvatar;
+                document.getElementById('topbar-avatar').classList.remove('hidden');
+                
+                hideModal('modal-initial-signup');
+                showToast(`ยินดีต้อนรับ คุณ ${username}! (โหมดออฟไลน์)`, "🎉");
             }
         }
 
@@ -714,33 +773,29 @@
                 if (gameState.currentUser) {
                     document.getElementById('auth-username').value = gameState.currentUser.username || "";
                     document.getElementById('auth-grade').value = gameState.currentUser.grade || "";
-                    window.selectAvatar(gameState.currentUser.photoURL || '🦊', 'auth');
+                    if(gameState.currentUser.photoURL) {
+                        selectedAvatar = gameState.currentUser.photoURL;
+                        buildAvatarSelector('avatar-container-edit');
+                    }
                 }
                 showModal('modal-auth');
             } else { hideModal('modal-auth'); }
         }
 
-        window.handleLogin = function() {
-            playSound('click');
-            const username = document.getElementById('auth-username').value.trim();
-            const grade = document.getElementById('auth-grade').value.trim();
-            if (!username || !grade) { showToast("กรุณากรอกข้อมูลให้ครบจ้า!", "⚠️"); return; }
-            
-            if (window.WordHunterFirebase && window.WordHunterFirebase.db) {
-                window.WordHunterFirebase.saveNewProfile(username, grade, selectedAvatarGlobal);
-                hideModal('modal-auth');
-            }
-        }
-
         window.toggleTeacherConsole = function() {
             playSound('click');
-            if (document.getElementById('teacher-console-overlay').classList.contains('hidden')) { showModal('teacher-console-overlay'); } 
+            const panel = document.getElementById('teacher-console-overlay');
+            if (panel.classList.contains('hidden')) { 
+                showModal('teacher-console-overlay'); 
+                window.adjustCategorySelection(); 
+            } 
             else { hideModal('teacher-console-overlay'); }
         }
 
         window.verifyTeacherAccess = function() {
             playSound('click');
-            if (document.getElementById('teacher-pass-input').value === "1234") {
+            const pass = document.getElementById('teacher-pass-input').value;
+            if (pass === "1234") {
                 gameState.isTeacherVerified = true;
                 document.getElementById('teacher-auth-zone').classList.add('hidden');
                 document.getElementById('teacher-control-zone').classList.remove('hidden');
@@ -751,80 +806,168 @@
 
         window.adjustCategorySelection = function() {
             const diff = document.getElementById('difficulty-input').value;
-            const select = document.getElementById('vocab-category-input'); select.innerHTML = '';
-            const categoriesMap = vocabEngine[diff].categories; let firstKey = null;
+            const select = document.getElementById('vocab-category-input');
+            select.innerHTML = '';
+            const categoriesMap = vocabEngine[diff].categories;
+            let firstKey = null;
             for (const key in categoriesMap) {
                 if (!firstKey) firstKey = key;
-                const opt = document.createElement('option'); opt.value = key; opt.innerText = categoriesMap[key].title;
+                const opt = document.createElement('option');
+                opt.value = key; opt.innerText = categoriesMap[key].title;
                 select.appendChild(opt);
             }
-            gameConfig.difficulty = diff; gameConfig.category = firstKey;
+            gameConfig.difficulty = diff;
+            gameConfig.category = firstKey;
         }
 
+        // ฟังก์ชันอัปเดตตัวเลือกหมวดหมู่ในหน้า Leaderboard แบบแยกเฉพาะ
+        window.updateLeaderboardCategoryFilter = function() {
+            const diffKey = document.getElementById('lb-filter-diff').value;
+            const selectCat = document.getElementById('lb-filter-cat');
+            if(!selectCat) return;
+            selectCat.innerHTML = '';
+            
+            const categoriesMap = vocabEngine[diffKey].categories;
+            for (const key in categoriesMap) {
+                const opt = document.createElement('option');
+                opt.value = key; 
+                opt.innerText = categoriesMap[key].title;
+                selectCat.appendChild(opt);
+            }
+            
+            // โหลดข้อมูลใหม่ทุกครั้งที่เปลี่ยนตัวกรองระดับความยาก
+            if(window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') {
+                window.WordHunterFirebase.loadLeaderboard();
+            }
+        };
+
         window.togglePauseGame = function() {
-            playSound('click'); const btn = document.getElementById('live-pause-btn');
+            playSound('click');
+            const btn = document.getElementById('live-pause-btn');
             if (gameState.isPaused) {
-                gameState.isPaused = false; gameBGM.play().catch(e=>console.warn(e));
-                btn.innerText = "⏸️ พัก"; btn.className = "bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
-                showToast("กลับเข้าสู่เกม!", "🎯"); lastAiFrameTime = performance.now(); 
+                gameState.isPaused = false;
+                gameBGM.play().catch(e=>console.warn(e)); 
+                btn.innerText = "⏸️ พัก";
+                btn.className = "bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
+                showToast("กลับเข้าสู่เกม!", "🎯");
+                lastAiFrameTime = performance.now(); 
             } else {
-                gameState.isPaused = true; gameBGM.pause();
-                btn.innerText = "▶️ ต่อ"; btn.className = "bg-emerald-500 hover:bg-emerald-400 text-white font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
+                gameState.isPaused = true;
+                gameBGM.pause(); 
+                btn.innerText = "▶️ ต่อ";
+                btn.className = "bg-emerald-500 hover:bg-emerald-400 text-white font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
                 showToast("พักเกมชั่วคราว", "⏸️");
             }
         }
 
         window.switchToKahootUI = function() {
             document.getElementById('current-play-mode').innerText = "โหมด 4 ตัวเลือก (คลิกตอบ)";
-            const arContainer = document.getElementById('ar-container'); if (arContainer) arContainer.className = "hidden";
-            const kahootContainer = document.getElementById('kahoot-container'); if (kahootContainer) { kahootContainer.classList.remove('hidden'); kahootContainer.classList.add('flex'); }
-            const aiLoader = document.getElementById('ai-loading'); if (aiLoader) aiLoader.className = "hidden";
+            const arContainer = document.getElementById('ar-container');
+            if (arContainer) { arContainer.classList.add('hidden'); arContainer.classList.remove('flex'); }
+            
+            const kahootContainer = document.getElementById('kahoot-container');
+            if (kahootContainer) { kahootContainer.classList.remove('hidden'); kahootContainer.classList.add('flex'); }
+            
+            const aiLoader = document.getElementById('ai-loading');
+            if (aiLoader) { aiLoader.classList.add('hidden'); aiLoader.classList.remove('flex'); }
         }
 
         async function setupCamera() {
             try {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { throw new Error("ไม่สนับสนุน HTTPS"); }
-                if (videoElement.srcObject) { videoElement.srcObject.getTracks().forEach(track => track.stop()); videoElement.srcObject = null; }
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error("เบราว์เซอร์ไม่รองรับ หรือ ไม่ได้เปิดบน HTTPS");
+                }
+                
+                if (videoElement.srcObject) {
+                    videoElement.srcObject.getTracks().forEach(track => track.stop());
+                    videoElement.srcObject = null;
+                }
+                
                 let stream;
-                try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }); } 
-                catch (e) { stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false }); }
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, 
+                        audio: false 
+                    });
+                } catch (e) {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                }
+                
+                videoElement.setAttribute('autoplay', '');
+                videoElement.setAttribute('muted', '');
+                videoElement.setAttribute('playsinline', '');
+                videoElement.muted = true; 
                 videoElement.srcObject = stream;
+                
                 return new Promise((resolve) => {
                     let attempts = 0;
                     const checkReady = () => {
-                        if (videoElement.readyState >= 2 && videoElement.videoWidth > 0) { videoElement.play().catch(e => console.warn(e)); resolve(true); } 
-                        else if (attempts < 100) { attempts++; setTimeout(checkReady, 100); } 
-                        else { resolve(false); }
+                        if (videoElement.readyState >= 2 && videoElement.videoWidth > 0) {
+                            videoElement.play().catch(e => console.warn("Autoplay Prevented:", e));
+                            resolve(true);
+                        } else if (attempts < 100) { 
+                            attempts++;
+                            setTimeout(checkReady, 100);
+                        } else {
+                            resolve(false); 
+                        }
                     };
                     checkReady();
                 });
             } catch (err) {
-                showToast("สลับเป็นโหมดคลิกตอบอัตโนมัติ!", "⚠️"); return false;
+                console.warn("Camera Error:", err);
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    showToast("คุณไม่อนุญาตสิทธิ์กล้อง! สลับโหมดอัตโนมัติ", "🚫");
+                } else {
+                    showToast("กล้องมีปัญหา สลับเป็นโหมดคลิกตอบ!", "⚠️");
+                }
+                return false;
             }
         }
 
         function startGameLoops() {
-            if (isLoopRunning) return; isLoopRunning = true;
-            lastAiFrameTime = performance.now(); runRenderLoop(lastAiFrameTime); runAiLoop();
+            if (isLoopRunning) return;
+            isLoopRunning = true;
+            lastAiFrameTime = performance.now();
+            runRenderLoop(lastAiFrameTime);
+            runAiLoop();
         }
 
-        function stopGameLoops() { isLoopRunning = false; if (renderLoopId) cancelAnimationFrame(renderLoopId); }
+        function stopGameLoops() {
+            isLoopRunning = false;
+            if (renderLoopId) cancelAnimationFrame(renderLoopId);
+        }
 
         window.runStartSequence = async function(mode) {
             if (gameState.gameActive || isLoopRunning) return; 
-            if (!gameState.currentUser) { showToast("โปรดสร้างโปรไฟล์ก่อนเริ่มเกมจ้า!", "⚠️"); showModal('modal-initial-signup'); return; }
 
-            playSound('click'); initAudio(); gameState.isKahootMode = (mode === 'kahoot');
+            if (!gameState.currentUser) {
+                showToast("โปรดลงชื่อก่อนเริ่มเกมเด้อจ้า!", "⚠️");
+                showModal('modal-initial-signup');
+                return;
+            }
+
+            playSound('click');
+            initAudio();
+            gameState.isKahootMode = (mode === 'kahoot');
             document.getElementById('live-pause-btn').classList.remove('hidden');
 
-            const diff = document.getElementById('difficulty-input').value || "A1"; gameConfig.difficulty = diff;
+            const diff = document.getElementById('difficulty-input').value || "A1";
+            gameConfig.difficulty = diff;
+            
             let cat = document.getElementById('vocab-category-input').value;
-            if (!cat || !vocabEngine[diff].categories[cat]) { cat = Object.keys(vocabEngine[diff].categories)[0]; }
+            if (!cat || !vocabEngine[diff].categories[cat]) {
+                cat = Object.keys(vocabEngine[diff].categories)[0];
+            }
             gameConfig.category = cat;
 
             gameConfig.duration = parseInt(document.getElementById('timer-input').value || 20);
-            const trackingTargetEl = document.getElementById('tracking-target-input'); if (trackingTargetEl) gameConfig.trackingTarget = trackingTargetEl.value;
-            const langEl = document.getElementById('question-lang-input'); if (langEl) gameConfig.questionLang = langEl.value;
+            
+            const trackingTargetEl = document.getElementById('tracking-target-input');
+            if (trackingTargetEl) gameConfig.trackingTarget = trackingTargetEl.value;
+            
+            const langEl = document.getElementById('question-lang-input');
+            if (langEl) gameConfig.questionLang = langEl.value;
 
             const customTargetCountEl = document.getElementById('custom-target-count');
             if (customTargetCountEl) {
@@ -833,4 +976,1088 @@
             }
 
             activeVocabList = [...vocabEngine[gameConfig.difficulty].categories[gameConfig.category].words];
+            
             document.getElementById('current-diff-lbl').innerText = vocabEngine[gameConfig.difficulty].name;
+            document.getElementById('current-category-lbl').innerText = vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title;
+
+            document.getElementById('screen-lobby').classList.add('hidden');
+            const screenGame = document.getElementById('screen-game');
+            screenGame.classList.remove('hidden');
+            screenGame.classList.add('flex');
+
+            gameState.scoreP1 = 0;
+            gameState.timeLeft = gameConfig.duration; 
+            gameState.successfulTaps = 0;
+            gameState.tapTimes = [];
+            gameState.gameActive = false; 
+            gameState.isPaused = false;
+            gameState.questionIndex = 1;
+            gameState.availableVocabs = shuffleArray(activeVocabList);
+            simulatedPointer = null; 
+            
+            document.getElementById('hud-score-p1').innerText = "0";
+            document.getElementById('hud-timer').innerText = `${gameConfig.duration}s`;
+
+            if (!gameState.isKahootMode) {
+                const aiLoader = document.getElementById('ai-loading');
+                if (aiLoader) { aiLoader.classList.remove('hidden'); aiLoader.classList.add('flex'); }
+                
+                const cameraSuccess = await setupCamera();
+                if (cameraSuccess) {
+                    document.getElementById('current-play-mode').innerText = "โหมด AR กล้อง";
+                    const arContainer = document.getElementById('ar-container');
+                    if (arContainer) { arContainer.classList.remove('hidden'); arContainer.classList.add('flex'); }
+                    const kahootContainer = document.getElementById('kahoot-container');
+                    if (kahootContainer) { kahootContainer.classList.add('hidden'); kahootContainer.classList.remove('flex'); }
+                    
+                    const aiSuccess = await loadAiModel();
+                    if (aiSuccess) {
+                        resizeDrawingBuffer();
+                    } else {
+                        gameState.isKahootMode = true;
+                        gameConfig.targetCount = 4;
+                        window.switchToKahootUI();
+                    }
+                } else {
+                    gameState.isKahootMode = true;
+                    gameConfig.targetCount = 4; 
+                    window.switchToKahootUI();
+                }
+            } else {
+                window.switchToKahootUI();
+            }
+
+            await playCountdown();
+
+            gameState.gameActive = true;
+            gameState.lastTapTime = Date.now();
+            generateNewQuestion();
+            startCountdownLoop();
+
+            if (!gameState.isKahootMode && !isLoopRunning) {
+                startGameLoops();
+            }
+        }
+
+        async function playCountdown() {
+            const overlay = document.getElementById('countdown-overlay');
+            const textEl = document.getElementById('countdown-text');
+            const subEl = document.getElementById('countdown-sub');
+            
+            subEl.innerText = gameState.isKahootMode ? "เตรียมตัวคลิกเลือกคำตอบที่ถูกต้อง!" : "เตรียมตัวให้พร้อม! ถอยไปยืนหน้ากล้องเลย";
+            overlay.classList.remove('hidden'); overlay.classList.add('flex');
+
+            const steps = ["3", "2", "1", "GO!"];
+            for (let i = 0; i < steps.length; i++) {
+                textEl.innerText = steps[i];
+                if (steps[i] === "GO!") {
+                    textEl.className = "text-8xl md:text-9xl font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in leading-none";
+                } else {
+                    textEl.className = "text-[120px] md:text-[180px] font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in leading-none";
+                }
+                if(i < 3) playSound('tick');
+                textEl.classList.remove('animate-pop-in'); void textEl.offsetWidth; textEl.classList.add('animate-pop-in');
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            playSound('success'); 
+            
+            gameBGM.currentTime = 0;
+            gameBGM.play().catch(e => console.warn("BGM Autoplay blocked:", e));
+
+            overlay.classList.remove('flex'); overlay.classList.add('hidden');
+        }
+
+        function startCountdownLoop() {
+            clearInterval(gameState.gameTimerInterval);
+            gameState.gameTimerInterval = setInterval(() => {
+                if (!gameState.gameActive || gameState.isPaused) return;
+                gameState.timeLeft--;
+                document.getElementById('hud-timer').innerText = `${gameState.timeLeft}s`;
+
+                if (gameState.timeLeft <= 10 && gameState.timeLeft > 0) {
+                    if (window.playSound) window.playSound('tick'); 
+                }
+
+                if (gameState.timeLeft <= 0) {
+                    gameState.gameActive = false;
+                    handleTimeUp();
+                }
+            }, 1000);
+        }
+
+        function handleTimeUp() {
+            gameBGM.pause(); 
+            playSound('timeup'); 
+            gameState.scoreP1 = Math.max(0, gameState.scoreP1 - 5);
+            document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
+
+            const popup = document.getElementById('feedback-popup');
+            const card = document.getElementById('feedback-card');
+            
+            document.getElementById('feedback-emoji').innerText = "⏱️";
+            const title = document.getElementById('feedback-title');
+            title.innerText = `หมดเวลา!`;
+            title.className = "text-4xl md:text-7xl font-black text-rose-500";
+            
+            const isEnTh = gameConfig.questionLang === 'en-th';
+            document.getElementById('feedback-detail').innerText = `เฉลย: "${gameState.currentQuestion.en}" = "${gameState.currentQuestion.th}" (-5 แต้ม)`;
+
+            popup.classList.remove('hidden'); card.classList.remove('scale-50', 'opacity-0'); card.classList.add('scale-100', 'opacity-100');
+
+            setTimeout(() => {
+                card.classList.add('scale-50', 'opacity-0'); card.classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => {
+                    if (document.getElementById('screen-game').classList.contains('hidden')) return;
+
+                    popup.classList.add('hidden');
+                    gameState.questionIndex++;
+                    if (gameState.questionIndex <= gameState.maxQuestions) {
+                        gameState.gameActive = true;
+                        gameState.lastTapTime = Date.now();
+                        
+                        gameBGM.currentTime = 0;
+                        gameBGM.play().catch(e => console.warn(e));
+
+                        generateNewQuestion();
+                    } else { window.endGame(); }
+                }, 200);
+            }, 1500);
+        }
+
+        function generateNewQuestion() {
+            if (gameState.questionIndex > gameState.maxQuestions) { window.endGame(); return; }
+            document.getElementById('hud-question-count').innerText = `ข้อ ${gameState.questionIndex}/10`;
+            
+            gameState.timeLeft = gameConfig.duration;
+            document.getElementById('hud-timer').innerText = `${gameConfig.duration}s`;
+
+            if (!gameState.availableVocabs || gameState.availableVocabs.length === 0) gameState.availableVocabs = shuffleArray(activeVocabList);
+            const correctVocab = gameState.availableVocabs.pop();
+            gameState.currentQuestion = correctVocab;
+            const targetLength = Math.min(gameConfig.targetCount, activeVocabList.length);
+            const distractors = shuffleArray(activeVocabList.filter(v => v.en !== correctVocab.en));
+            let selection = [correctVocab];
+            
+            for (let i = 0; i < targetLength - 1; i++) {
+                if (distractors[i]) {
+                    selection.push(distractors[i]);
+                }
+            }
+            gameState.options = shuffleArray(selection);
+
+            const isEnTh = gameConfig.questionLang === 'en-th';
+            document.getElementById('hud-instruction-text').innerText = `"${isEnTh ? gameState.currentQuestion.en : gameState.currentQuestion.th}"`;
+            
+            const instructionSpan = document.querySelector('#hud-instruction-box span.hidden.sm\\:inline');
+            if(instructionSpan) instructionSpan.innerText = isEnTh ? "🔍 ค้นหาคำแปลภาษาไทย" : "🔍 ค้นหาคำแปลภาษาอังกฤษ";
+            
+            simulatedPointer = null; 
+
+            if (gameState.isKahootMode) {
+                buildKahootGrid();
+            } else {
+                mapTargetsPositions();
+            }
+        }
+
+        function buildKahootGrid() {
+            const grid = document.getElementById('kahoot-grid');
+            grid.innerHTML = '';
+            
+            const bgColors = [
+                'bg-red-500 hover:bg-red-600', 
+                'bg-blue-500 hover:bg-blue-600', 
+                'bg-yellow-500 hover:bg-yellow-600', 
+                'bg-green-500 hover:bg-green-600',
+                'bg-purple-500 hover:bg-purple-600',
+                'bg-cyan-500 hover:bg-cyan-600'
+            ];
+
+            gameState.options.forEach((vocab, index) => {
+                const btn = document.createElement('button');
+                const colorClass = bgColors[index % bgColors.length];
+                
+                btn.className = `kahoot-btn w-full h-full min-h-[100px] md:min-h-[130px] rounded-2xl md:rounded-[2rem] shadow-2xl flex items-center justify-center border-b-4 md:border-b-8 border-black/20 transition-all ${colorClass} text-white font-black text-3xl md:text-5xl lg:text-6xl drop-shadow-lg cursor-pointer relative overflow-hidden`;
+                
+                const shapes = ['▲', '♦', '●', '■', '★', '♥'];
+                const shape = document.createElement('span');
+                shape.className = "absolute left-4 md:left-10 opacity-25 text-5xl md:text-7xl";
+                shape.innerText = shapes[index % shapes.length];
+                
+                const text = document.createElement('span');
+                const isEnTh = gameConfig.questionLang === 'en-th';
+                text.innerText = isEnTh ? vocab.th : vocab.en;
+                text.className = "z-10 px-2 text-center leading-tight break-words";
+
+                btn.appendChild(shape);
+                btn.appendChild(text);
+
+                btn.onclick = () => {
+                    if (!gameState.gameActive) return;
+                    const isCorrect = (vocab.en === gameState.currentQuestion.en);
+                    registerDynamicTap({ vocab: vocab, isCorrect: isCorrect });
+                };
+
+                grid.appendChild(btn);
+            });
+        }
+
+        function mapTargetsPositions() {
+            if (!gameState.options || gameState.options.length === 0) return;
+            const width = canvasElement.width || 1280;
+            const height = canvasElement.height || 720;
+            
+            const radius = gameConfig.targetCount > 4 ? 45 : 65; 
+            const padding = radius + 20; 
+            
+            gameState.targets = [];
+
+            const isOverlapping = (x, y) => {
+                for (let t of gameState.targets) {
+                    if (Math.hypot(t.x - x, t.y - y) < radius * 2.2) return true; 
+                }
+                return false;
+            };
+
+            gameState.options.forEach((vocab, index) => {
+                let x, y; let attempts = 0; let foundPosition = false;
+                while (!foundPosition && attempts < 150) {
+                    x = padding + Math.random() * Math.max(0, width - 2 * padding);
+                    y = 120 + padding + Math.random() * Math.max(0, height - 120 - 2 * padding);
+                    if (!isOverlapping(x, y)) foundPosition = true;
+                    attempts++;
+                }
+                if (!foundPosition) {
+                    x = padding + Math.random() * Math.max(0, width - 2 * padding);
+                    y = 120 + padding + Math.random() * Math.max(0, height - 120 - 2 * padding);
+                }
+                gameState.targets.push({ x: x, y: y, radius: radius, vocab: vocab, isCorrect: vocab.en === gameState.currentQuestion.en, hoverProgress: 0 });
+            });
+        }
+
+        async function runAiLoop() {
+            while (isLoopRunning) {
+                if (detector && videoElement.readyState >= 2 && videoElement.videoWidth > 0 && gameState.gameActive && !gameState.isPaused && !gameState.isKahootMode) {
+                    isProcessingPose = true;
+                    try {
+                        currentPoses = await detector.estimatePoses(videoElement, { maxPoses: 1, flipHorizontal: false });
+                    } catch (err) { 
+                        console.warn("Pose err", err);
+                    } finally { 
+                        isProcessingPose = false; 
+                    }
+                    await new Promise(resolve => requestAnimationFrame(resolve));
+                } else {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+            }
+        }
+
+        function runRenderLoop(timestamp) {
+            if (!isLoopRunning) return;
+            if (!timestamp) timestamp = performance.now();
+
+            let dt = (lastAiFrameTime === 0) ? 0.016 : (timestamp - lastAiFrameTime) / 1000;
+            dt = Math.min(dt, 0.1); 
+            lastAiFrameTime = timestamp;
+
+            try { 
+                if (!gameState.isKahootMode) renderGameCanvas(dt); 
+            } catch (err) {}
+
+            renderLoopId = requestAnimationFrame(runRenderLoop);
+        }
+
+        function renderGameCanvas(dt) {
+            if (!ctx) return;
+            if (videoElement.readyState >= 2) { 
+                if (canvasElement.width !== videoElement.videoWidth && videoElement.videoWidth > 0) {
+                    resizeDrawingBuffer();
+                }
+                ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height); 
+            } else { 
+                ctx.fillStyle = '#0c080d'; ctx.fillRect(0, 0, canvasElement.width, canvasElement.height); 
+            }
+
+            let touchPoints = [];
+            if (simulatedPointer) { touchPoints.push(simulatedPointer); drawInteractivePointer(simulatedPointer.x, simulatedPointer.y, `🔴 ${simulatedPointer.label}`, "#ef4444"); }
+
+            if (currentPoses && currentPoses.length > 0) {
+                const kp = currentPoses[0].keypoints;
+                const lWrist = kp.find(k => k.name === 'left_wrist'); const rWrist = kp.find(k => k.name === 'right_wrist');
+                const lShoulder = kp.find(k => k.name === 'left_shoulder'); const rShoulder = kp.find(k => k.name === 'right_shoulder');
+
+                if (gameConfig.trackingTarget === 'all' || gameConfig.trackingTarget === 'hands') {
+                    if (lWrist && lWrist.score > 0.3) touchPoints.push({ x: lWrist.x, y: lWrist.y - 25, label: "นิ้วชี้ซ้าย" });
+                    if (rWrist && rWrist.score > 0.3) touchPoints.push({ x: rWrist.x, y: rWrist.y - 25, label: "นิ้วชี้ขวา" });
+                }
+                if (gameConfig.trackingTarget === 'all' || gameConfig.trackingTarget === 'body') {
+                    if (lShoulder && rShoulder && lShoulder.score > 0.35 && rShoulder.score > 0.35) {
+                        touchPoints.push({ x: (lShoulder.x + rShoulder.x) / 2, y: (lShoulder.y + rShoulder.y) / 2, label: "ลำตัว" });
+                    }
+                }
+                touchPoints.forEach(pt => drawInteractivePointer(pt.x, pt.y, `🔴 ${pt.label}`, "#ef4444"));
+            }
+
+            if (gameState.gameActive && !gameState.isPaused) { processCollisions(touchPoints, dt); }
+            gameState.targets.forEach(target => drawTargetNode(target));
+        }
+
+        function drawInteractivePointer(x, y, label, hex) {
+            ctx.beginPath(); ctx.arc(x, y, 15, 0, 2 * Math.PI); ctx.fillStyle = hex; ctx.fill();
+            ctx.lineWidth = 4; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+            ctx.save(); ctx.translate(x, y - 30); ctx.scale(-1, 1);
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 18px Kanit'; ctx.shadowColor = 'black'; ctx.shadowBlur = 6; ctx.textAlign = 'center'; ctx.fillText(label, 0, 0); ctx.restore();
+        }
+
+        function drawTargetNode(target) {
+            const { x, y, radius, vocab, hoverProgress } = target;
+            ctx.save(); ctx.beginPath(); ctx.arc(x, y, radius + 8, 0, 2 * Math.PI); ctx.strokeStyle = hoverProgress > 0 ? '#f59e0b' : '#3b82f6'; ctx.lineWidth = 8; ctx.stroke();
+            ctx.beginPath(); ctx.arc(x, y, radius, 0, 2 * Math.PI); ctx.fillStyle = 'rgba(15, 23, 42, 0.9)'; ctx.fill();
+
+            if (hoverProgress > 0) {
+                ctx.beginPath(); ctx.arc(x, y, radius - 4, -Math.PI / 2, (-Math.PI / 2) + (Math.PI * 2 * (hoverProgress / 100)));
+                ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 10; ctx.stroke();
+            }
+
+            ctx.translate(x, y); ctx.scale(-1, 1); ctx.fillStyle = '#ffffff';
+            
+            const size = radius < 55 ? '20px' : '28px';
+            ctx.font = `bold ${size} Fredoka One, Kanit`; ctx.textAlign = 'center'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
+            
+            const isEnTh = gameConfig.questionLang === 'en-th';
+            ctx.fillText(isEnTh ? vocab.th : vocab.en, 0, 8); 
+            
+            ctx.fillStyle = '#67e8f9'; ctx.font = 'bold 14px Kanit'; 
+            ctx.fillText("แตะสิ!", 0, 30); 
+            ctx.restore();
+        }
+
+        function processCollisions(touchPoints, dt) {
+            if (!gameState.gameActive) return; 
+            let triggered = false;
+            gameState.targets.forEach(target => {
+                let hit = false;
+                touchPoints.forEach(pt => { if (Math.hypot(pt.x - target.x, pt.y - target.y) < target.radius + 20) hit = true; });
+                if (hit) {
+                    target.hoverProgress += 120 * dt; 
+                    if (target.hoverProgress >= 100 && !triggered) { registerDynamicTap(target); triggered = true; }
+                } else { 
+                    target.hoverProgress = Math.max(0, target.hoverProgress - 200 * dt); 
+                }
+            });
+        }
+
+        function registerDynamicTap(target) {
+            if (!gameState.gameActive) return; 
+            gameState.gameActive = false; 
+            const duration = (Date.now() - gameState.lastTapTime) / 1000;
+            gameState.tapTimes.push(duration); gameState.lastTapTime = Date.now(); gameState.successfulTaps++;
+
+            const popup = document.getElementById('feedback-popup'); const card = document.getElementById('feedback-card');
+            popup.classList.remove('hidden'); setTimeout(() => { card.classList.remove('scale-50', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 10);
+
+            const pts = 10;
+            const isEnTh = gameConfig.questionLang === 'en-th';
+            
+            if (target.isCorrect) {
+                playSound('success'); gameState.scoreP1 += pts;
+                document.getElementById('feedback-emoji').innerText = "✅";
+                const title = document.getElementById('feedback-title'); title.innerText = `ยอดเยี่ยม!`; title.className = "text-4xl md:text-7xl font-black text-emerald-400";
+                document.getElementById('feedback-detail').innerText = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}" (+${pts} แต้ม)`;
+            } else {
+                playSound('fail'); const deduction = 5; gameState.scoreP1 = Math.max(0, gameState.scoreP1 - deduction);
+                document.getElementById('feedback-emoji').innerText = "❌";
+                const title = document.getElementById('feedback-title'); title.innerText = `ผิดนะจ๊ะ!`; title.className = "text-4xl md:text-7xl font-black text-rose-500";
+                document.getElementById('feedback-detail').innerHTML = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}"<br><span class="text-emerald-400 text-2xl md:text-4xl mt-2 block">(เฉลยข้อนี้: ${isEnTh ? gameState.currentQuestion.th : gameState.currentQuestion.en})</span><br>หัก ${deduction} แต้ม`;
+            }
+
+            document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
+
+            setTimeout(() => {
+                card.classList.add('scale-50', 'opacity-0'); card.classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => {
+                    if (document.getElementById('screen-game').classList.contains('hidden')) return;
+
+                    popup.classList.add('hidden');
+                    gameState.questionIndex++;
+                    if (gameState.questionIndex <= gameState.maxQuestions) {
+                        gameState.gameActive = true;
+                        gameState.lastTapTime = Date.now();
+                        
+                        gameBGM.currentTime = 0;
+                        gameBGM.play().catch(e => console.warn(e));
+
+                        generateNewQuestion();
+                    } else { window.endGame(); }
+                }, 200);
+            }, 1500);
+        }
+
+        window.endGame = async function() {
+            gameBGM.pause(); 
+            gameState.gameActive = false; stopGameLoops(); clearInterval(gameState.gameTimerInterval);
+            if (videoElement.srcObject) {
+                videoElement.srcObject.getTracks().forEach(track => track.stop());
+                videoElement.srcObject = null;
+            }
+
+            playSound('gameover');
+            let avg = 0; if (gameState.tapTimes.length > 0) avg = gameState.tapTimes.reduce((a, b) => a + b, 0) / gameState.tapTimes.length;
+            
+            const avgTimeStr = avg.toFixed(2);
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.saveScoreToCloud === 'function') {
+                await window.WordHunterFirebase.saveScoreToCloud(gameState.player1Name, gameState.scoreP1, avgTimeStr);
+            }
+
+            document.getElementById('screen-game').classList.add('hidden'); document.getElementById('screen-game').classList.remove('flex'); 
+            
+            document.getElementById('screen-results').classList.remove('hidden');
+            document.getElementById('screen-results').classList.add('flex');
+
+            document.getElementById('res-mode-label').innerText = `ระดับ CEFR: ${vocabEngine[gameConfig.difficulty].name} | หมวด: ${vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title}`;
+            document.getElementById('res-score-p1').innerText = `${gameState.scoreP1}`; 
+            document.getElementById('res-avg-time').innerText = `${avgTimeStr}s`;
+        }
+
+        async function loadAiModel() {
+            const el = document.getElementById('ai-loading');
+            if (isAiModelLoaded) { if (el) { el.classList.add('hidden'); el.classList.remove('flex'); } return true; }
+            try {
+                if (el) { el.classList.remove('hidden'); el.classList.add('flex'); }
+                await Promise.race([
+                    tf.ready().then(async () => {
+                        const model = poseDetection.SupportedModels.MoveNet;
+                        detector = await poseDetection.createDetector(model, { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING, enableSmoothing: true });
+                    }),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('AI Load Timeout')), 30000))
+                ]);
+                isAiModelLoaded = true; 
+                if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
+                return true;
+            } catch (err) { 
+                console.warn("AI ล้มเหลว สลับโหมดอัตโนมัติ", err);
+                if (el) { el.classList.add('hidden'); el.classList.remove('flex'); } 
+                showToast("เครื่องไม่รองรับ AI สลับเป็นโหมดกดตอบให้จ้า!", "⚠️");
+                return false; 
+            }
+        }
+
+        window.showQuitConfirmation = function() { playSound('click'); gameState.gameActive = false; showModal('modal-quit-confirm'); }
+        
+        window.confirmQuit = function(quit) {
+            playSound('click'); hideModal('modal-quit-confirm');
+            if (quit) {
+                clearInterval(gameState.gameTimerInterval); stopGameLoops(); 
+                if (videoElement.srcObject) {
+                    videoElement.srcObject.getTracks().forEach(track => track.stop());
+                    videoElement.srcObject = null;
+                }
+                window.backToLobby();
+            } else { 
+                gameState.gameActive = true; 
+                gameState.lastTapTime = Date.now();
+                lastAiFrameTime = performance.now(); 
+            }
+        }
+
+        window.backToLobby = function() {
+            gameBGM.pause(); 
+            playSound('click');
+            
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') {
+                window.WordHunterFirebase.forceCleanup();
+            }
+
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('flex');
+
+            const screenGame = document.getElementById('screen-game'); screenGame.classList.add('hidden'); screenGame.classList.remove('flex'); 
+            document.getElementById('screen-lobby').classList.remove('hidden');
+            clearInterval(gameState.gameTimerInterval); stopGameLoops(); 
+            if (videoElement.srcObject) { 
+                videoElement.srcObject.getTracks().forEach(track => track.stop()); 
+                videoElement.srcObject = null; 
+            }
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') {
+                window.WordHunterFirebase.loadLeaderboard();
+            }
+        }
+
+        window.sendChatMessage = function() {
+            const input = document.getElementById('ai-chat-input'); const query = input.value.trim(); if (!query) return;
+            playSound('click'); appendChatMessage(`🧑‍🎓 นักเรียน: ${query}`, "text-cyan-400 font-bold"); input.value = "";
+            const loading = appendChatMessage("🤖 ย่าโม AI: กำลังคิดคำตอบ... 💭", "text-slate-400 italic");
+            setTimeout(() => {
+                loading.remove(); let reply = "ลองพิมพ์ถามคำศัพท์ CEFR หรือเรื่องโคราชได้เลยเด้อจ้า!"; const q = query.toLowerCase(); let foundWord = null;
+                for (const groupKey in vocabEngine) { for (const catKey in vocabEngine[groupKey].categories) {
+                    const words = vocabEngine[groupKey].categories[catKey].words; const match = words.find(w => w.en.toLowerCase() === q || w.th.includes(query));
+                    if (match) { foundWord = match; break; }
+                } if (foundWord) break; }
+                if (foundWord) reply = `✨ คำศัพท์ "${foundWord.en}" แปลว่า "${foundWord.th}" จ้า!`; else if (q.includes("โคราช") || q.includes("ย่าโม")) reply = "ประตูชุมพลเป็นทางเข้าเมืองโบราณ ใครมาลอดจะได้กลับมาเยือนโคราชอีกครั้งเด้อ!";
+                appendChatMessage(`🤖 ย่าโม AI: ${reply}`, "text-amber-200 font-semibold bg-slate-800 p-3 rounded-lg border border-white/10");
+            }, 800);
+        }
+
+        function appendChatMessage(text, className) {
+            const history = document.getElementById('ai-chat-history'); const msg = document.createElement('div');
+            msg.className = `leading-relaxed ${className}`; msg.innerText = text; history.appendChild(msg); history.scrollTop = history.scrollHeight; return msg;
+        }
+
+        window.renderLeaderboardUI = function(dataArray = null) {
+            const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = '';
+            let leaderboard = dataArray || [];
+            if (leaderboard.length === 0) { tbody.innerHTML = `<tr><td colspan=\"6\" class=\"p-6 text-center text-slate-400 italic font-bold\">ยังไม่มีข้อมูลในระบบ เป็นคนแรกที่พิชิตสถิติเลย!</td></tr>`; return; }
+            leaderboard.forEach((record, index) => {
+                let rankIcon = `${index + 1}`; if (index === 0) rankIcon = '🥇'; else if (index === 1) rankIcon = '🥈'; else if (index === 2) rankIcon = '🥉';
+                const tr = document.createElement('tr'); tr.className = "border-b border-white/5 hover:bg-slate-800/40 transition-colors";
+                const avatar = record.photoURL || '👨‍🚀';
+                tr.innerHTML = `
+                    <td class="p-4 text-center font-black text-amber-400 text-xl">${rankIcon}</td>
+                    <td class="p-4 font-bold text-white flex items-center gap-2"><span class="text-2xl">${avatar}</span> ${escapeHtml(record.name)}</td>
+                    <td class="p-4 text-center text-slate-300 font-bold">${escapeHtml(record.difficulty)}</td>
+                    <td class="p-4 text-center text-cyan-300 text-xs">${escapeHtml(record.category)}</td>
+                    <td class="p-4 text-center font-black text-yellow-400 text-xl">${record.score}</td>
+                    <td class="p-4 text-center text-emerald-400 text-sm font-bold">${escapeHtml(record.avgTime)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.shareResult = function() {
+            playSound('click'); 
+            const text = `ฉันทำได้ ${gameState.scoreP1} คะแนน ในเกม Words Hunter AR Hunsa! มาประลองความเร็วกัน!`;
+            const textArea = document.createElement("textarea"); textArea.value = text; document.body.appendChild(textArea); textArea.select();
+            try { document.execCommand('copy'); showToast("คัดลอกคะแนนเพื่อแชร์แล้วจ้า!", "📋"); } catch (err) { showToast("ไม่สามารถคัดลอกได้", "❌"); }
+            document.body.removeChild(textArea);
+        }
+
+        window.promptResetLeaderboard = function() {
+            playSound('click');
+            showModal('modal-reset-confirm');
+        }
+
+        window.executeResetLeaderboard = function() {
+            playSound('click');
+            renderLeaderboardUI([]);
+            hideModal('modal-reset-confirm');
+            showToast("ฟังก์ชันนี้ถูกปิดการใช้งานในระบบ Cloud Leaderboard", "🛡️");
+        }
+
+        window.showToast = function(message, icon = "✨") {
+            const toast = document.getElementById('toast-notification'); document.getElementById('toast-icon').innerText = icon; document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+        }
+
+        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            window.adjustCategorySelection();
+            window.updateLeaderboardCategoryFilter();
+            buildAvatarSelector('avatar-container-signup');
+            window.showModal('modal-initial-signup');
+        });
+    </script>
+
+    <!-- ================= [เพิ่ม Fallback Safe Wrappers] ================= -->
+    <script>
+        window.createRoomFirebase = function() {
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.createRoom === 'function') window.WordHunterFirebase.createRoom();
+            else { if(window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); }
+        };
+        window.joinRoomFirebase = function() {
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.openJoinModal === 'function') window.WordHunterFirebase.openJoinModal();
+            else { if(window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); }
+        };
+        window.submitJoinRoomSafe = function() {
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.submitJoinRoom === 'function') window.WordHunterFirebase.submitJoinRoom();
+            else window.hideModal('modal-join-room');
+        };
+        window.cancelRoomSafe = function() {
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.cancelRoom === 'function') window.WordHunterFirebase.cancelRoom();
+            else window.hideModal('modal-lobby');
+        };
+        window.loadLeaderboardSafe = function() {
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') window.WordHunterFirebase.loadLeaderboard();
+        };
+        window.startGameHostSafe = function() {
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.startGameAsHost === 'function') window.WordHunterFirebase.startGameAsHost();
+        }
+    </script>
+
+    <!-- ================= [โมดูล Firebase (V11.6.1) + Real-time Multiplayer] ================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        window.WordHunterFirebase = {
+            app: null,
+            db: null,
+            currentRoomId: null,
+            unsubscribeLobby: null,
+            isProcessing: false,
+
+            config: {
+                apiKey: "AIzaSyAKAPwkT-WefQ4KWCLrdLJtl7DHfNgmdq8",
+                authDomain: "word-hunter-ar-hunsa.firebaseapp.com",
+                projectId: "word-hunter-ar-hunsa",
+                storageBucket: "word-hunter-ar-hunsa.firebasestorage.app",
+                messagingSenderId: "443417643469",
+                appId: "1:443417643469:web:d41dc7cfe744d8783bdc84"
+            },
+
+            init: async function() {
+                console.log("[Firebase Debug]: 🚀 Initializing Firebase Module (Connecting Direct to Custom Project)...");
+                try {
+                    this.app = initializeApp(this.config);
+                    this.db = getFirestore(this.app);
+                    
+                    console.log("[Firebase Debug]: ✅ Firebase initialized securely.");
+                    this.loadLeaderboard();
+
+                } catch (error) {
+                    console.warn("[Firebase Debug]: ❌ Firebase Init Error: ", error);
+                }
+            },
+
+            getCollectionPath: function(colName) {
+                return colName;
+            },
+
+            forceCleanup: function() {
+                console.log("[Firebase Debug]: 🧹 Forcing cleanup of Firebase Listeners...");
+                if (this.unsubscribeLobby) {
+                    this.unsubscribeLobby();
+                    this.unsubscribeLobby = null;
+                    console.log("[Firebase Debug]: 🛑 Listener Unsubscribed to prevent Memory Leaks.");
+                }
+            },
+
+            executeInitialSignup: async function() {
+                if (window.playSound) window.playSound('click');
+                if (this.isProcessing) return;
+                this.isProcessing = true;
+
+                const usernameInput = document.getElementById('initial-username').value.trim();
+                const gradeInput = document.getElementById('initial-grade').value.trim();
+
+                if (!usernameInput || !gradeInput) {
+                    if (window.showToast) window.showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️");
+                    this.isProcessing = false;
+                    return;
+                }
+
+                console.log("[Firebase Debug]: 🔐 Starting Anonymous/Direct Save process...");
+                if (window.showToast) window.showToast("กำลังเข้าสู่ระบบ...", "⏳");
+
+                try {
+                    if(typeof gameBGM !== 'undefined'){
+                        gameBGM.play().then(() => { gameBGM.pause(); gameBGM.currentTime = 0; }).catch(e => console.warn(e));
+                    }
+
+                    let savedUser = null;
+                    try { savedUser = JSON.parse(localStorage.getItem('word_hunter_user')); } catch(e) {}
+                    
+                    const uid = (savedUser && savedUser.uid) ? savedUser.uid : 'PLAYER_' + Date.now() + Math.random().toString(36).substr(2, 5);
+
+                    const profileData = {
+                        uid: uid,
+                        username: usernameInput,
+                        email: "no-login@local",
+                        grade: gradeInput,
+                        photoURL: selectedAvatar || '🦊',
+                        createdAt: serverTimestamp()
+                    };
+
+                    if (this.db) {
+                        try {
+                            const userRef = doc(this.db, this.getCollectionPath('users'), uid);
+                            await setDoc(userRef, profileData, { merge: true });
+                            console.log("[Firebase Debug]: 🆕 Profile saved to Firestore successfully", profileData);
+                        } catch (err) {
+                            console.warn("[Firebase Debug]: ⚠️ Could not save to Firestore, playing locally.", err);
+                        }
+                    }
+
+                    if (typeof gameState !== 'undefined') {
+                        gameState.currentUser = profileData;
+                        gameState.player1Name = profileData.username;
+                    }
+                    
+                    localStorage.setItem('word_hunter_user', JSON.stringify(profileData));
+                    
+                    document.getElementById('user-display-name').innerText = `${profileData.username} (${profileData.grade})`;
+                    document.getElementById('topbar-avatar').innerText = profileData.photoURL;
+                    document.getElementById('topbar-avatar').classList.remove('hidden');
+                    document.getElementById('user-status-dot').classList.remove('bg-red-500');
+                    document.getElementById('user-status-dot').classList.add('bg-emerald-500');
+
+                    if (window.hideModal) window.hideModal('modal-initial-signup');
+                    if (window.showToast) window.showToast(`ยินดีต้อนรับ คุณ ${profileData.username}!`, "🎉");
+
+                } catch (error) {
+                    console.error("[Firebase Debug]: ❌ Signup Flow Error:", error);
+                    if (window.showToast) window.showToast("เกิดข้อผิดพลาดในการเข้าสู่ระบบ", "❌");
+                } finally {
+                    this.isProcessing = false;
+                }
+            },
+
+            updateProfile: async function() {
+                if (window.playSound) window.playSound('click');
+                if (!gameState.currentUser) return;
+                
+                const username = document.getElementById('auth-username').value.trim();
+                const grade = document.getElementById('auth-grade').value.trim();
+                if (!username || !grade) { if(window.showToast) window.showToast("กรุณากรอกข้อมูลให้ครบจ้า!", "⚠️"); return; }
+                
+                try {
+                    const profile = { ...gameState.currentUser, username, grade, photoURL: selectedAvatar };
+                    gameState.currentUser = profile;
+                    gameState.player1Name = username;
+                    localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                    
+                    if (this.db) {
+                        try {
+                            const userRef = doc(this.db, this.getCollectionPath('users'), profile.uid);
+                            await updateDoc(userRef, { username: username, grade: grade, photoURL: selectedAvatar });
+                        } catch(e) {}
+                    }
+                    
+                    document.getElementById('user-display-name').innerText = `${username} (${grade})`;
+                    document.getElementById('topbar-avatar').innerText = selectedAvatar;
+                    if(window.hideModal) window.hideModal('modal-auth');
+                    if(window.showToast) window.showToast("อัปเดตข้อมูลผู้เล่นเรียบร้อย!", "✅");
+                } catch(e) {
+                    console.error("Update profile error", e);
+                }
+            },
+
+            saveScoreToCloud: async function(name, score, avgTime) {
+                if (!this.db || !gameState.currentUser) return;
+                
+                console.log("[Firebase Debug]: 💾 Saving game score to Cloud...");
+                try {
+                    const lbCollection = collection(this.db, this.getCollectionPath('leaderboard'));
+                    const record = {
+                        uid: gameState.currentUser.uid,
+                        name: name,
+                        grade: gameState.currentUser.grade,
+                        difficulty: gameConfig.difficulty,
+                        category: vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title,
+                        score: Number(score), // Ensure integer
+                        avgTime: avgTime + "s",
+                        photoURL: gameState.currentUser.photoURL || '🦊',
+                        timestamp: new Date().toISOString() // Safe timestamp for no-auth write
+                    };
+                    await addDoc(lbCollection, record);
+                    this.loadLeaderboard();
+                } catch (e) {
+                    console.error("[Firebase Debug]: ❌ Save score error:", e);
+                }
+            },
+
+            loadLeaderboard: async function() {
+                if (!this.db) return;
+                
+                console.log("[Firebase Debug]: 📊 Fetching & Filtering Leaderboard Data...");
+                try {
+                    // 1. อ่านค่าเป้าหมายจาก Dropdown Filter บน UI
+                    const diffInput = document.getElementById('lb-filter-diff');
+                    const catInput = document.getElementById('lb-filter-cat');
+                    
+                    let targetDiffName = "";
+                    let targetCatTitle = "";
+                    
+                    if (diffInput && catInput && diffInput.value && catInput.value) {
+                        const diffKey = diffInput.value;
+                        const catKey = catInput.value;
+                        if(vocabEngine[diffKey]) {
+                            targetDiffName = vocabEngine[diffKey].name; // ดึงชื่อเต็มของระดับ เช่น "🟢 A1 (Beginner)"
+                            if(vocabEngine[diffKey].categories[catKey]) {
+                                targetCatTitle = vocabEngine[diffKey].categories[catKey].title; // ดึงชื่อเต็มหมวดหมู่
+                            }
+                        }
+                    }
+
+                    // 2. ดึงข้อมูลทั้งหมดจาก Firestore (หลีกเลี่ยง .where() และ .orderBy() เพื่อป้องกันบั๊ก Missing Index)
+                    const lbCollection = collection(this.db, this.getCollectionPath('leaderboard'));
+                    const snapshot = await getDocs(lbCollection);
+                    
+                    let records = [];
+                    snapshot.forEach(doc => { 
+                        const data = doc.data();
+                        // 3. กรองข้อมูลใน Memory ด้วย JavaScript อย่างแม่นยำ
+                        if (targetDiffName && targetCatTitle) {
+                            if (data.difficulty === targetDiffName && data.category === targetCatTitle) {
+                                records.push(data);
+                            }
+                        } else {
+                            records.push(data);
+                        }
+                    });
+
+                    // 4. เรียงลำดับคะแนน (Memory Sort) และจำกัด 10 อันดับแรก
+                    records.sort((a, b) => b.score - a.score);
+                    const top10 = records.slice(0, 10);
+                    
+                    const liveBadge = document.getElementById('lb-sync-status');
+                    if(liveBadge) liveBadge.classList.remove('hidden');
+
+                    if (window.renderLeaderboardUI) {
+                        window.renderLeaderboardUI(top10);
+                    }
+                } catch (e) {
+                    console.error("[Firebase Debug]: ❌ Load leaderboard error:", e);
+                }
+            },
+
+            // --- 👑 Kahoot-style Room Management (Exact Schema Requirement) ---
+
+            renderLobbyState: function(roomData) {
+                const hostAvatar = document.getElementById('lobby-host-avatar');
+                const hostName = document.getElementById('lobby-host-name');
+                if(hostAvatar && hostName) {
+                    hostAvatar.innerText = roomData.hostPhotoURL || '🦊';
+                    hostAvatar.classList.remove('animate-bounce');
+                    hostName.innerText = roomData.hostId;
+                }
+
+                const joinerAvatar = document.getElementById('lobby-joiner-avatar');
+                const joinerName = document.getElementById('lobby-joiner-name');
+                const hasJoiner = roomData.joinerId && roomData.joinerId !== "";
+
+                if(joinerAvatar && joinerName) {
+                    if(hasJoiner) {
+                        joinerAvatar.innerText = roomData.joinerPhotoURL || '🐼';
+                        joinerAvatar.classList.remove('opacity-50');
+                        joinerAvatar.classList.add('animate-bounce');
+                        joinerName.innerText = roomData.joinerId;
+                        joinerName.classList.remove('text-slate-400');
+                        joinerName.classList.add('text-cyan-400');
+                    } else {
+                        joinerAvatar.innerText = '👤';
+                        joinerAvatar.classList.add('opacity-50');
+                        joinerAvatar.classList.remove('animate-bounce');
+                        joinerName.innerText = 'รอผู้ท้าชิง...';
+                        joinerName.classList.add('text-slate-400');
+                        joinerName.classList.remove('text-cyan-400');
+                    }
+                }
+
+                const actionZone = document.getElementById('lobby-action-zone');
+                if(actionZone && gameState.isRoomHost) {
+                    if(hasJoiner) {
+                        actionZone.innerHTML = `<button onclick="window.startGameHostSafe()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-4 rounded-xl transition-all text-xl shadow-xl animate-pulse">🚀 เริ่มเกมเลย!</button>
+                                                <button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ยุบห้อง</button>`;
+                    } else {
+                        actionZone.innerHTML = `<button disabled class="w-full bg-slate-700 text-slate-500 font-black py-4 rounded-xl text-xl cursor-not-allowed">🚀 รอผู้ท้าชิง...</button>
+                                                <button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ยุบห้อง</button>`;
+                    }
+                } else if(actionZone && !gameState.isRoomHost) {
+                    actionZone.innerHTML = `<button disabled class="w-full bg-amber-500/50 text-white font-black py-4 rounded-xl text-xl animate-pulse">⏳ รอหัวหน้าห้องเริ่มเกม...</button>
+                                            <button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ออกห้อง</button>`;
+                }
+            },
+
+            createRoom: async function() {
+                if (window.playSound) window.playSound('click');
+                if (this.isProcessing) return; 
+
+                if (!this.db || !gameState.currentUser) {
+                    if (window.showToast) window.showToast("โปรดลงชื่อเข้าระบบก่อนสร้างห้อง!", "⚠️");
+                    return;
+                }
+
+                this.isProcessing = true;
+                const hostProfile = gameState.currentUser;
+                gameState.isRoomHost = true;
+                
+                console.log("[Firebase Debug]: 👑 Starting Create Room Process for Host:", hostProfile.username);
+                if (window.showToast) window.showToast("กำลังสร้างห้อง...", "⏳");
+
+                try {
+                    let roomId;
+                    let isUnique = false;
+                    let roomRef;
+
+                    while (!isUnique) {
+                        roomId = Math.floor(100000 + Math.random() * 900000).toString();
+                        roomRef = doc(this.db, this.getCollectionPath('room'), roomId);
+                        const snap = await getDoc(roomRef);
+                        if (!snap.exists()) {
+                            isUnique = true; 
+                        }
+                    }
+
+                    const roomDataInitial = {
+                        roomId: roomId,
+                        hostId: hostProfile.username,
+                        hostPhotoURL: hostProfile.photoURL || '🦊',
+                        joinerId: "",
+                        joinerPhotoURL: "",
+                        status: "waiting",
+                        createdAt: new Date().toISOString()
+                    };
+
+                    await setDoc(roomRef, roomDataInitial);
+
+                    this.currentRoomId = roomId;
+                    document.getElementById('lobby-room-id').innerText = roomId;
+                    
+                    this.renderLobbyState(roomDataInitial);
+                    
+                    if (window.showModal) window.showModal('modal-lobby');
+                    this.forceCleanup(); 
+                    
+                    console.log("[Firebase Debug]: 👂 Listening for room updates...");
+                    
+                    this.unsubscribeLobby = onSnapshot(roomRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            this.renderLobbyState(data);
+                            
+                            if (data.status === "playing") {
+                                console.log("[Firebase Debug]: 🚀 Game Started by Host!");
+                                this.forceCleanup();
+                                if (window.hideModal) window.hideModal('modal-lobby');
+                                if (window.runStartSequence) window.runStartSequence('kahoot'); 
+                            }
+                        } else {
+                            this.forceCleanup();
+                            if (window.hideModal) window.hideModal('modal-lobby');
+                            if (window.showToast) window.showToast("ห้องถูกยกเลิกแล้ว", "⚠️");
+                        }
+                    });
+
+                } catch (error) {
+                    console.error("[Firebase Debug]: ❌ Create Room Error:", error);
+                    if (window.showToast) window.showToast("สร้างห้องล้มเหลว", "❌");
+                } finally {
+                    this.isProcessing = false;
+                }
+            },
+
+            openJoinModal: function() {
+                if (window.playSound) window.playSound('click');
+                if (!this.db || !gameState.currentUser) {
+                    if (window.showToast) window.showToast("โปรดลงชื่อเข้าระบบก่อนเข้าร่วมห้อง!", "⚠️");
+                    return;
+                }
+                document.getElementById('join-room-input').value = "";
+                if (window.showModal) window.showModal('modal-join-room');
+            },
+
+            processJoinRoom: async function(roomId) {
+                if (this.isProcessing) return; 
+                this.isProcessing = true;
+                
+                if (window.showToast) window.showToast("กำลังค้นหาห้อง...", "🔍");
+                const profile = gameState.currentUser;
+                gameState.isRoomHost = false;
+
+                try {
+                    const roomRef = doc(this.db, this.getCollectionPath('room'), roomId);
+                    const roomSnap = await getDoc(roomRef);
+
+                    if (roomSnap.exists()) {
+                        const roomData = roomSnap.data();
+                        
+                        if (roomData.status === "waiting") {
+                            await updateDoc(roomRef, {
+                                joinerId: profile.username,
+                                joinerPhotoURL: profile.photoURL || '🦊'
+                            });
+
+                            this.currentRoomId = roomId;
+                            if (window.hideModal) window.hideModal('modal-join-room');
+                            
+                            document.getElementById('lobby-room-id').innerText = roomId;
+                            
+                            roomData.joinerId = profile.username;
+                            roomData.joinerPhotoURL = profile.photoURL;
+                            this.renderLobbyState(roomData);
+
+                            if (window.showModal) window.showModal('modal-lobby');
+                            
+                            this.forceCleanup();
+                            
+                            this.unsubscribeLobby = onSnapshot(roomRef, (docSnap) => {
+                                if (docSnap.exists()) {
+                                    const data = docSnap.data();
+                                    this.renderLobbyState(data);
+                                    
+                                    if (data.status === "playing") {
+                                        console.log("[Firebase Debug]: 🚀 Game Started by Host!");
+                                        this.forceCleanup();
+                                        if (window.hideModal) window.hideModal('modal-lobby');
+                                        if (window.runStartSequence) window.runStartSequence('kahoot'); 
+                                    }
+                                } else {
+                                    this.forceCleanup();
+                                    if (window.hideModal) window.hideModal('modal-lobby');
+                                    if (window.showToast) window.showToast("ห้องถูกยุบแล้ว", "⚠️");
+                                }
+                            });
+
+                        } else {
+                            if (window.showToast) window.showToast("ห้องนี้กำลังเล่นอยู่หรือปิดไปแล้วครับ", "⏳");
+                        }
+                    } else {
+                        if (window.showToast) window.showToast("ไม่พบรหัสห้องนี้ในระบบ!", "❌");
+                    }
+                } catch (error) {
+                    console.error("[Firebase Debug]: ❌ Join Room Error:", error);
+                    if (window.showToast) window.showToast("เข้าร่วมห้องล้มเหลว", "❌");
+                } finally {
+                    this.isProcessing = false;
+                }
+            },
+
+            startGameAsHost: async function() {
+                if(!this.currentRoomId || !this.db) return;
+                if(window.playSound) window.playSound('click');
+                
+                try {
+                    console.log("[Firebase Debug]: 🚀 Host is starting the game...");
+                    const roomRef = doc(this.db, this.getCollectionPath('room'), this.currentRoomId);
+                    await updateDoc(roomRef, { status: "playing" });
+                } catch (error) {
+                    console.error("Error starting game", error);
+                }
+            },
+
+            cancelRoom: async function() {
+                if (window.playSound) window.playSound('click');
+                if (window.hideModal) window.hideModal('modal-lobby');
+                this.forceCleanup();
+
+                if (this.currentRoomId && this.db) {
+                    try {
+                        const roomRef = doc(this.db, this.getCollectionPath('room'), this.currentRoomId);
+                        
+                        if(gameState.isRoomHost) {
+                            console.log(`[Firebase Debug]: 🗑️ Host deleting room...`);
+                            await deleteDoc(roomRef);
+                            if (window.showToast) window.showToast("ยุบห้องแล้ว", "🗑️");
+                        } else {
+                            await updateDoc(roomRef, {
+                                joinerId: "",
+                                joinerPhotoURL: ""
+                            });
+                            if (window.showToast) window.showToast("ออกจากห้องแล้ว", "🚪");
+                        }
+                    } catch (error) {
+                        console.error("[Firebase Debug]: ❌ Cancel Room Error:", error);
+                    }
+                }
+                this.currentRoomId = null;
+            }
+        };
+
+        window.WordHunterFirebase.init();
+
+    </script>
+</body>
+</html>
