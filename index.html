@@ -1638,7 +1638,7 @@
                             errorMsg = "⚠️ ยังไม่ได้เปิดใช้งานบัญชี Google ในเมนู Authentication";
                         } else if (authErr.code === 'auth/popup-closed-by-user') {
                             errorMsg = "⚠️ คุณปิดหน้าต่างล็อกอินก่อนเสร็จสิ้น";
-                        } else if (window.location.protocol === 'file:') {
+                        } else if (window.location && window.location.protocol === 'file:') {
                             errorMsg = "❌ เปิดไฟล์ตรงๆ (file://) ล็อกอินไม่ได้ ต้องรันผ่าน Live Server / GitHub";
                         }
                         
@@ -1646,7 +1646,6 @@
                             window.showToast(errorMsg, "❌");
                         }
 
-                        // Try anon auth to save the session at least
                         try {
                             console.log("[Firebase Debug]: Attempting Anonymous Auth fallback...");
                             const anonResult = await signInAnonymously(this.auth);
@@ -1692,7 +1691,7 @@
                         profileData = {
                             uid: user.uid,
                             username: displayUsername,
-                            email: user.email || (usedAnon ? "anonymous@fallback" : "no-email@google"),
+                            email: user.email || (usedAnon ? "ไม่มีอีเมล (โหมดทดสอบ)" : "no-email@google"),
                             grade: finalGrade,
                             photoURL: selectedAvatar || '👨‍🚀',
                             createdAt: serverTimestamp()
@@ -1840,7 +1839,7 @@
                 if (this.isProcessing) return; 
 
                 if (!this.db || !gameState.currentUser) {
-                    if (window.showToast) window.showToast("โปรดล็อกอินเข้าระบบก่อนสร้างห้อง!", "⚠️");
+                    if (window.showToast) window.showToast("โปรดลงชื่อเข้าระบบก่อนสร้างห้อง!", "⚠️");
                     return;
                 }
 
@@ -1915,7 +1914,7 @@
             openJoinModal: function() {
                 if (window.playSound) window.playSound('click');
                 if (!this.db || !gameState.currentUser) {
-                    if (window.showToast) window.showToast("โปรดล็อกอินเข้าระบบก่อนเข้าร่วมห้อง!", "⚠️");
+                    if (window.showToast) window.showToast("โปรดลงชื่อเข้าระบบก่อนเข้าร่วมห้อง!", "⚠️");
                     return;
                 }
                 document.getElementById('join-room-input').value = "";
