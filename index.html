@@ -1568,6 +1568,21 @@
         window.addEventListener('DOMContentLoaded', () => {
             window.adjustCategorySelection();
             buildAvatarSelector('avatar-container-signup');
+            
+            // Check for existing profile to skip repetitive manual typing but still ensure login validation
+            const savedUser = localStorage.getItem('word_hunter_user');
+            if (savedUser) { 
+                try { 
+                    const profile = JSON.parse(savedUser); 
+                    document.getElementById('initial-username').value = profile.username || ""; 
+                    document.getElementById('initial-grade').value = profile.grade || ""; 
+                    if(profile.photoURL) {
+                        selectedAvatar = profile.photoURL;
+                        window.selectAvatar(profile.photoURL);
+                    }
+                } catch(e) {} 
+            }
+            
             window.showModal('modal-initial-signup');
         });
     </script>
@@ -1769,7 +1784,9 @@
             },
 
             updateProfile: async function() {
+                if (window.playSound) window.playSound('click');
                 if (!this.db || !gameState.currentUser) return;
+                
                 if (this.isProcessing) return;
                 this.isProcessing = true;
 
@@ -1821,7 +1838,7 @@
                 }
             },
 
-            // 🛠️ [Fix Cat 3]: ดักจับ Error ดัชนี Composite Index พัง พร้อม UI แจ้งเตือน และ Smart Fallback
+            // 🛠️ [Fix Cat 3]: ดักจับ Error ดัชนี Composite Index พัง พร้อม UI แจ้งเตือน และ Smart Fallback กลับมาใช้ Firebase Query
             loadLeaderboard: async function() {
                 if (!this.db) return;
                 
