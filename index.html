@@ -291,7 +291,7 @@
                     <span class="hidden sm:inline">🔍 ค้นหาคำแปล</span>
                     <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-extrabold" id="hud-question-count">ข้อ 1/10</span>
                 </div>
-                <!-- 🎨 [Fix]: ปรับใช้ Kanit และลดความหนาลงเป็น font-bold พร้อมใส่ tracking-wide เพื่อให้สระอำและไม้โทภาษาไทยไม่กลืนกัน -->
+                <!-- 🎨 [Fix]: บังคับใช้ Kanit, ลดน้ำหนัก, เพิ่ม Tracking เพื่อให้ภาษาไทยและวรรณยุกต์ไม่โดนกลืน -->
                 <div class="text-2xl md:text-4xl lg:text-5xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-white to-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate" style="font-family: 'Kanit', sans-serif;" id="hud-instruction-text">
                     วิเคราะห์
                 </div>
@@ -584,9 +584,8 @@
     </div>
 
     <!-- ================= JAVASCRIPT LOGIC ================= -->
-    <!-- รวม Script มาตรฐานไว้ในบล็อกเดียว ป้องกันบั๊ก ReferenceError -->
     <script>
-       const vocabEngine = {
+        const vocabEngine = {
             "A1": {
                 name: "🟢 A1 (Beginner)",
                 categories: {
@@ -609,7 +608,9 @@
                         words: [
                             {en:"act",th:"กระทำ"}, {en:"add",th:"เพิ่ม/บวก"}, {en:"answer",th:"ตอบ"}, 
                             {en:"ask",th:"ถาม/ขอร้อง"}, {en:"build",th:"สร้าง"}, {en:"burn",th:"เผา/ไหม้"}, 
-                            {en:"buy",th:"ซื้อ"}, {en:"call",th:"โทรหา/เรียก"}
+                            {en:"buy",th:"ซื้อ"}, {en:"call",th:"โทรหา/เรียก"}, {en:"listen",th:"ฟัง"}, 
+                            {en:"smile",th:"ยิ้ม"}, {en:"drink",th:"ดื่ม"}, {en:"eat",th:"กิน"}, 
+                            {en:"read",th:"อ่าน"}, {en:"write",th:"เขียน"}
                         ] 
                     },
                     "adjectives_basic": { 
@@ -617,7 +618,9 @@
                         words: [
                             {en:"bad",th:"เลว/แย่"}, {en:"big",th:"ใหญ่"}, {en:"black",th:"สีดำ"}, 
                             {en:"blue",th:"สีน้ำเงิน"}, {en:"brown",th:"สีน้ำตาล"}, {en:"busy",th:"ยุ่ง"},
-                            {en:"alone",th:"ลำพัง"}
+                            {en:"alone",th:"ลำพัง"}, {en:"beautiful",th:"สวย"}, {en:"new",th:"ใหม่"},
+                            {en:"clean",th:"สะอาด"}, {en:"small",th:"เล็ก"}, {en:"cold",th:"เย็น"},
+                            {en:"old",th:"เก่า"}, {en:"good",th:"ดี"}, {en:"hungry",th:"หิว"}
                         ] 
                     }
                 }
@@ -634,7 +637,9 @@
                             {en:"award",th:"รางวัล"}, {en:"base",th:"รากฐาน"}, {en:"battle",th:"การต่อสู้"}, 
                             {en:"beauty",th:"ความงาม"}, {en:"beginning",th:"จุดเริ่มต้น"}, {en:"behavior",th:"พฤติกรรม"}, 
                             {en:"benefit",th:"ผลประโยชน์"}, {en:"board",th:"กระดาน"}, {en:"border",th:"ชายแดน"}, 
-                            {en:"bottle",th:"ขวด"}, {en:"bottom",th:"ก้น/ส่วนล่างสุด"}
+                            {en:"bottle",th:"ขวด"}, {en:"bottom",th:"ก้น/ส่วนล่างสุด"}, {en:"accident",th:"อุบัติเหตุ"},
+                            {en:"journey",th:"เดินทาง"}, {en:"kitchen",th:"ห้องครัว"}, {en:"airport",th:"สนามบิน"},
+                            {en:"medicine",th:"ยา"}, {en:"shopping",th:"ซื้อของ"}, {en:"bicycle",th:"จักรยาน"}
                         ] 
                     },
                     "verbs_daily": { 
@@ -643,7 +648,10 @@
                             {en:"aim",th:"ตั้งเป้า"}, {en:"allow",th:"อนุญาต"}, {en:"appear",th:"ปรากฏตัว"}, 
                             {en:"argue",th:"โต้เถียง"}, {en:"arrive",th:"มาถึง"}, {en:"attack",th:"โจมตี"}, 
                             {en:"avoid",th:"หลีกเลี่ยง"}, {en:"award",th:"มอบรางวัล"}, {en:"benefit",th:"ได้รับประโยชน์"}, 
-                            {en:"blow",th:"เป่า/พัด"}, {en:"born",th:"เกิด"}, {en:"borrow",th:"ยืม"}
+                            {en:"blow",th:"เป่า/พัด"}, {en:"born",th:"เกิด"}, {en:"borrow",th:"ยืม"},
+                            {en:"repeat",th:"ทำซ้ำ"}, {en:"return",th:"กลับคืน"}, {en:"agree",th:"เห็นด้วย"},
+                            {en:"laugh",th:"หัวเราะ"}, {en:"decide",th:"ตัดสินใจ"}, {en:"explain",th:"อธิบาย"},
+                            {en:"choose",th:"เลือก"}
                         ] 
                     },
                     "adj_adv_daily": { 
@@ -669,7 +677,10 @@
                             {en:"attract",th:"ดึงดูด"}, {en:"bear",th:"ทน/แบกรับ"}, {en:"blame",th:"กล่าวโทษ"}, 
                             {en:"bother",th:"รบกวน"}, {en:"calculate",th:"คำนวณ"}, {en:"cancel",th:"ยกเลิก"}, 
                             {en:"capture",th:"จับกุม/จับภาพ"}, {en:"cast",th:"ทอด(เงา)/หล่อ"}, {en:"cause",th:"ทำให้เกิด"}, 
-                            {en:"cease",th:"ยุติ/เลิก"}
+                            {en:"cease",th:"ยุติ/เลิก"}, {en:"persuade",th:"โน้มน้าว"}, {en:"identify",th:"ระบุตัวตน"},
+                            {en:"achieve",th:"บรรลุผล"}, {en:"predict",th:"ทำนาย"}, {en:"imagine",th:"จินตนาการ"},
+                            {en:"improve",th:"ปรับปรุง"}, {en:"discover",th:"ค้นพบ"}, {en:"recommend",th:"แนะนำ"},
+                            {en:"encourage",th:"สนับสนุน"}
                         ] 
                     },
                     "nouns_abstract": { 
@@ -680,6 +691,14 @@
                             {en:"candidate",th:"ผู้สมัคร"}, {en:"category",th:"หมวดหมู่"}, {en:"cause",th:"สาเหตุ"}, 
                             {en:"client",th:"ลูกค้า"}
                         ] 
+                    },
+                    "adjectives": {
+                        title: "🎨 คำคุณศัพท์ (B1)",
+                        words: [
+                            {en:"definite",th:"แน่นอน"}, {en:"pleasant",th:"เพลิดเพลิน"}, {en:"delicious",th:"อร่อย"},
+                            {en:"disappointed",th:"ผิดหวัง"}, {en:"anxious",th:"วิตกกังวล"}, {en:"intelligent",th:"ฉลาด"},
+                            {en:"familiar",th:"คุ้นเคย"}, {en:"generous",th:"ใจกว้าง"}
+                        ]
                     }
                 }
             },
@@ -697,18 +716,16 @@
                         ] 
                     },
                      "academic_verbs": { 
-                        title: "🏃 กริยาวิชาการ", 
+                        title: "🏃 กริยาวิชาการ (B2)", 
                         words: [
-                            // คำเดิมของ B2 ที่มีอยู่แล้วเพื่อให้หมวดหมู่นี้สมบูรณ์
                             {en:"Acknowledge",th:"ยอมรับ"}, {en:"Regulate",th:"ควบคุม"}, {en:"Incorporate",th:"รวมเข้า"}, 
                             {en:"Distinguish",th:"แยกแยะ"}, {en:"Dominate",th:"ครอบงำ"}, {en:"Analyze",th:"วิเคราะห์"}, 
                             {en:"Interpret",th:"ตีความ"}, {en:"Investigate",th:"สืบสวน"}, {en:"Maintain",th:"รักษาไว้"}
                         ] 
                     },
                     "academic_nouns": { 
-                        title: "📦 นามวิชาการ", 
+                        title: "📦 นามวิชาการ (B2)", 
                         words: [
-                            // คำเดิมของ B2 ที่มีอยู่แล้วเพื่อให้หมวดหมู่นี้สมบูรณ์
                             {en:"Alternative",th:"ทางเลือก"}, {en:"Requirement",th:"ข้อกำหนด"}, {en:"Efficiency",th:"ประสิทธิภาพ"}, 
                             {en:"Resolution",th:"แก้ปัญหา"}, {en:"Emphasis",th:"การเน้นย้ำ"}, {en:"Evidence",th:"หลักฐาน"}, 
                             {en:"Phenomenon",th:"ปรากฏการณ์"}, {en:"Consequence",th:"ผลลัพธ์"}, {en:"Hypothesis",th:"สมมติฐาน"}
@@ -722,7 +739,7 @@
         const avatarList = ['🦊','🥷','🧑‍💻','🐼','🦁','🧙‍♂️','🧛‍♂️','🐉','👽','🤖','👻','💀','🎃','🦄','🦖'];
         let selectedAvatar = '🦊'; // Default
 
-        // 🛠️ [Fix Cat 5]: Audio Primer - ขอสิทธิ์และเปิด Audio Context บนมือถืออย่างถูกต้อง
+        // 🛠️ [Fix Cat 5]: ปลดล็อกระบบเสียงสำหรับ Mobile Browsers (Audio Primer) ทันทีที่ผู้เล่นสัมผัสจอ
         let isAudioUnlocked = false;
         async function unlockAudioContext() {
             if(isAudioUnlocked) return;
@@ -739,6 +756,7 @@
         document.body.addEventListener('touchstart', unlockAudioContext, {once:true, passive:true});
         document.body.addEventListener('pointerdown', unlockAudioContext, {once:true, passive:true});
 
+        // ฟังก์ชันอัปเดตสไตล์ของ Avatar อย่างปลอดภัย (สโคปเฉพาะ container ที่ระบุ เพื่อไม่ให้ชนกันระหว่าง signup/edit)
         window.selectAvatar = function(emoji, containerId) {
             try { initAudio(); playSound('click'); } catch(e){} 
             selectedAvatar = emoji;
@@ -767,7 +785,7 @@
         }
 
         let activeVocabList = [];
-        let gameConfig = { difficulty: "A1", category: "nouns", targetCount: 4, duration: 20, trackingTarget: "all", questionLang: "th-en" };
+        let gameConfig = { difficulty: "A1", category: "nouns_basic", targetCount: 4, duration: 20, trackingTarget: "all", questionLang: "th-en" };
         let gameState = {
             scoreP1: 0, timeLeft: 20, isPaused: false, gameActive: false,
             currentQuestion: null, options: [], targets: [], availableVocabs: [], 
@@ -791,6 +809,7 @@
         let lastAiFrameTime = 0; 
         let renderLoopId = null; 
 
+        // ================= ระบบเสียงเพลงประกอบ BGM =================
         const gameBGM = new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3");
         gameBGM.loop = true;
         gameBGM.volume = 0.3;
@@ -814,7 +833,7 @@
             setTimeout(resizeDrawingBuffer, 500); 
         });
 
-        // 🛠️ [Fix Cat 4]: Coordinate Translation แม่นยำสำหรับ Mobile Canvas (Letterboxing + Mirror X)
+        // 🛠️ [Fix Cat 4]: สมการคำนวณพิกัดบน Canvas ใหม่ สำหรับมือถือ (BoundingClientRect Scale Factor + Mirror X-Axis + Object Contain adjustments)
         function getCanvasMousePos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
             if (rect.width === 0 || rect.height === 0 || canvas.width === 0 || canvas.height === 0) return { x: 0, y: 0 };
@@ -832,6 +851,7 @@
             return { x: canvas.width - x, y: y }; 
         }
 
+        // 🛠️ [Fix Cat 4]: อัปเกรดเป็น Pointer Events เพื่อครอบคลุมทั้ง Mouse และ Touch อย่างราบรื่น ไร้ Ghost Clicks
         canvasElement.addEventListener('pointerdown', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
             const pos = getCanvasMousePos(e, canvasElement);
@@ -1384,7 +1404,7 @@
                 const text = document.createElement('span');
                 const isEnTh = gameConfig.questionLang === 'en-th';
                 text.innerText = isEnTh ? vocab.th : vocab.en;
-                // 🎨 [Fix]: บังคับให้ปุ่ม Kahoot ใช้ฟอนต์ Kanit เพื่อลดปัญหาวรรณยุกต์จม
+                // 🎨 [Fix]: บังคับใช้ Kanit และลดความหนาเป็น font-bold เพื่อลดปัญหาวรรณยุกต์จม
                 text.className = "z-10 px-2 text-center leading-tight break-words font-bold tracking-wide";
                 text.style.fontFamily = "'Kanit', sans-serif";
 
@@ -1519,7 +1539,7 @@
             ctx.translate(x, y); ctx.scale(-1, 1); ctx.fillStyle = '#ffffff';
             
             const size = radius < 55 ? '20px' : '28px';
-            // 🎨 [Fix]: บังคับให้ลูกบอล AR ใช้ฟอนต์ Kanit ล้วน และลดเป็นตัวหนาธรรมดา (bold)
+            // 🎨 [Fix]: บังคับใช้ Kanit ล้วน และลดความหนาเป็นตัวหนาปกติ (bold) แทน black เพื่อให้สระอ่านง่าย
             ctx.font = `bold ${size} Kanit, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
             
             const isEnTh = gameConfig.questionLang === 'en-th';
