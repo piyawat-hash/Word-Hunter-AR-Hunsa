@@ -555,7 +555,6 @@
     </div>
 
     <!-- ================= JAVASCRIPT LOGIC ================= -->
-    <!-- รวม Script มาตรฐานไว้ในบล็อกเดียว ป้องกันบั๊ก ReferenceError -->
     <script>
         const vocabEngine = {
             "A1": {
@@ -593,7 +592,7 @@
         const avatarList = ['🦊','🥷','🧑‍💻','🐼','🦁','🧙‍♂️','🧛‍♂️','🐉','👽','🤖','👻','💀','🎃','🦄','🦖'];
         let selectedAvatar = '🦊'; // Default
 
-        // 🛠️ [Fix Cat 5]: Audio Primer - ขอสิทธิ์และเปิด Audio Context บนมือถืออย่างถูกต้อง
+        // 🛠️ [Fix Cat 5]: ปลดล็อกระบบเสียงสำหรับ Mobile Browsers (Audio Primer) ทันทีที่ผู้เล่นสัมผัสจอ
         let isAudioUnlocked = false;
         async function unlockAudioContext() {
             if(isAudioUnlocked) return;
@@ -610,6 +609,7 @@
         document.body.addEventListener('touchstart', unlockAudioContext, {once:true, passive:true});
         document.body.addEventListener('pointerdown', unlockAudioContext, {once:true, passive:true});
 
+        // ฟังก์ชันอัปเดตสไตล์ของ Avatar อย่างปลอดภัย
         window.selectAvatar = function(emoji) {
             try { initAudio(); playSound('click'); } catch(e){} 
             selectedAvatar = emoji;
@@ -660,6 +660,7 @@
         let lastAiFrameTime = 0; 
         let renderLoopId = null; 
 
+        // ================= ระบบเสียงเพลงประกอบ BGM =================
         const gameBGM = new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3");
         gameBGM.loop = true;
         gameBGM.volume = 0.3;
@@ -683,24 +684,30 @@
             setTimeout(resizeDrawingBuffer, 500); 
         });
 
-        // 🛠️ [Fix Cat 4]: Coordinate Translation แม่นยำสำหรับ Mobile Canvas (Letterboxing + Mirror X)
+        // 🛠️ [Fix Cat 4]: สมการคำนวณพิกัดบน Canvas ใหม่ สำหรับมือถือ (BoundingClientRect Scale Factor + Mirror X-Axis + Object Contain adjustments)
         function getCanvasMousePos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
+            // ป้องกันการหารด้วยศูนย์
             if (rect.width === 0 || rect.height === 0 || canvas.width === 0 || canvas.height === 0) return { x: 0, y: 0 };
 
+            // หา Actual Scale ที่ถูกบีบด้วย object-contain CSS
             const scale = Math.min(rect.width / canvas.width, rect.height / canvas.height);
             const actualWidth = canvas.width * scale;
             const actualHeight = canvas.height * scale;
             
+            // หา Letterbox Offsets
             const offsetX = (rect.width - actualWidth) / 2;
             const offsetY = (rect.height - actualHeight) / 2;
 
+            // คืนค่าพิกัดให้ตรงกับ Canvas Resolution จริง
             const x = (e.clientX - rect.left - offsetX) / scale;
             const y = (e.clientY - rect.top - offsetY) / scale; 
             
+            // กลับด้านแกน X เพราะ Canvas ถูกสั่ง -scale-x-100 ใน CSS (Mirror)
             return { x: canvas.width - x, y: y }; 
         }
 
+        // 🛠️ [Fix Cat 4]: อัปเกรดเป็น Pointer Events เพื่อครอบคลุมทั้ง Mouse และ Touch อย่างราบรื่น ไร้ Ghost Clicks
         canvasElement.addEventListener('pointerdown', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
             const pos = getCanvasMousePos(e, canvasElement);
@@ -709,6 +716,7 @@
 
         canvasElement.addEventListener('pointermove', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
+            // ป้องกันมือถือเลื่อนจอตอนถู Canvas
             if(e.pointerType !== 'mouse' && e.cancelable) e.preventDefault(); 
             if(simulatedPointer || e.pointerType === 'mouse') {
                 const pos = getCanvasMousePos(e, canvasElement);
@@ -762,6 +770,17 @@
 
         window.hideModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } }
         window.showModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); } }
+
+        window.executeInitialSignup = async function() {
+            await unlockAudioContext(); 
+            
+            // 🛠️ [Fix Cat 1]: Ensure Firebase logic is called safely
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.executeInitialSignup === 'function') {
+                window.WordHunterFirebase.executeInitialSignup();
+            } else {
+                console.warn("[Firebase Debug]: Offline or Module not ready.");
+            }
+        }
 
         window.toggleAuthModal = function() {
             playSound('click');
@@ -893,16 +912,11 @@
                 videoElement.muted = true; 
                 videoElement.srcObject = stream;
                 
-                try {
-                    await videoElement.play(); 
-                } catch (e) {
-                    console.warn("Explicit play failed:", e);
-                }
-                
                 return new Promise((resolve) => {
                     let attempts = 0;
                     const checkReady = () => {
                         if (videoElement.readyState >= 2 && videoElement.videoWidth > 0) {
+                            videoElement.play().catch(e => console.warn("Autoplay Prevented:", e));
                             resolve(true);
                         } else if (attempts < 100) { 
                             attempts++;
@@ -946,7 +960,7 @@
                 return;
             }
 
-            // 🛠️ [Fix Cat 2]: Memory Leak Prevention 
+            // 🛠️ [Fix Cat 2]: Memory Leak Prevention - บังคับล้าง Listener ทุกครั้งก่อนเข้าเกม
             if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') {
                 window.WordHunterFirebase.forceCleanup();
             }
@@ -1324,13 +1338,13 @@
             ctx.translate(x, y); ctx.scale(-1, 1); ctx.fillStyle = '#ffffff';
             
             const size = radius < 55 ? '20px' : '28px';
-            ctx.font = `bold ${size} Fredoka One, Kanit`; ctx.textAlign = 'center'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
+            ctx.font = `bold ${size} 'Fredoka One', Kanit`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
             
             const isEnTh = gameConfig.questionLang === 'en-th';
-            ctx.fillText(isEnTh ? vocab.th : vocab.en, 0, 8); 
+            ctx.fillText(isEnTh ? vocab.th : vocab.en, 0, 0); 
             
             ctx.fillStyle = '#67e8f9'; ctx.font = 'bold 14px Kanit'; 
-            ctx.fillText("แตะสิ!", 0, 30); 
+            ctx.fillText("แตะสิ!", 0, 25); 
             ctx.restore();
         }
 
@@ -1339,7 +1353,7 @@
             let triggered = false;
             gameState.targets.forEach(target => {
                 let hit = false;
-                touchPoints.forEach(pt => { if (Math.hypot(pt.x - target.x, pt.y - target.y) < target.radius + 20) hit = true; });
+                touchPoints.forEach(pt => { if (Math.hypot(pt.x - target.x, pt.y - target.y) < target.radius + 25) hit = true; }); // Increased hit radius for mobile
                 if (hit) {
                     target.hoverProgress += 120 * dt; 
                     if (target.hoverProgress >= 100 && !triggered) { registerDynamicTap(target); triggered = true; }
@@ -1507,9 +1521,15 @@
             }, 800);
         }
 
+        // 🛠️ [Fix]: แก้ไขบั๊กแชทเบิ้ล 2 ข้อความ
         function appendChatMessage(text, className) {
-            const history = document.getElementById('ai-chat-history'); const msg = document.createElement('div');
-            msg.className = `leading-relaxed ${className}`; msg.innerText = text; history.appendChild(msg); history.scrollTop = history.scrollHeight; return msg;
+            const history = document.getElementById('ai-chat-history'); 
+            const msg = document.createElement('div');
+            msg.className = `leading-relaxed ${className}`; 
+            msg.innerText = text; 
+            history.appendChild(msg); 
+            history.scrollTop = history.scrollHeight; 
+            return msg;
         }
 
         window.renderLeaderboardUI = function(dataArray = null) {
@@ -1568,21 +1588,6 @@
         window.addEventListener('DOMContentLoaded', () => {
             window.adjustCategorySelection();
             buildAvatarSelector('avatar-container-signup');
-            
-            // Check for existing profile to skip repetitive manual typing but still ensure login validation
-            const savedUser = localStorage.getItem('word_hunter_user');
-            if (savedUser) { 
-                try { 
-                    const profile = JSON.parse(savedUser); 
-                    document.getElementById('initial-username').value = profile.username || ""; 
-                    document.getElementById('initial-grade').value = profile.grade || ""; 
-                    if(profile.photoURL) {
-                        selectedAvatar = profile.photoURL;
-                        window.selectAvatar(profile.photoURL);
-                    }
-                } catch(e) {} 
-            }
-            
             window.showModal('modal-initial-signup');
         });
     </script>
@@ -1594,7 +1599,7 @@
             if (window.WordHunterFirebase && typeof window.WordHunterFirebase.executeInitialSignup === 'function') {
                 window.WordHunterFirebase.executeInitialSignup();
             } else {
-                // Fallback to local directly
+                // Fallback to local directly (Offline-first approach)
                 const username = document.getElementById('initial-username').value.trim();
                 const grade = document.getElementById('initial-grade').value.trim();
                 if (!username || !grade) { window.showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️"); return; }
