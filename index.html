@@ -53,6 +53,9 @@
             50% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
         }
+        .animate-pop-in {
+            animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
         .kahoot-btn:active {
             transform: scale(0.95);
         }
@@ -288,7 +291,8 @@
                     <span class="hidden sm:inline">🔍 ค้นหาคำแปล</span>
                     <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-extrabold" id="hud-question-count">ข้อ 1/10</span>
                 </div>
-                <div class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-white to-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate" id="hud-instruction-text">
+                <!-- 🎨 [Fix]: ปรับใช้ Kanit และลดความหนาลงเป็น font-bold พร้อมใส่ tracking-wide เพื่อให้สระอำและไม้โทภาษาไทยไม่กลืนกัน -->
+                <div class="text-2xl md:text-4xl lg:text-5xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-white to-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate" style="font-family: 'Kanit', sans-serif;" id="hud-instruction-text">
                     วิเคราะห์
                 </div>
             </div>
@@ -300,7 +304,7 @@
             </div>
         </div>
 
-        <div id="bonus-banner" class="hidden absolute top-24 md:top-40 left-1/2 transform -translate-x-1/2 z-30 bg-gradient-to-r from-red-600 via-amber-500 to-red-600 border-2 md:border-4 border-yellow-300 text-white rounded-full px-6 md:px-8 py-2 md:py-3 text-center shadow-[0_0_20px_rgba(245,158,11,0.9)] animate-bounce w-[90%] max-w-sm">
+        <div id="bonus-banner" class="hidden absolute top-24 md:top-40 left-1/2 transform -translate-x-1/2 z-30 bg-gradient-to-r from-red-600 via-amber-500 to-red-600 border-2 md:border-4 border-yellow-300 text-white rounded-full px-6 md:px-8 py-2 md:py-3 text-center shadow-[0_0_20px_rgba(245,158,11,0.9)] w-[90%] max-w-sm">
             <div class="text-[10px] md:text-sm font-black uppercase tracking-widest text-yellow-200">🔥 COMBO STREAK 🔥</div>
             <div id="bonus-banner-text" class="text-lg md:text-3xl font-extrabold">ตอบถูกต่อเนื่อง!</div>
         </div>
@@ -580,6 +584,7 @@
     </div>
 
     <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <!-- รวม Script มาตรฐานไว้ในบล็อกเดียว ป้องกันบั๊ก ReferenceError -->
     <script>
         const vocabEngine = {
             "A1": {
@@ -617,7 +622,7 @@
         const avatarList = ['🦊','🥷','🧑‍💻','🐼','🦁','🧙‍♂️','🧛‍♂️','🐉','👽','🤖','👻','💀','🎃','🦄','🦖'];
         let selectedAvatar = '🦊'; // Default
 
-        // 🛠️ [Fix Cat 5]: ปลดล็อกระบบเสียงสำหรับ Mobile Browsers (Audio Primer) ทันทีที่ผู้เล่นสัมผัสจอ
+        // 🛠️ [Fix Cat 5]: Audio Primer - ขอสิทธิ์และเปิด Audio Context บนมือถืออย่างถูกต้อง
         let isAudioUnlocked = false;
         async function unlockAudioContext() {
             if(isAudioUnlocked) return;
@@ -634,7 +639,6 @@
         document.body.addEventListener('touchstart', unlockAudioContext, {once:true, passive:true});
         document.body.addEventListener('pointerdown', unlockAudioContext, {once:true, passive:true});
 
-        // ฟังก์ชันอัปเดตสไตล์ของ Avatar อย่างปลอดภัย (สโคปเฉพาะ container ที่ระบุ เพื่อไม่ให้ชนกันระหว่าง signup/edit)
         window.selectAvatar = function(emoji, containerId) {
             try { initAudio(); playSound('click'); } catch(e){} 
             selectedAvatar = emoji;
@@ -671,7 +675,6 @@
             lastTapTime: 0, questionIndex: 1, maxQuestions: 10,
             player1Name: "ผู้ทดสอบ", currentUser: null, isTeacherVerified: false,
             isKahootMode: true, isRoomHost: false,
-            // ===== ระบบ Combo Streak (ใหม่) =====
             streak: 0, maxStreak: 0
         };
 
@@ -688,7 +691,6 @@
         let lastAiFrameTime = 0; 
         let renderLoopId = null; 
 
-        // ================= ระบบเสียงเพลงประกอบ BGM =================
         const gameBGM = new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3");
         gameBGM.loop = true;
         gameBGM.volume = 0.3;
@@ -712,30 +714,24 @@
             setTimeout(resizeDrawingBuffer, 500); 
         });
 
-        // 🛠️ [Fix Cat 4]: สมการคำนวณพิกัดบน Canvas ใหม่ สำหรับมือถือ (BoundingClientRect Scale Factor + Mirror X-Axis + Object Contain adjustments)
+        // 🛠️ [Fix Cat 4]: Coordinate Translation แม่นยำสำหรับ Mobile Canvas (Letterboxing + Mirror X)
         function getCanvasMousePos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
-            // ป้องกันการหารด้วยศูนย์
             if (rect.width === 0 || rect.height === 0 || canvas.width === 0 || canvas.height === 0) return { x: 0, y: 0 };
 
-            // หา Actual Scale ที่ถูกบีบด้วย object-contain CSS
             const scale = Math.min(rect.width / canvas.width, rect.height / canvas.height);
             const actualWidth = canvas.width * scale;
             const actualHeight = canvas.height * scale;
             
-            // หา Letterbox Offsets
             const offsetX = (rect.width - actualWidth) / 2;
             const offsetY = (rect.height - actualHeight) / 2;
 
-            // คืนค่าพิกัดให้ตรงกับ Canvas Resolution จริง
             const x = (e.clientX - rect.left - offsetX) / scale;
             const y = (e.clientY - rect.top - offsetY) / scale; 
             
-            // กลับด้านแกน X เพราะ Canvas ถูกสั่ง -scale-x-100 ใน CSS (Mirror)
             return { x: canvas.width - x, y: y }; 
         }
 
-        // 🛠️ [Fix Cat 4]: อัปเกรดเป็น Pointer Events เพื่อครอบคลุมทั้ง Mouse และ Touch อย่างราบรื่น ไร้ Ghost Clicks
         canvasElement.addEventListener('pointerdown', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
             const pos = getCanvasMousePos(e, canvasElement);
@@ -744,7 +740,6 @@
 
         canvasElement.addEventListener('pointermove', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
-            // ป้องกันมือถือเลื่อนจอตอนถู Canvas
             if(e.pointerType !== 'mouse' && e.cancelable) e.preventDefault(); 
             if(simulatedPointer || e.pointerType === 'mouse') {
                 const pos = getCanvasMousePos(e, canvasElement);
@@ -817,7 +812,6 @@
             playSound('click');
             const modal = document.getElementById('modal-auth');
             if (modal.classList.contains('hidden')) {
-                // 🛠️ [Fix]: ต้องสร้างตัวเลือก Avatar ของหน้าแก้ไขโปรไฟล์ก่อนทุกครั้ง ไม่งั้นช่องจะว่างเปล่า
                 buildAvatarSelector('avatar-container-edit');
                 if (gameState.currentUser) {
                     document.getElementById('auth-username').value = gameState.currentUser.username || "";
@@ -947,11 +941,16 @@
                 videoElement.muted = true; 
                 videoElement.srcObject = stream;
                 
+                try {
+                    await videoElement.play(); 
+                } catch (e) {
+                    console.warn("Explicit play failed:", e);
+                }
+                
                 return new Promise((resolve) => {
                     let attempts = 0;
                     const checkReady = () => {
                         if (videoElement.readyState >= 2 && videoElement.videoWidth > 0) {
-                            videoElement.play().catch(e => console.warn("Autoplay Prevented:", e));
                             resolve(true);
                         } else if (attempts < 100) { 
                             attempts++;
@@ -995,7 +994,7 @@
                 return;
             }
 
-            // 🛠️ [Fix Cat 2]: Memory Leak Prevention - บังคับล้าง Listener ทุกครั้งก่อนเข้าเกม
+            // 🛠️ [Fix Cat 2]: Memory Leak Prevention 
             if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') {
                 window.WordHunterFirebase.forceCleanup();
             }
@@ -1285,7 +1284,9 @@
                 const text = document.createElement('span');
                 const isEnTh = gameConfig.questionLang === 'en-th';
                 text.innerText = isEnTh ? vocab.th : vocab.en;
-                text.className = "z-10 px-2 text-center leading-tight break-words";
+                // 🎨 [Fix]: บังคับให้ปุ่ม Kahoot ใช้ฟอนต์ Kanit เพื่อลดปัญหาวรรณยุกต์จม
+                text.className = "z-10 px-2 text-center leading-tight break-words font-bold tracking-wide";
+                text.style.fontFamily = "'Kanit', sans-serif";
 
                 btn.appendChild(shape);
                 btn.appendChild(text);
@@ -1418,10 +1419,11 @@
             ctx.translate(x, y); ctx.scale(-1, 1); ctx.fillStyle = '#ffffff';
             
             const size = radius < 55 ? '20px' : '28px';
-            ctx.font = `bold ${size} 'Fredoka One', Kanit`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
+            // 🎨 [Fix]: บังคับให้ลูกบอล AR ใช้ฟอนต์ Kanit ล้วน และลดเป็นตัวหนาธรรมดา (bold)
+            ctx.font = `bold ${size} Kanit, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
             
             const isEnTh = gameConfig.questionLang === 'en-th';
-            ctx.fillText(isEnTh ? vocab.th : vocab.en, 0, 0); 
+            ctx.fillText(isEnTh ? vocab.th : vocab.en, 0, -5); 
             
             ctx.fillStyle = '#67e8f9'; ctx.font = 'bold 14px Kanit'; 
             ctx.fillText("แตะสิ!", 0, 25); 
@@ -2170,7 +2172,6 @@
                 if (window.showModal) window.showModal('modal-join-room');
             },
 
-            // 🛠️ [Fix]: ฟังก์ชันนี้คือของจริงที่ทำงานเข้าร่วมห้อง — ก่อนหน้านี้ปุ่มยูสเรียกชื่อ submitJoinRoom ที่ไม่มีอยู่จริง จึงไม่เคยถูกเรียกใช้เลย
             processJoinRoom: async function(roomId) {
                 if (this.isProcessing) return; 
                 this.isProcessing = true;
