@@ -40,3 +40,8 @@
 ติดตั้ง Tailwind CSS ผ่าน CDN หรือดาวน์โหลดโปรเจกต์นี้ลงบนเครื่องของคุณ:
 ```bash
 git clone [https://github.com/your-username/GAME-AI-ROUTINE-ENG.git](https://github.com/your-username/GAME-AI-ROUTINE-ENG.git)
+GAME-AI-ROUTINE-ENG/
+├── assets/          # รูปภาพ ไอคอน และเอฟเฟกต์เสียง
+├── css/             # ไฟล์สไตล์สตรีทนีออน (Tailwind Custom)
+├── js/              # ลอจิกควบคุมเกมและปัญญาประดิษฐ์
+└── index.html       # หน้าจอหลักของโปรเจกต์ (มี Header Component)
