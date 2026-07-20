@@ -121,7 +121,7 @@
                         <button onclick="window.joinRoomFirebase()" class="bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">🤝</span><span class="font-black text-lg md:text-xl">เข้าร่วมห้อง<br><span class="text-sm">(ใส่รหัส)</span></span>
                         </button>
-                        <button onclick="window.runStorySequence()" class="col-span-1 sm:col-span-2 bg-gradient-to-br from-indigo-700 to-violet-800 hover:from-indigo-600 hover:to-violet-700 text-white rounded-2xl p-4 shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-transform transform hover:scale-105 flex justify-center items-center gap-4">
+                        <button onclick="window.openStoryModal()" class="col-span-1 sm:col-span-2 bg-gradient-to-br from-indigo-700 to-violet-800 hover:from-indigo-600 hover:to-violet-700 text-white rounded-2xl p-4 shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-transform transform hover:scale-105 flex justify-center items-center gap-4">
                             <span class="text-5xl animate-pulse">📖</span>
                             <span class="font-black text-2xl text-left tracking-wide">โหมดเนื้อเรื่อง (Story Mode)<br><span class="text-base text-indigo-200 font-bold">ตะลุย 40 ด่านเรียงประโยค (ไม่ต้องจับเวลา)</span></span>
                         </button>
@@ -297,7 +297,7 @@
                                 <div><label class="block text-slate-300 font-bold mb-1">โหมดการเล่น AR:</label>
                                     <select id="ar-game-mode-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none">
                                         <option value="classic" selected>🎯 โหมดคำศัพท์เดี่ยวคลาสสิก (Classic Vocab)</option>
-                                        <option value="sentence">🧩 โหมดลากการ์ดเรียงประโยค AR (AR Make a Sentence)</option>
+                                        <option value="sentence">🧩 โหมดลากการ์ดเรียงประโยค (Make a Sentence)</option>
                                     </select>
                                 </div>
                                 <div><label class="block text-slate-300 font-bold mb-1">จำนวนตัวเลือก (2-6):</label><input type="number" id="custom-target-count" value="4" min="2" max="6" class="w-full bg-slate-800 px-3 py-2 rounded-lg text-white font-bold border border-white/20 focus:outline-none"></div>
@@ -306,6 +306,18 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-story-select" class="hidden fixed inset-0 bg-slate-950/95 z-[200] items-center justify-center p-4">
+            <div class="bg-slate-900 border-4 border-indigo-500 rounded-3xl max-w-4xl w-full shadow-2xl flex flex-col relative max-h-[90vh]">
+                <div class="flex justify-between items-center p-6 border-b border-white/10 shrink-0">
+                    <h2 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">📖 เลือกด่านผจญภัย (Story Mode)</h2>
+                    <button onclick="window.hideModal('modal-story-select')" class="text-slate-400 hover:text-white font-bold text-4xl transition">×</button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-6" id="story-stages-container">
+                    <!-- Stages dynamically generated here -->
                 </div>
             </div>
         </div>
@@ -559,6 +571,7 @@
         const avatarList = ['🦊','🥷','🧑‍💻','🐼','🦁','🧙‍♂️','🧛‍♂️','🐉','👽','🤖','👻','💀','🎃','🦄','🦖'];
         let selectedAvatar = '🦊'; 
 
+        // Audio System
         let isAudioUnlocked = false;
         async function unlockAudioContext() {
             if(isAudioUnlocked) return;
@@ -595,6 +608,19 @@
 
         let activeVocabList = [];
         let gameConfig = { difficulty: "A1", category: "nouns_basic", targetCount: 4, duration: 20, trackingTarget: "all", questionLang: "th-en", movingTargets: false, arMode: 'classic' };
+        
+        // FIX: บั๊กการสลับด่านโหมดเนื้อเรื่อง (Progression Lock Reset) - ใช้ try-catch ป้องกัน Null/Undefined
+        let storyProgress = { maxUnlockedStage: 1 };
+        try {
+            const saved = localStorage.getItem('wordsHunter_story_save');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && typeof parsed.maxUnlockedStage === 'number') {
+                    storyProgress = parsed;
+                }
+            }
+        } catch (e) { console.warn("Save file corrupted, resetting progress.", e); }
+
         let gameState = {
             scoreP1: 0, timeLeft: 20, isPaused: false, gameActive: false,
             currentQuestion: null, options: [], targets: [], availableVocabs: [], 
@@ -626,8 +652,16 @@
         const gameBGM = new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3");
         gameBGM.loop = true; gameBGM.volume = 0.3;
 
-        function killCameraAndAI() {
+        // FIX: บั๊ก MediaPipe ค้าง (Webcam Thread Hang) - ระงับการประมวลผลก่อนทำลาย Object ทิ้ง เพื่อป้องกันจอดำ
+        async function killCameraAndAI() {
             stopGameLoops();
+            
+            // เคลียร์ตัวจับเวลาทุกครั้งที่ออกจากเกมเพื่อป้องกัน Timer Overlap
+            if (gameState.gameTimerInterval) {
+                clearInterval(gameState.gameTimerInterval);
+                gameState.gameTimerInterval = null;
+            }
+
             if (videoElement && videoElement.srcObject) {
                 const tracks = videoElement.srcObject.getTracks();
                 tracks.forEach(track => { 
@@ -636,16 +670,23 @@
                 });
                 videoElement.srcObject = null;
             }
+            
+            // หน่วงเวลาให้ AI รอบสุดท้ายรันเสร็จ (ป้องกัน Context Crash)
+            let waitCount = 0;
+            while(isProcessingPose && waitCount < 10) {
+                await new Promise(r => setTimeout(r, 50));
+                waitCount++;
+            }
+
             if (mpHands) {
-                try { mpHands.close(); } catch(e) {}
+                try { await mpHands.close(); } catch(e) {}
                 mpHands = null;
-                isAiModelLoaded = false;
             }
             if (detector) {
                 try { detector.dispose(); } catch(e) {}
                 detector = null;
-                isAiModelLoaded = false;
             }
+            isAiModelLoaded = false;
             currentHandResults = null;
             if (ctx && canvasElement) {
                 ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -667,24 +708,31 @@
         window.addEventListener('resize', resizeDrawingBuffer);
         window.addEventListener('orientationchange', () => { setTimeout(resizeDrawingBuffer, 500); });
 
+        // FIX: บั๊กพิกัดกล้องและการลากวาง (Canvas Scaling Bug) - คำนวณขอบดำ (Letterbox) และ Aspect Ratio ให้แม่นยำ 100%
         function getCanvasMousePos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
             if (rect.width === 0 || rect.height === 0 || canvas.width === 0 || canvas.height === 0) return { x: 0, y: 0 };
             
+            // คำนวณ Scale ที่แท้จริง (เทียบเท่า CSS object-fit: contain)
             const scale = Math.min(rect.width / canvas.width, rect.height / canvas.height);
             const actualWidth = canvas.width * scale; 
             const actualHeight = canvas.height * scale;
+            
+            // คำนวณขอบดำ (Offset) ที่เหลืออยู่
             const offsetX = (rect.width - actualWidth) / 2; 
             const offsetY = (rect.height - actualHeight) / 2;
             
+            // นำตำแหน่งเมาส์ลบด้วยขอบจอซ้าย/บน และ Offset ขอบดำ แล้วหารด้วย Scale
             let x = (e.clientX - rect.left - offsetX) / scale; 
             let y = (e.clientY - rect.top - offsetY) / scale; 
             
+            // ตีกลับพิกัดแกน X เพราะ Canvas ใช้ CSS -scale-x-100 (ทำหน้าที่เป็นกระจกเงา)
             x = canvas.width - x;
             
             return { x, y }; 
         }
 
+        // อัปเกรดเป็น Pointer Events เพื่อล็อค Pointer ID กัน Ghost Clicks
         canvasElement.addEventListener('pointerdown', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
             if(e.pointerType !== 'mouse' && e.cancelable) e.preventDefault();
@@ -695,6 +743,7 @@
         canvasElement.addEventListener('pointermove', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
             if(e.pointerType !== 'mouse' && e.cancelable) e.preventDefault(); 
+            // เช็ค Pointer ID เพื่อป้องกันการลากนิ้วที่สองกวนระบบ
             if(simulatedPointer && simulatedPointer.id === e.pointerId) {
                 const pos = getCanvasMousePos(e, canvasElement); 
                 simulatedPointer.x = pos.x; simulatedPointer.y = pos.y;
@@ -748,6 +797,47 @@
 
         window.hideModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } }
         window.showModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); } }
+
+        window.openStoryModal = function() {
+            playSound('click');
+            const container = document.getElementById('story-stages-container');
+            container.innerHTML = '';
+            
+            const levels = [
+                { id: 'A1', name: '🟢 A1 (Beginner)', start: 1, end: 10, color: 'emerald' },
+                { id: 'A2', name: '🟡 A2 (Elementary)', start: 11, end: 20, color: 'yellow' },
+                { id: 'B1', name: '🟠 B1 (Intermediate)', start: 21, end: 30, color: 'orange' },
+                { id: 'B2', name: '🔴 B2 (Upper-Intermediate)', start: 31, end: 40, color: 'rose' }
+            ];
+            
+            levels.forEach(lvl => {
+                let section = document.createElement('div');
+                section.className = 'mb-6 md:mb-8';
+                section.innerHTML = `<h4 class="text-xl md:text-2xl font-black text-${lvl.color}-400 mb-3 md:mb-4 border-b border-white/10 pb-2">${lvl.name}</h4>`;
+                let grid = document.createElement('div');
+                grid.className = 'grid grid-cols-5 md:grid-cols-10 gap-2 md:gap-3';
+                
+                for(let i = lvl.start; i <= lvl.end; i++) {
+                    let btn = document.createElement('button');
+                    let isUnlocked = i <= storyProgress.maxUnlockedStage;
+                    
+                    if(isUnlocked) {
+                        btn.className = `bg-indigo-600 hover:bg-indigo-500 text-white font-black py-2 md:py-3 rounded-xl shadow-lg transition-transform transform hover:scale-105 text-lg md:text-xl border border-indigo-400`;
+                        btn.innerText = i;
+                        btn.onclick = () => window.startStoryStage(i);
+                    } else {
+                        btn.className = `bg-slate-800 text-slate-500 font-black py-2 md:py-3 rounded-xl shadow-inner cursor-not-allowed text-base md:text-lg border border-white/5 flex flex-col items-center justify-center leading-none`;
+                        btn.innerHTML = `<span class="text-xs md:text-sm mb-1">🔒</span><span>${i}</span>`;
+                        btn.disabled = true;
+                    }
+                    grid.appendChild(btn);
+                }
+                section.appendChild(grid);
+                container.appendChild(section);
+            });
+            
+            showModal('modal-story-select');
+        };
 
         window.toggleAuthModal = function() {
             playSound('click'); const modal = document.getElementById('modal-auth');
@@ -831,7 +921,7 @@
         async function setupCamera() {
             try {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("เบราว์เซอร์ไม่รองรับ หรือ ไม่ได้เปิดบน HTTPS");
-                if (videoElement.srcObject) { killCameraAndAI(); }
+                if (videoElement.srcObject) { await killCameraAndAI(); }
                 let stream;
                 try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }); } 
                 catch (e) { stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false }); }
@@ -894,24 +984,27 @@
             return shuffleArray(pool);
         }
 
-        window.runStorySequence = async function() {
+        window.startStoryStage = async function(stageNum) {
             if (gameState.gameActive || isLoopRunning) return;
             if (!gameState.currentUser) { showToast("โปรดลงชื่อก่อนเริ่มเกมเด้อจ้า!", "⚠️"); showModal('modal-initial-signup'); return; }
             if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') window.WordHunterFirebase.forceCleanup();
 
             playSound('click'); await initAudio();
+            hideModal('modal-story-select');
+
             gameState.isAdventureMode = false;
             gameState.isStoryMode = true;
+            gameState.currentStoryStage = stageNum;
             gameState.currentAdventureStyle = 'sentence';
             gameConfig.arMode = 'sentence';
 
             document.getElementById('live-pause-btn').classList.remove('hidden');
-
             document.getElementById('current-diff-lbl').innerText = "📖 Story Mode";
             document.getElementById('current-category-lbl').innerText = `ด่านที่ ${gameState.currentStoryStage}`;
 
             document.getElementById('screen-lobby').classList.add('hidden');
-            const screenGame = document.getElementById('screen-game'); screenGame.classList.remove('hidden'); screenGame.classList.add('flex');
+            const screenGame = document.getElementById('screen-game'); 
+            screenGame.classList.remove('hidden'); screenGame.classList.add('flex');
 
             gameState.scoreP1 = 0;
             gameState.successfulTaps = 0; gameState.tapTimes = [];
@@ -1022,19 +1115,22 @@
         async function handleModeInitialization(mode) {
             if (mode === 'kahoot') {
                 gameState.isKahootMode = true; 
-                killCameraAndAI(); 
+                await killCameraAndAI(); 
                 window.switchToKahootUI();
             } else {
                 gameState.isKahootMode = false; 
                 window.switchToARUI(mode === 'sentence');
                 const aiLoader = document.getElementById('ai-loading'); if (aiLoader) { aiLoader.classList.remove('hidden'); aiLoader.classList.add('flex'); }
+                
+                await killCameraAndAI(); // เคลียร์ Stream เก่าให้สะอาดก่อนเริ่ม
                 const cameraSuccess = await setupCamera();
+                
                 if (cameraSuccess) {
                     const aiSuccess = await loadAiModel(mode);
                     if (aiSuccess) { resizeDrawingBuffer(); startGameLoops(); } 
-                    else { gameState.isKahootMode = true; killCameraAndAI(); window.switchToKahootUI(); }
+                    else { gameState.isKahootMode = true; await killCameraAndAI(); window.switchToKahootUI(); }
                 } else {
-                    gameState.isKahootMode = true; killCameraAndAI(); window.switchToKahootUI();
+                    gameState.isKahootMode = true; await killCameraAndAI(); window.switchToKahootUI();
                 }
                 if (aiLoader) { aiLoader.classList.add('hidden'); aiLoader.classList.remove('flex'); }
             }
@@ -1103,8 +1199,12 @@
             overlay.classList.remove('flex'); overlay.classList.add('hidden');
         }
 
+        // FIX: บั๊กตัวจับเวลา (Timer Overlap) - ป้องกันการรัน Interval ซ้อนกัน
         function startCountdownLoop() {
-            clearInterval(gameState.gameTimerInterval);
+            if (gameState.gameTimerInterval) {
+                clearInterval(gameState.gameTimerInterval);
+                gameState.gameTimerInterval = null;
+            }
             
             const isUntimed = gameState.isStoryMode || (!gameState.isAdventureMode && gameConfig.arMode === 'sentence');
             if (isUntimed) return;
@@ -1141,7 +1241,7 @@
                     gameBGM.currentTime = 0; gameBGM.play().catch(e => console.warn(e));
                     generateNewQuestion();
                 } else {
-                    window.endGame();
+                    await window.endGame();
                 }
                 return;
             }
@@ -1160,10 +1260,11 @@
                 gameState.gameActive = true; gameState.lastTapTime = Date.now();
                 gameBGM.currentTime = 0; gameBGM.play().catch(e => console.warn(e));
                 generateNewQuestion();
-            } else { window.endGame(); }
+            } else { await window.endGame(); }
         }
 
         function handleTimeUp() {
+            if (gameState.gameTimerInterval) { clearInterval(gameState.gameTimerInterval); gameState.gameTimerInterval = null; }
             gameBGM.pause(); playSound('timeup'); gameState.scoreP1 = Math.max(0, gameState.scoreP1 - 5); gameState.streak = 0; window.updateStreakHUD();
             document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
 
@@ -1385,7 +1486,10 @@
                 window.updateStreakHUD(); showComboBanner(gameState.streak); document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
 
                 if (gameState.isStoryMode) {
-                    gameState.currentStoryStage++;
+                    if (gameState.currentStoryStage === storyProgress.maxUnlockedStage && storyProgress.maxUnlockedStage < 40) {
+                        storyProgress.maxUnlockedStage++;
+                        localStorage.setItem('wordsHunter_story_save', JSON.stringify(storyProgress));
+                    }
                     if (gameState.currentUser) {
                         gameState.currentUser.storyStage = gameState.currentStoryStage;
                         localStorage.setItem('word_hunter_user', JSON.stringify(gameState.currentUser));
@@ -1489,7 +1593,11 @@
                         } else if (detector) {
                             currentPoses = await detector.estimatePoses(videoElement, { maxPoses: 1, flipHorizontal: false });
                         }
-                    } catch (err) { } finally { isProcessingPose = false; }
+                    } catch (err) { 
+                        // เงียบ Error ไว้ไม่ให้รก Console หากเกิดการขัดจังหวะขณะสลับกล้อง
+                    } finally { 
+                        isProcessingPose = false; 
+                    }
                 }
                 await new Promise(r => setTimeout(r, 30));
             }
@@ -1688,4 +1796,456 @@
                 window.updateStreakHUD(); showComboBanner(gameState.streak);
             } else {
                 gameState.streak = 0; window.updateStreakHUD();
-                playSound('fail'); const deduction = 5; gameState.scoreP1 = Math.max(0, gameState.
+                playSound('fail'); const deduction = 5; gameState.scoreP1 = Math.max(0, gameState.scoreP1 - deduction);
+                document.getElementById('feedback-emoji').innerText = "❌";
+                const title = document.getElementById('feedback-title'); title.innerText = `ผิดนะจ๊ะ!`; title.className = "text-4xl md:text-7xl font-black text-rose-500";
+                document.getElementById('feedback-detail').innerHTML = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}"<br><span class="text-emerald-400 text-2xl md:text-4xl mt-2 block">(เฉลยข้อนี้: ${isEnTh ? gameState.currentQuestion.th : gameState.currentQuestion.en})</span><br>หัก ${deduction} แต้ม`;
+            }
+            document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
+
+            setTimeout(() => {
+                card.classList.add('scale-50', 'opacity-0'); card.classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => {
+                    if (document.getElementById('screen-game').classList.contains('hidden')) return;
+                    popup.classList.add('hidden');
+                    processNextQuestion();
+                }, 200);
+            }, 1500);
+        }
+
+        window.endGame = async function() {
+            gameBGM.pause(); gameState.gameActive = false; 
+            await killCameraAndAI(); 
+            
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') { window.WordHunterFirebase.forceCleanup(); }
+
+            playSound('gameover');
+            let avg = 0; if (gameState.tapTimes.length > 0) avg = gameState.tapTimes.reduce((a, b) => a + b, 0) / gameState.tapTimes.length;
+            const avgTimeStr = avg.toFixed(2);
+            
+            const diffLabel = gameState.isAdventureMode ? "🌋 Adventure Mode" : (gameState.isStoryMode ? "📖 Story Mode" : vocabEngine[gameConfig.difficulty].name);
+            const catLabel = gameState.isAdventureMode ? "คลังศัพท์ผสมทุกระดับ" : (gameState.isStoryMode ? `ด่านที่ ${gameState.currentStoryStage}` : vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title);
+
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.saveScoreToCloud === 'function') {
+                await window.WordHunterFirebase.saveScoreToCloud(gameState.player1Name, gameState.scoreP1, avgTimeStr, diffLabel, catLabel);
+            }
+
+            document.getElementById('screen-game').classList.add('hidden'); document.getElementById('screen-game').classList.remove('flex'); 
+            document.getElementById('screen-results').classList.remove('hidden'); document.getElementById('screen-results').classList.add('flex');
+
+            document.getElementById('res-mode-label').innerText = `ระดับ CEFR: ${diffLabel} | หมวด: ${catLabel}`;
+            document.getElementById('res-score-p1').innerText = `${gameState.scoreP1}`; 
+            document.getElementById('res-avg-time').innerText = `${avgTimeStr}s`;
+            const maxStreakEl = document.getElementById('res-max-streak'); if (maxStreakEl) maxStreakEl.innerText = `🔥 ${gameState.maxStreak}`;
+        }
+
+        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+        window.showQuitConfirmation = function() { playSound('click'); gameState.gameActive = false; showModal('modal-quit-confirm'); }
+        
+        window.confirmQuit = async function(quit) {
+            playSound('click'); hideModal('modal-quit-confirm');
+            if (quit) {
+                await killCameraAndAI(); window.backToLobby();
+            } else { 
+                gameState.gameActive = true; gameState.lastTapTime = Date.now(); lastAiFrameTime = performance.now(); 
+            }
+        }
+
+        window.backToLobby = async function() {
+            gameBGM.pause(); playSound('click');
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') { window.WordHunterFirebase.forceCleanup(); }
+            document.getElementById('screen-results').classList.add('hidden'); document.getElementById('screen-results').classList.remove('flex');
+            const screenGame = document.getElementById('screen-game'); screenGame.classList.add('hidden'); screenGame.classList.remove('flex'); 
+            document.getElementById('screen-lobby').classList.remove('hidden');
+            await killCameraAndAI(); 
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') window.WordHunterFirebase.loadLeaderboard();
+        }
+
+        window.sendChatMessage = function() {
+            const input = document.getElementById('ai-chat-input');
+            const query = input.value.trim();
+            if (!query) return;
+
+            playSound('click');
+            appendChatMessage(`🧑‍🎓 นักเรียน: ${query}`, "text-cyan-400 font-bold");
+            input.value = "";
+
+            const loading = appendChatMessage("🤖 ย่าโม AI: กำลังคิดคำตอบ... 💭", "text-slate-400 italic");
+
+            setTimeout(() => {
+                loading.remove();
+                const q = query.toLowerCase();
+                let reply = "";
+
+                const greetings = ['hi', 'hello', 'สวัสดี', 'ดีจ้า', 'หวัดดี', 'ทักทาย', 'เฮลโล'];
+                if (greetings.some(g => q === g || q.includes(g + ' '))) {
+                    const replies = [
+                        "สวัสดีจ้า! ย่าโม AI ยินดีต้อนรับเด้อ วันนี้พร้อมล่าคำศัพท์หรือยัง?",
+                        "Hello! สบายดีไหมจ๊ะ มีคำศัพท์ไหนให้ย่าช่วยแปลบอกได้เลยนะ!",
+                        "ดีจ้า! เตรียมตัวให้พร้อม แล้วไปลุยเก็บคอมโบในเกมกันเลยเด้อ!"
+                    ];
+                    reply = replies[Math.floor(Math.random() * replies.length)];
+                }
+                else if (q.includes('เล่นไง') || q.includes('เล่นยังไง') || q.includes('สอนหน่อย')) {
+                    reply = "เกมนี้เล่นง่ายๆ จ้า! โหมด AR ให้ขยับร่างกายเอามือไปแตะคำแปลให้ถูก ส่วนโหมดคลิกตอบให้ใช้ความไวนิ้วคลิกคำตอบที่ถูกต้องจ้า!";
+                }
+                else if (q.includes('ยาก') || q.includes('ทำไม่ได้') || q.includes('ท้อ')) {
+                    reply = "อย่าเพิ่งท้อเด้อ! ภาษาอังกฤษต้องค่อยๆ ฝึกไป ผิดเป็นครู ย่าเป็นกำลังใจให้เสมอจ้า สู้ๆ! ✌️";
+                }
+                else if (q.includes('ประวัติ') && (q.includes('โคราช') || q.includes('นครราชสีมา'))) {
+                    reply = "เมืองโคราชมีมาตั้งแต่สมัยอยุธยาเลยเด้อ! สมเด็จพระนารายณ์มหาราชโปรดให้ย้ายเมืองมาตั้งตรงนี้ คำว่า 'นครราชสีมา' แปลว่า 'เมืองใหญ่อันเป็นขอบขัณฑสีมาของราชอาณาจักร' จ้า!";
+                }
+                else if (q.includes('ย่าโม') || q.includes('ท้าวสุรนารี')) {
+                    reply = "ท้าวสุรนารี หรือ 'ย่าโม' วีรสตรีผู้กอบกู้เมืองโคราชจากกองทัพเจ้าอนุวงศ์ เป็นที่เคารพรักของพวกเราชาวโคราชจ้า";
+                }
+                else if (q.includes('ประตูชุมพล')) {
+                    reply = "ประตูชุมพลคือประตูเมืองเก่าจ้า เค้าว่ากันว่า ลอด 1 ครั้งจะได้กลับมา ลอด 2 ครั้งจะได้มาทำงาน ลอด 3 ครั้งจะได้คู่ครองเป็นคนโคราชเด้อ! 😍";
+                }
+                else if (q.includes('ที่เที่ยว') || q.includes('เที่ยวไหน')) {
+                    reply = "โคราชที่เที่ยวเยอะมาก! สายประวัติศาสตร์ไป 'อุทยานประวัติศาสตร์พิมาย' สายธรรมชาติไป 'อุทยานแห่งชาติเขาใหญ่' หรือไปไหว้ 'หลวงพ่อคูณ' ที่วัดบ้านไร่ก็ดีเด้อ";
+                }
+                else if (q.includes('พิมาย')) {
+                    reply = "ปราสาทหินพิมาย เป็นปราสาทหินสถาปัตยกรรมขอมที่ใหญ่ที่สุดในไทยเลยนะ สวยงามและขลังมากๆ สร้างมาเป็นพันปีแล้ว ว่างๆ ลองไปเที่ยวดูเด้อจ้า";
+                }
+                else if (q.includes('เขาใหญ่')) {
+                     reply = "อุทยานแห่งชาติเขาใหญ่ เป็นมรดกโลกและอุทยานแห่งชาติแห่งแรกของไทยเลยนะ! อากาศดี ธรรมชาติสวย มีน้ำตกเหวนรก เหวสุวัต น่าไปมากจ้า";
+                }
+                else if (q.includes('โรงแรม') || q.includes('ที่พัก')) {
+                     reply = "ถ้าหาที่พัก ลองดู 'โรงแรมโคราชรีสอร์ท' แถวโชคชัยไหมจ๊ะ บรรยากาศดี มีสระว่ายน้ำ หรือจะหาที่พักในตัวเมืองก็มีเยอะเลยเด้อ";
+                }
+                else if (q.includes('ของกิน') || q.includes('ร้านอาหาร') || q.includes('กินอะไร') || q.includes('หิว')) {
+                    const foods = [
+                         "มาโคราชต้องกิน 'ผัดหมี่โคราช' เด้อ! แนะนำร้าน 'ขั่วหมี่ป้าอ้อม' ผัดกระทะใหญ่ๆ หอมๆ",
+                         "อยากกินแซ่บๆ ลองไป 'ลาบสมพิศ' ซอยตรอกจันทร์ดูจ้า",
+                         "สายขนมจีนต้องไป 'ขนมจีนแม่กิมเฮง' หรือ 'ขนมจีนประโดกบ้านครูยอด' น้ำยาหลากหลาย อร่อยเด็ด!",
+                         "มื้อเย็นลองแวะ 'เฮียแกะหอยทอด & ผัดไทยโบราณ' ก็ดีนะจ๊ะ"
+                    ];
+                    reply = foods[Math.floor(Math.random() * foods.length)];
+                }
+                else {
+                    let foundWord = null;
+                    for (const groupKey in vocabEngine) {
+                        for (const catKey in vocabEngine[groupKey].categories) {
+                            const words = vocabEngine[groupKey].categories[catKey].words;
+                            const match = words.find(w =>
+                                w.en.toLowerCase() === q ||
+                                q.includes(w.en.toLowerCase()) ||
+                                w.th.includes(query)
+                            );
+                            if (match) { foundWord = match; break; }
+                        }
+                        if (foundWord) break;
+                    }
+
+                    if (foundWord) {
+                        reply = `✨ คำศัพท์ "${foundWord.en}" ในภาษาไทยแปลว่า "${foundWord.th}" จ้า! จำไปใช้ในเกมได้เลยนะ`;
+                    } else {
+                        const defaults = [
+                            "โอ้... คำนี้ย่ายังไม่มีในพจนานุกรมจ้า ลองถามคำศัพท์ภาษาอังกฤษคำอื่น หรือเรื่องเมืองโคราชดูสิเด้อ!",
+                            "อืม... ย่าไม่ค่อยเข้าใจจ้า ลองพิมพ์คำศัพท์สั้นๆ มาให้ย่าแปลดูไหม?",
+                            "คำถามนี้น่าสนใจ! แต่ย่าถนัดเรื่องแปลภาษาและเมืองโคราชมากกว่า ลองถามเรื่องพวกนี้ดูเด้อจ้า"
+                        ];
+                        reply = defaults[Math.floor(Math.random() * defaults.length)];
+                    }
+                }
+
+                appendChatMessage(`🤖 ย่าโม AI: ${reply}`, "text-amber-200 font-semibold bg-slate-800 p-3 rounded-lg border border-white/10");
+            }, 800);
+        }
+
+        function appendChatMessage(text, className) {
+            const history = document.getElementById('ai-chat-history'); const msg = document.createElement('div');
+            msg.className = `leading-relaxed ${className}`; msg.innerText = text; history.appendChild(msg); history.scrollTop = history.scrollHeight; return msg;
+        }
+
+        window.renderLeaderboardUI = function(dataArray = null) {
+            const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = ''; let leaderboard = dataArray || [];
+            if (leaderboard.length === 0) { tbody.innerHTML = `<tr><td colspan=\"6\" class=\"p-6 text-center text-slate-400 italic font-bold\">ยังไม่มีข้อมูลในระบบ หรือกำลังโหลด...</td></tr>`; return; }
+            leaderboard.forEach((record, index) => {
+                let rankIcon = `${index + 1}`; if (index === 0) rankIcon = '🥇'; else if (index === 1) rankIcon = '🥈'; else if (index === 2) rankIcon = '🥉';
+                const tr = document.createElement('tr'); tr.className = "border-b border-white/5 hover:bg-slate-800/40 transition-colors";
+                const avatar = record.photoURL || '👨‍🚀';
+                tr.innerHTML = `
+                    <td class="p-4 text-center font-black text-amber-400 text-xl">${rankIcon}</td>
+                    <td class="p-4 font-bold text-white flex items-center gap-2"><span class="text-2xl">${avatar}</span> ${escapeHtml(record.name)} <span class="text-xs text-slate-400 font-normal">(${escapeHtml(record.grade)})</span></td>
+                    <td class="p-4 text-center text-slate-300 font-bold">${escapeHtml(record.difficulty)}</td>
+                    <td class="p-4 text-center text-cyan-300 text-xs">${escapeHtml(record.category)}</td>
+                    <td class="p-4 text-center font-black text-yellow-400 text-xl">${record.score}</td>
+                    <td class="p-4 text-center text-emerald-400 text-sm font-bold">${escapeHtml(record.avgTime)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.renderLeaderboardError = function(message) {
+            const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = `<tr><td colspan=\"6\" class=\"p-6 text-center text-rose-400 font-bold bg-rose-900/20 rounded-xl\">${message}</td></tr>`;
+        }
+
+        window.shareResult = function() {
+            playSound('click'); const text = `ฉันทำได้ ${gameState.scoreP1} คะแนน (คอมโบสูงสุด x${gameState.maxStreak}) ในเกม Words Hunter AR Hunsa! มาประลองความเร็วกัน!`;
+            const textArea = document.createElement("textarea"); textArea.value = text; document.body.appendChild(textArea); textArea.select();
+            try { document.execCommand('copy'); showToast("คัดลอกคะแนนเพื่อแชร์แล้วจ้า!", "📋"); } catch (err) { showToast("ไม่สามารถคัดลอกได้", "❌"); } document.body.removeChild(textArea);
+        }
+
+        window.showToast = function(message, icon = "✨") {
+            const toast = document.getElementById('toast-notification'); document.getElementById('toast-icon').innerText = icon; document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            window.adjustCategorySelection(); window.updateLeaderboardCategoryFilter(); buildAvatarSelector('avatar-container-signup'); buildAvatarSelector('avatar-container-edit'); 
+            const savedUser = localStorage.getItem('word_hunter_user');
+            if (savedUser) { 
+                try { 
+                    const profile = JSON.parse(savedUser); document.getElementById('initial-username').value = profile.username || ""; document.getElementById('initial-grade').value = profile.grade || ""; 
+                    if(profile.photoURL) { selectedAvatar = profile.photoURL; window.selectAvatar(profile.photoURL, 'avatar-container-signup'); }
+                } catch(e) {} 
+            }
+            window.showModal('modal-initial-signup');
+        });
+    </script>
+
+    <script>
+        window.executeInitialSignupSafe = function() {
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.executeInitialSignup === 'function') { window.WordHunterFirebase.executeInitialSignup(); } 
+            else {
+                const username = document.getElementById('initial-username').value.trim(); const grade = document.getElementById('initial-grade').value.trim();
+                if (!username || !grade) { window.showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️"); return; }
+                const profile = { username, grade, photoURL: selectedAvatar, uid: 'LOCAL_' + Date.now() }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; document.getElementById('topbar-avatar').classList.remove('hidden');
+                window.hideModal('modal-initial-signup'); window.showToast(`ระบบออนไลน์! ยินดีต้อนรับ ผู้ควบคุม ${username}`, "🚀");
+            }
+        };
+        window.updateProfileSafe = function() {
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.updateProfile === 'function') { window.WordHunterFirebase.updateProfile(); } 
+            else {
+                const username = document.getElementById('auth-username').value.trim(); const grade = document.getElementById('auth-grade').value.trim();
+                if (!username || !grade) { showToast("กรุณากรอกข้อมูลให้ครบจ้า!", "⚠️"); return; }
+                const profile = { ...gameState.currentUser, username, grade, photoURL: selectedAvatar }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; hideModal('modal-auth'); showToast("อัปเดตข้อมูลโปรไฟล์เรียบร้อย!", "✅");
+            }
+        };
+        window.createRoomFirebase = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.createRoom === 'function') window.WordHunterFirebase.createRoom(); else { if(window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); } };
+        window.joinRoomFirebase = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.openJoinModal === 'function') window.WordHunterFirebase.openJoinModal(); else { if(window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); } };
+        window.submitJoinRoomSafe = function() {
+            const input = document.getElementById('join-room-input'); const roomId = input ? input.value.trim() : '';
+            if (!roomId || roomId.length !== 6) { if (window.showToast) window.showToast("กรุณากรอกรหัสห้อง 6 หลักให้ครบ", "⚠️"); return; }
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.processJoinRoom === 'function') { window.WordHunterFirebase.processJoinRoom(roomId); } else { if (window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); window.hideModal('modal-join-room'); }
+        };
+        window.cancelRoomSafe = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.cancelRoom === 'function') window.WordHunterFirebase.cancelRoom(); else window.hideModal('modal-lobby'); };
+        window.loadLeaderboardSafe = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') window.WordHunterFirebase.loadLeaderboard(); };
+        window.startGameHostSafe = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.startGameAsHost === 'function') window.WordHunterFirebase.startGameAsHost(); }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        window.WordHunterFirebase = {
+            app: null, db: null, auth: null, currentRoomId: null, unsubscribeLobby: null, isProcessing: false, isCanvasEnv: false, appId: "default-app-id",
+
+            config: {
+                apiKey: "AIzaSyAKAPwkT-WefQ4KWCLrdLJtl7DHfNgmdq8", authDomain: "word-hunter-ar-hunsa.firebaseapp.com", projectId: "word-hunter-ar-hunsa",
+                storageBucket: "word-hunter-ar-hunsa.firebasestorage.app", messagingSenderId: "443417643469", appId: "1:443417643469:web:d41dc7cfe744d8783bdc84"
+            },
+
+            init: async function() {
+                try {
+                    if (typeof __firebase_config !== 'undefined') { this.config = JSON.parse(__firebase_config); this.isCanvasEnv = true; this.appId = typeof __app_id !== 'undefined' ? __app_id : this.appId; }
+                    this.app = initializeApp(this.config); this.db = getFirestore(this.app); this.auth = getAuth(this.app);
+                    try { if (this.isCanvasEnv && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(this.auth, __initial_auth_token); } else { await signInAnonymously(this.auth); } } catch (authErr) { }
+                    const savedUser = localStorage.getItem('word_hunter_user');
+                    if (savedUser) {
+                        try {
+                            const profile = JSON.parse(savedUser); gameState.currentUser = profile; gameState.player1Name = profile.username; selectedAvatar = profile.photoURL || '🦊';
+                            document.getElementById('user-display-name').innerText = `${profile.username} (${profile.grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; document.getElementById('topbar-avatar').classList.remove('hidden'); document.getElementById('user-status-dot').className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
+                            window.hideModal('modal-initial-signup');
+                        } catch(e) {}
+                    }
+                    await this.loadLeaderboard();
+                } catch (error) { console.warn("[A.E.G.I.S Debug]: ❌ Firebase Init Error: ", error); }
+            },
+
+            getCollectionPath: function(colName) { if (this.isCanvasEnv) return `artifacts/${this.appId}/public/data/${colName}`; return colName; },
+
+            forceCleanup: function() {
+                if (this.unsubscribeLobby) { this.unsubscribeLobby(); this.unsubscribeLobby = null; }
+            },
+
+            executeInitialSignup: async function() {
+                if (!this.db) return; if (this.isProcessing) return; this.isProcessing = true;
+                const usernameInput = document.getElementById('initial-username').value.trim(); const gradeInput = document.getElementById('initial-grade').value.trim();
+                if (!usernameInput || !gradeInput) { if (window.showToast) window.showToast("กรุณากรอกข้อมูลผู้เล่นให้ครบก่อนเด้อจ้า!", "⚠️"); this.isProcessing = false; return; }
+                if (window.showToast) window.showToast("ระบบกำลัง Sync ข้อมูล...", "⏳");
+                try {
+                    let savedUser = null; try { savedUser = JSON.parse(localStorage.getItem('word_hunter_user')); } catch(e) {}
+                    const uid = (savedUser && savedUser.uid) ? savedUser.uid : 'PLAYER_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                    const profileData = { uid: uid, username: usernameInput, email: "no-login@local", grade: gradeInput, photoURL: selectedAvatar || '🦊', createdAt: new Date().toISOString() };
+                    const userRef = doc(this.db, this.getCollectionPath('users'), uid); await setDoc(userRef, profileData, { merge: true });
+                    if (typeof gameState !== 'undefined') { gameState.currentUser = profileData; gameState.player1Name = profileData.username; }
+                    localStorage.setItem('word_hunter_user', JSON.stringify(profileData));
+                    document.getElementById('user-display-name').innerText = `${profileData.username} (${profileData.grade})`; document.getElementById('topbar-avatar').innerText = profileData.photoURL; document.getElementById('topbar-avatar').classList.remove('hidden'); document.getElementById('user-status-dot').className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
+                    if (window.hideModal) window.hideModal('modal-initial-signup'); if (window.showToast) window.showToast(`ระบบออนไลน์! ยินดีต้อนรับ ผู้ควบคุม ${profileData.username}!`, "🚀");
+                } catch (error) { console.error("[A.E.G.I.S Debug]: ❌ Signup Flow Error:", error); if (window.showToast) window.showToast("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์", "❌"); } finally { this.isProcessing = false; }
+            },
+
+            updateProfile: async function() {
+                if (window.playSound) window.playSound('click'); if (!this.db || !gameState.currentUser) return; if (this.isProcessing) return; this.isProcessing = true;
+                const username = document.getElementById('auth-username').value.trim(); const grade = document.getElementById('auth-grade').value.trim();
+                if (!username || !grade) { if(window.showToast) window.showToast("กรอกข้อมูลให้ครบก่อนทำการอัปเกรดจ้า!", "⚠️"); this.isProcessing = false; return; }
+                try {
+                    const profile = { ...gameState.currentUser, username, grade, photoURL: selectedAvatar }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                    const userRef = doc(this.db, this.getCollectionPath('users'), profile.uid); await updateDoc(userRef, { username: username, grade: grade, photoURL: selectedAvatar });
+                    document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar;
+                    if(window.hideModal) window.hideModal('modal-auth'); if(window.showToast) window.showToast("อัปเดตข้อมูลเข้าสู่ระบบเรียบร้อย!", "✅");
+                } catch(e) { console.error("Update profile error", e); } finally { this.isProcessing = false; }
+            },
+
+            saveScoreToCloud: async function(name, score, avgTime, diffLabel, catLabel) {
+                if (!this.db || !gameState.currentUser) return;
+                try {
+                    const lbCollection = collection(this.db, this.getCollectionPath('leaderboard'));
+                    const record = {
+                        uid: gameState.currentUser.uid, name: name, grade: gameState.currentUser.grade,
+                        difficulty: diffLabel,
+                        category: catLabel,
+                        score: Number(score), avgTime: avgTime + "s", photoURL: gameState.currentUser.photoURL || '🦊', timestamp: new Date().toISOString()
+                    };
+                    await addDoc(lbCollection, record); this.loadLeaderboard();
+                } catch (e) { console.error("[A.E.G.I.S Debug]: ❌ Save score error:", e); }
+            },
+
+            loadLeaderboard: async function() {
+                if (!this.db) return;
+                const diffInput = document.getElementById('lb-filter-diff'); const catInput = document.getElementById('lb-filter-cat');
+                let targetDiffName = "🟢 A1 (Beginner)"; let targetCatTitle = "📦 คำนามพื้นฐาน";
+                
+                if (diffInput && diffInput.value === "ADV") {
+                    targetDiffName = "🌋 Adventure Mode"; targetCatTitle = "คลังศัพท์ผสมทุกระดับ";
+                } else if (diffInput && diffInput.value === "STORY") {
+                    targetDiffName = "📖 Story Mode"; targetCatTitle = "ด่านผจญภัย (Story)";
+                } else if (diffInput && catInput && diffInput.value && catInput.value) {
+                    const diffKey = diffInput.value; const catKey = catInput.value;
+                    if(vocabEngine[diffKey]) { targetDiffName = vocabEngine[diffKey].name; if(vocabEngine[diffKey].categories[catKey]) { targetCatTitle = vocabEngine[diffKey].categories[catKey].title; } }
+                }
+
+                try {
+                    const lbCollection = collection(this.db, this.getCollectionPath('leaderboard'));
+                    const q = query(lbCollection, where("difficulty", "==", targetDiffName), where("category", "==", targetCatTitle), orderBy("score", "desc"), limit(10));
+                    const snapshot = await getDocs(q); let records = []; snapshot.forEach(doc => { records.push(doc.data()); });
+                    const liveBadge = document.getElementById('lb-sync-status'); if(liveBadge) liveBadge.classList.remove('hidden');
+                    if (window.renderLeaderboardUI) window.renderLeaderboardUI(records);
+                } catch (e) {
+                    console.warn("[A.E.G.I.S Debug]: ⚠️ Cloud Index Missing. Triggering Smart Fallback Protocol:", e);
+                    if (e.message && (e.message.includes("index") || e.message.includes("FAILED_PRECONDITION"))) {
+                        if (window.renderLeaderboardError) window.renderLeaderboardError("⚠️ ระบบกำลังสร้าง Cloud Index...<br><span class='text-sm text-slate-300 font-normal'>A.E.G.I.S ได้เปิดใช้งานโหมดดึงข้อมูลสำรองบน Client แล้ว</span>");
+                    }
+                    try {
+                        const lbCollectionFallback = collection(this.db, this.getCollectionPath('leaderboard'));
+                        const snapshotAll = await getDocs(lbCollectionFallback); let recordsAll = []; snapshotAll.forEach(doc => { recordsAll.push(doc.data()); });
+                        let filteredRecords = recordsAll.filter(r => r.difficulty === targetDiffName && r.category === targetCatTitle);
+                        filteredRecords.sort((a, b) => b.score - a.score); const top10 = filteredRecords.slice(0, 10);
+                        setTimeout(() => { if (window.renderLeaderboardUI) window.renderLeaderboardUI(top10); }, 1000);
+                    } catch(fallbackErr) { if (window.renderLeaderboardError) window.renderLeaderboardError("❌ โหลดข้อมูลสำรองล้มเหลว โปรดตรวจสอบสัญญาณเครือข่าย"); }
+                }
+            },
+
+            renderLobbyState: function(roomData) {
+                const hostAvatar = document.getElementById('lobby-host-avatar'); const hostName = document.getElementById('lobby-host-name');
+                if(hostAvatar && hostName) { hostAvatar.innerText = roomData.hostPhotoURL || '🦊'; hostAvatar.classList.remove('animate-bounce'); hostName.innerText = roomData.hostId; }
+                const joinerAvatar = document.getElementById('lobby-joiner-avatar'); const joinerName = document.getElementById('lobby-joiner-name'); const hasJoiner = roomData.joinerId && roomData.joinerId !== "";
+
+                if(joinerAvatar && joinerName) {
+                    if(hasJoiner) {
+                        joinerAvatar.innerText = roomData.joinerPhotoURL || '🐼'; joinerAvatar.classList.remove('opacity-50'); joinerAvatar.classList.add('animate-bounce'); joinerName.innerText = roomData.joinerId; joinerName.classList.remove('text-slate-400'); joinerName.classList.add('text-cyan-400');
+                    } else {
+                        joinerAvatar.innerText = '👤'; joinerAvatar.classList.add('opacity-50'); joinerAvatar.classList.remove('animate-bounce'); joinerName.innerText = 'รอผู้เล่นเชื่อมต่อ...'; joinerName.classList.add('text-slate-400'); joinerName.classList.remove('text-cyan-400');
+                    }
+                }
+
+                const actionZone = document.getElementById('lobby-action-zone');
+                if(actionZone && gameState.isRoomHost) {
+                    if(hasJoiner) { actionZone.innerHTML = `<button onclick="window.startGameHostSafe()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-4 rounded-xl transition-all text-xl shadow-xl animate-pulse">🚀 เริ่มดึงข้อมูลเกมเลย!</button><button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ยุติห้อง</button>`; } 
+                    else { actionZone.innerHTML = `<button disabled class="w-full bg-slate-700 text-slate-500 font-black py-4 rounded-xl text-xl cursor-not-allowed">🚀 รอเป้าหมายเข้าร่วม...</button><button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ยุติห้อง</button>`; }
+                } else if(actionZone && !gameState.isRoomHost) { actionZone.innerHTML = `<button disabled class="w-full bg-amber-500/50 text-white font-black py-4 rounded-xl text-xl animate-pulse">⏳ รอโฮสต์ส่งสัญญาณเริ่มเกม...</button><button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ตัดการเชื่อมต่อห้อง</button>`; }
+            },
+
+            createRoom: async function() {
+                if (window.playSound) window.playSound('click'); if (this.isProcessing) return; 
+                if (!this.db || !gameState.currentUser) { if (window.showToast) window.showToast("โปรดลงชื่อเข้าระบบก่อนเปิดพอร์ตเชื่อมต่อ!", "⚠️"); return; }
+                this.isProcessing = true; const hostProfile = gameState.currentUser; gameState.isRoomHost = true;
+                if (window.showToast) window.showToast("กำลังสร้างพอร์ตห้อง...", "⏳");
+
+                try {
+                    let roomId; let isUnique = false; let roomRef;
+                    while (!isUnique) { roomId = Math.floor(100000 + Math.random() * 900000).toString(); roomRef = doc(this.db, this.getCollectionPath('room'), roomId); const snap = await getDoc(roomRef); if (!snap.exists()) { isUnique = true; } }
+                    const roomDataInitial = { roomId: roomId, hostId: hostProfile.username, hostPhotoURL: hostProfile.photoURL || '🦊', joinerId: "", joinerPhotoURL: "", status: "waiting", createdAt: new Date().toISOString() };
+                    await setDoc(roomRef, roomDataInitial);
+                    this.currentRoomId = roomId; document.getElementById('lobby-room-id').innerText = roomId; this.renderLobbyState(roomDataInitial);
+                    if (window.showModal) window.showModal('modal-lobby'); this.forceCleanup(); 
+                    
+                    this.unsubscribeLobby = onSnapshot(roomRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data(); this.renderLobbyState(data);
+                            if (data.status === "playing") { this.forceCleanup(); if (window.hideModal) window.hideModal('modal-lobby'); if (window.runStartSequence) window.runStartSequence('kahoot'); }
+                        } else { this.forceCleanup(); if (window.hideModal) window.hideModal('modal-lobby'); if (window.showToast) window.showToast("เซสชั่นห้องถูกตัดแล้ว", "⚠️"); }
+                    });
+                } catch (error) { console.error("[A.E.G.I.S Debug]: ❌ Create Room Error:", error); if (window.showToast) window.showToast("ล้มเหลวในการสร้างพอร์ตห้อง", "❌"); } finally { this.isProcessing = false; }
+            },
+
+            openJoinModal: function() {
+                if (window.playSound) window.playSound('click');
+                if (!this.db || !gameState.currentUser) { if (window.showToast) window.showToast("โปรดลงชื่อเข้าระบบก่อนเข้าพอร์ตห้อง!", "⚠️"); return; }
+                document.getElementById('join-room-input').value = ""; if (window.showModal) window.showModal('modal-join-room');
+            },
+
+            processJoinRoom: async function(roomId) {
+                if (this.isProcessing) return; this.isProcessing = true;
+                if (window.showToast) window.showToast("กำลังสแกนหาพอร์ตห้อง...", "🔍"); const profile = gameState.currentUser; gameState.isRoomHost = false;
+
+                try {
+                    const roomRef = doc(this.db, this.getCollectionPath('room'), roomId); const roomSnap = await getDoc(roomRef);
+                    if (roomSnap.exists()) {
+                        const roomData = roomSnap.data();
+                        if (roomData.status === "waiting") {
+                            await updateDoc(roomRef, { joinerId: profile.username, joinerPhotoURL: profile.photoURL || '🦊' });
+                            this.currentRoomId = roomId; if (window.hideModal) window.hideModal('modal-join-room'); document.getElementById('lobby-room-id').innerText = roomId;
+                            roomData.joinerId = profile.username; roomData.joinerPhotoURL = profile.photoURL; this.renderLobbyState(roomData);
+                            if (window.showModal) window.showModal('modal-lobby'); this.forceCleanup();
+                            
+                            this.unsubscribeLobby = onSnapshot(roomRef, (docSnap) => {
+                                if (docSnap.exists()) {
+                                    const data = docSnap.data(); this.renderLobbyState(data);
+                                    if (data.status === "playing") { this.forceCleanup(); if (window.hideModal) window.hideModal('modal-lobby'); if (window.runStartSequence) window.runStartSequence('kahoot'); }
+                                } else { this.forceCleanup(); if (window.hideModal) window.hideModal('modal-lobby'); if (window.showToast) window.showToast("โฮสต์ได้ยุติพอร์ตห้องแล้ว", "⚠️"); }
+                            });
+                        } else { if (window.showToast) window.showToast("พอร์ตนี้ถูกใช้งานไปแล้วหรือปิดตัวลง", "⏳"); }
+                    } else { if (window.showToast) window.showToast("รหัสไม่ตรงกับพอร์ตใดเลย!", "❌"); }
+                } catch (error) { console.error("[A.E.G.I.S Debug]: ❌ Join Room Error:", error); if (window.showToast) window.showToast("การเชื่อมต่อพอร์ตล้มเหลว", "❌"); } finally { this.isProcessing = false; }
+            },
+
+            startGameAsHost: async function() {
+                if(!this.currentRoomId || !this.db) return; if(window.playSound) window.playSound('click');
+                try { const roomRef = doc(this.db, this.getCollectionPath('room'), this.currentRoomId); await updateDoc(roomRef, { status: "playing" }); } catch (error) {}
+            },
+
+            cancelRoom: async function() {
+                if (window.playSound) window.playSound('click'); if (window.hideModal) window.hideModal('modal-lobby'); this.forceCleanup();
+                if (this.currentRoomId && this.db) {
+                    try {
+                        const roomRef = doc(this.db, this.getCollectionPath('room'), this.currentRoomId);
+                        if(gameState.isRoomHost) { await deleteDoc(roomRef); if (window.showToast) window.showToast("ยุติพอร์ตห้องสำเร็จ", "🗑️"); } 
+                        else { await updateDoc(roomRef, { joinerId: "", joinerPhotoURL: "" }); if (window.showToast) window.showToast("ตัดการเชื่อมต่อสำเร็จ", "🚪"); }
+                    } catch (error) { console.error("[A.E.G.I.S Debug]: ❌ Cancel Room Error:", error); }
+                }
+                this.currentRoomId = null;
+            }
+        };
+
+        window.WordHunterFirebase.init();
+    </script>
+</body>
+</html>
