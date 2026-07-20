@@ -8,7 +8,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;900&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     
     <!-- TensorFlow.js & MediaPipe Pose -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
@@ -16,18 +16,13 @@
 
     <style>
         html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            touch-action: pan-y; 
+            width: 100%; height: 100%; margin: 0; padding: 0; touch-action: pan-y; 
         }
         body {
             font-family: 'Kanit', sans-serif;
             background-color: #0c080d;
             background-image: radial-gradient(rgba(245, 158, 11, 0.08) 1.5px, transparent 1.5px);
-            background-size: 32px 32px;
-            overflow-x: hidden;
+            background-size: 32px 32px; overflow-x: hidden;
         }
         .historic-wall-pattern {
             background-color: #211216;
@@ -36,81 +31,47 @@
             background-size: 24px 24px;
         }
         .glass-card-amber {
-            background: rgba(22, 14, 18, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 2px solid rgba(245, 158, 11, 0.15);
+            background: rgba(22, 14, 18, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 2px solid rgba(245, 158, 11, 0.15);
         }
         @keyframes sun-glow {
             0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
             50% { box-shadow: 0 0 35px rgba(245, 158, 11, 0.8); }
         }
-        .glow-active {
-            animation: sun-glow 2s infinite ease-in-out;
-        }
+        .glow-active { animation: sun-glow 2s infinite ease-in-out; }
         @keyframes pop-in {
             0% { transform: scale(0.5); opacity: 0; }
             50% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .animate-pop-in {
-            animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        .kahoot-btn:active {
-            transform: scale(0.95);
-        }
+        .animate-pop-in { animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .kahoot-btn:active { transform: scale(0.95); }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 4px; }
-        
-        .no-select {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
+        .no-select { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
 
-        /* Styles for Avatar Selection */
-        .avatar-option {
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: grayscale(100%) opacity(0.4);
-        }
-        .avatar-option:hover {
-            filter: grayscale(50%) opacity(0.8);
-            transform: scale(1.1);
-        }
-        .avatar-option.selected {
-            filter: grayscale(0%) opacity(1);
-            transform: scale(1.25);
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.9);
-            border-color: #f59e0b;
-            background-color: rgba(245, 158, 11, 0.25);
-            z-index: 10;
-        }
+        /* Avatar Selection */
+        .avatar-option { cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: grayscale(100%) opacity(0.4); }
+        .avatar-option:hover { filter: grayscale(50%) opacity(0.8); transform: scale(1.1); }
+        .avatar-option.selected { filter: grayscale(0%) opacity(1); transform: scale(1.25); box-shadow: 0 0 20px rgba(245, 158, 11, 0.9); border-color: #f59e0b; background-color: rgba(245, 158, 11, 0.25); z-index: 10; }
 
-        /* ===== Streak / Combo System styles ===== */
+        /* Streak System styles */
         @keyframes streak-pop {
             0% { transform: scale(0.6) rotate(-8deg); opacity: 0; }
             60% { transform: scale(1.15) rotate(4deg); opacity: 1; }
             100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
-        .streak-pop {
-            animation: streak-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        .streak-pop { animation: streak-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes streak-fire {
             0%, 100% { transform: translateY(0) scale(1); }
             50% { transform: translateY(-3px) scale(1.1); }
         }
-        .streak-fire {
-            animation: streak-fire 0.6s infinite ease-in-out;
-        }
+        .streak-fire { animation: streak-fire 0.6s infinite ease-in-out; }
         #hud-streak-wrap { transition: opacity 0.25s ease; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center p-2 md:p-4 text-slate-100 no-select">
 
-    <!-- ================= 1. MODAL: SIGN UP ================= -->
     <div id="modal-initial-signup" class="fixed inset-0 bg-slate-950/95 z-[200] flex items-center justify-center p-4">
         <div class="bg-gradient-to-b from-[#261619] to-[#0f090a] border-4 border-amber-500 rounded-3xl max-w-xl w-full shadow-2xl overflow-y-auto max-h-[95vh] text-center flex flex-col relative glow-active">
             <div class="relative w-full h-40 md:h-48 bg-slate-900 shrink-0">
@@ -135,11 +96,9 @@
                     </div>
                 </div>
                 
-                <!-- Avatar Selector -->
                 <div class="text-left mt-2">
                     <label class="block text-amber-400 font-bold mb-2 text-sm">🎭 เลือกรูปโปรไฟล์ประจำตัว:</label>
                     <div id="avatar-container-signup" class="flex flex-wrap gap-2 justify-center bg-slate-900/80 p-4 rounded-xl border border-white/10 shadow-inner">
-                        <!-- Avatars generated via JS -->
                     </div>
                 </div>
 
@@ -150,10 +109,8 @@
         </div>
     </div>
 
-    <!-- ================= MAIN LOBBY CONTAINER ================= -->
     <div id="game-container" class="w-full h-full max-w-7xl glass-card-amber rounded-3xl shadow-2xl overflow-hidden relative border border-amber-500/20 flex flex-col">
         
-        <!-- HEADER -->
         <div class="historic-wall-pattern p-4 md:p-6 text-center border-b-4 border-amber-500 relative shrink-0">
             <h1 class="text-4xl md:text-5xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] tracking-wide">
                 Words Hunter AR Hunsa
@@ -163,7 +120,6 @@
             </p>
         </div>
 
-        <!-- STATUS BAR -->
         <div class="bg-slate-950/80 border-b border-white/5 px-4 md:px-6 py-3 flex flex-wrap justify-between items-center text-xs md:text-sm font-bold gap-4 shrink-0">
             <div class="flex items-center gap-3">
                 <span id="user-status-dot" class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
@@ -178,11 +134,9 @@
             </div>
         </div>
 
-        <!-- LOBBY SCREEN -->
         <div id="screen-lobby" class="p-4 md:p-10 flex flex-col items-center flex-1 overflow-y-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 w-full max-w-6xl mb-8">
                 
-                <!-- MODE SELECTION -->
                 <div class="bg-slate-950/60 rounded-3xl border border-white/5 p-5 md:p-6 text-left shadow-xl flex flex-col justify-center h-full">
                     <h3 class="text-2xl md:text-3xl font-black text-amber-400 mb-4 md:mb-6 pb-3 border-b border-white/10 text-center">
                         🎮 เลือกโหมดการเล่น
@@ -208,10 +162,15 @@
                             <span class="text-4xl md:text-5xl mb-1">🤝</span>
                             <span class="font-black text-lg md:text-xl">เข้าร่วมห้อง<br><span class="text-sm">(ใส่รหัส)</span></span>
                         </button>
+                        
+                        <!-- 🎯 NEW: ปุ่ม Adventure Mode โหมดสลับอัตโนมัติ -->
+                        <button onclick="window.runAdventureSequence()" class="col-span-1 sm:col-span-2 bg-gradient-to-br from-orange-600 to-red-700 hover:from-orange-500 hover:to-red-600 text-white rounded-2xl p-4 shadow-[0_0_20px_rgba(234,88,12,0.6)] transition-transform transform hover:scale-105 flex justify-center items-center gap-4">
+                            <span class="text-5xl animate-bounce">🌋</span>
+                            <span class="font-black text-2xl text-left tracking-wide">โหมดผจญภัย (Adventure)<br><span class="text-base text-orange-200 font-bold">สลับสไตล์การเล่น AR & คลิกตอบอัตโนมัติ!</span></span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- AI TUTOR -->
                 <div class="bg-slate-950/60 rounded-3xl border border-white/5 p-5 md:p-6 text-left flex flex-col shadow-xl h-full">
                     <h3 class="text-xl md:text-2xl font-black text-cyan-400 mb-2 pb-3 border-b border-white/10 flex items-center gap-2">
                         💬 ติวเตอร์ย่าโม AI
@@ -227,7 +186,6 @@
                 </div>
             </div>
 
-            <!-- LEADERBOARD DISPLAY -->
             <div class="w-full max-w-6xl bg-slate-950/40 border border-white/10 rounded-3xl p-5 md:p-6 shadow-lg text-left">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 pb-3 border-b border-white/5 gap-4">
                     <h3 class="text-xl md:text-2xl font-black text-amber-400 flex items-center gap-2 shrink-0">
@@ -235,16 +193,16 @@
                         <span id="lb-sync-status" class="text-[10px] md:text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/50 animate-pulse hidden">Live</span>
                     </h3>
                     
-                    <!-- โซนตัวกรองคะแนน (Filter Controls) -->
                     <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                         <select id="lb-filter-diff" onchange="window.updateLeaderboardCategoryFilter()" class="bg-slate-800 border border-white/20 text-amber-400 px-3 py-1.5 rounded-lg font-bold focus:outline-none text-xs md:text-sm w-full sm:w-auto cursor-pointer hover:border-amber-400 transition-colors">
                             <option value="A1" selected>🟢 A1 (Beginner)</option>
                             <option value="A2">🟡 A2 (Elementary)</option>
                             <option value="B1">🟠 B1 (Intermediate)</option>
                             <option value="B2">🔴 B2 (Upper-Intermediate)</option>
+                            <!-- เพิ่มตัวเลือกเพื่อแสดงคะแนนโหมด Adventure -->
+                            <option value="ADV">🌋 Adventure Mode</option>
                         </select>
                         <select id="lb-filter-cat" onchange="window.loadLeaderboardSafe()" class="bg-slate-800 border border-white/20 text-cyan-400 px-3 py-1.5 rounded-lg font-bold focus:outline-none text-xs md:text-sm w-full sm:w-auto cursor-pointer hover:border-cyan-400 transition-colors">
-                            <!-- จะถูกใส่ค่าอัตโนมัติด้วย JavaScript -->
                         </select>
                         <button onclick="window.loadLeaderboardSafe()" class="bg-slate-800 hover:bg-emerald-600/90 text-slate-300 hover:text-white border border-slate-600 hover:border-emerald-500 px-3 py-1.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 font-bold text-xs md:text-sm w-full sm:w-auto">
                             <span>🔄</span> <span class="hidden sm:inline">โหลดใหม่</span>
@@ -264,7 +222,6 @@
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body">
-                            <!-- Dynamic Row Render -->
                         </tbody>
                     </table>
                 </div>
@@ -272,11 +229,8 @@
         </div>
     </div>
 
-    <!-- ================= SCREEN: PLAYING SESSION (FULL VIEWPORT) ================= -->
     <div id="screen-game" class="hidden fixed inset-0 z-[100] bg-slate-950 flex-col w-full h-full">
-        <!-- HUD Interface -->
         <div class="absolute top-2 md:top-4 left-2 right-2 md:left-4 md:right-4 z-20 flex justify-between items-start pointer-events-none gap-2">
-            <!-- Score Panel -->
             <div class="bg-slate-900/90 backdrop-blur-md border-2 md:border-4 border-amber-500/50 rounded-2xl p-2 md:p-4 text-white flex flex-col shadow-xl pointer-events-auto min-w-[80px] md:min-w-[120px] text-center">
                 <span class="text-[8px] md:text-sm text-amber-400 font-extrabold uppercase tracking-widest mb-0.5 md:mb-1">คะแนนสะสม</span>
                 <span class="text-3xl md:text-5xl font-black text-yellow-400" id="hud-score-p1">0</span>
@@ -285,26 +239,23 @@
                 </div>
             </div>
 
-            <!-- QUESTION BOX -->
             <div class="flex-1 max-w-3xl mx-1 md:mx-2 bg-gradient-to-r from-amber-800 via-slate-900 to-amber-800 border-2 md:border-4 border-amber-400 text-white rounded-2xl py-1 px-3 md:py-2 md:px-6 text-center shadow-xl pointer-events-auto glow-active" id="hud-instruction-box">
                 <div class="text-[10px] md:text-sm text-amber-200 font-black uppercase tracking-wider flex justify-center items-center gap-1 md:gap-2 mb-1">
                     <span class="hidden sm:inline">🔍 ค้นหาคำแปล</span>
                     <span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-extrabold" id="hud-question-count">ข้อ 1/10</span>
                 </div>
-                <!-- 🎨 [Fix]: บังคับใช้ Kanit, ลดน้ำหนัก, เพิ่ม Tracking เพื่อให้ภาษาไทยและวรรณยุกต์ไม่โดนกลืน -->
-                <div class="text-2xl md:text-4xl lg:text-5xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-white to-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate" style="font-family: 'Kanit', sans-serif;" id="hud-instruction-text">
+                <div class="text-2xl md:text-4xl lg:text-5xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-white to-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate" id="hud-instruction-text" style="font-family: 'Kanit', sans-serif;">
                     วิเคราะห์
                 </div>
             </div>
 
-            <!-- Timer Panel -->
             <div class="bg-slate-900/90 backdrop-blur-md border-2 md:border-4 border-cyan-500/50 rounded-2xl p-2 md:p-4 text-white flex flex-col text-center shadow-xl pointer-events-auto min-w-[80px] md:min-w-[120px]">
                 <span class="text-[8px] md:text-sm text-cyan-400 font-extrabold uppercase tracking-wider mb-0.5 md:mb-1">เวลา</span>
                 <span class="text-3xl md:text-5xl font-black text-rose-400 drop-shadow-md" id="hud-timer">20s</span>
             </div>
         </div>
 
-        <div id="bonus-banner" class="hidden absolute top-24 md:top-40 left-1/2 transform -translate-x-1/2 z-30 bg-gradient-to-r from-red-600 via-amber-500 to-red-600 border-2 md:border-4 border-yellow-300 text-white rounded-full px-6 md:px-8 py-2 md:py-3 text-center shadow-[0_0_20px_rgba(245,158,11,0.9)] w-[90%] max-w-sm">
+        <div id="bonus-banner" class="hidden absolute top-24 md:top-40 left-1/2 transform -translate-x-1/2 z-30 bg-gradient-to-r from-red-600 via-amber-500 to-red-600 border-2 md:border-4 border-yellow-300 text-white rounded-full px-6 md:px-8 py-2 md:py-3 text-center shadow-[0_0_20px_rgba(245,158,11,0.9)] animate-bounce w-[90%] max-w-sm">
             <div class="text-[10px] md:text-sm font-black uppercase tracking-widest text-yellow-200">🔥 COMBO STREAK 🔥</div>
             <div id="bonus-banner-text" class="text-lg md:text-3xl font-extrabold">ตอบถูกต่อเนื่อง!</div>
         </div>
@@ -322,7 +273,13 @@
             <div class="text-xl md:text-4xl font-bold text-white mt-4 md:mt-8 tracking-widest" id="countdown-sub">เตรียมตัวให้พร้อม!</div>
         </div>
 
-        <!-- 1. AR CANVAS -->
+        <!-- 🎯 NEW: แจ้งเตือนสลับโหมด Adventure -->
+        <div id="transition-overlay" class="hidden absolute inset-0 bg-slate-950/95 z-[130] flex-col items-center justify-center pointer-events-none p-4 text-center">
+            <div class="text-6xl md:text-8xl mb-4 animate-spin-slow">🌀</div>
+            <h2 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-500 drop-shadow-md mb-2">สลับโหมดการเล่น!</h2>
+            <div class="text-2xl md:text-4xl font-bold text-white tracking-widest" id="transition-sub">เตรียมขยับร่างกาย...</div>
+        </div>
+
         <div id="ar-container" class="relative flex-1 w-full bg-slate-900 flex items-center justify-center overflow-hidden">
             <video id="webcam" autoplay playsinline muted class="absolute pointer-events-none" style="opacity: 0.01; width: 10px; height: 10px;"></video>
             <canvas id="game-canvas" class="max-w-full max-h-full object-contain -scale-x-100" style="touch-action: none;"></canvas>
@@ -337,14 +294,11 @@
             </div>
         </div>
 
-        <!-- 2. KAHOOT STYLE -->
         <div id="kahoot-container" class="hidden flex-1 w-full bg-slate-950 flex-col items-center justify-center p-4 md:p-8 gap-4 md:gap-6 relative overflow-y-auto">
             <div id="kahoot-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 w-full max-w-6xl pb-4 pt-28 md:pt-32">
-                <!-- Dynamic Buttons -->
             </div>
         </div>
 
-        <!-- Footer Controls -->
         <div class="bg-slate-950 border-t-2 md:border-t-4 border-white/10 p-3 md:p-5 flex flex-wrap justify-between items-center text-white gap-2 md:gap-4 z-50 shrink-0">
             <div class="text-slate-300 font-bold text-xs md:text-xl truncate flex-1">
                 <span class="hidden sm:inline">🏆 โหมด: </span><span id="current-diff-lbl" class="font-black text-amber-400">-</span> | 
@@ -362,7 +316,6 @@
         </div>
     </div>
 
-    <!-- ================= RESULTS DISPLAY SCREEN ================= -->
     <div id="screen-results" class="hidden fixed inset-0 z-[100] bg-slate-950 overflow-y-auto p-4 md:p-10 text-center flex-col items-center justify-center">
         <div class="max-w-4xl w-full mx-auto my-auto py-8">
             <div class="text-6xl md:text-8xl mb-4 md:mb-6 animate-bounce">🏆</div>
@@ -395,7 +348,7 @@
         </div>
     </div>
 
-    <!-- ================= MODAL: GAME SETTINGS ================= -->
+    <!-- Modals (Settings, Auth, Confirmations) -->
     <div id="teacher-console-overlay" class="hidden fixed inset-0 bg-slate-950/80 z-[150] flex justify-end">
         <div class="bg-slate-900 w-full max-w-md h-full shadow-2xl border-l-4 border-amber-500 p-6 overflow-y-auto text-slate-100 flex flex-col justify-between">
             <div>
@@ -446,6 +399,13 @@
                                 <input type="number" id="custom-target-count" value="4" min="2" max="6" class="w-full bg-slate-800 px-3 py-2 rounded-lg text-white font-bold border border-white/20 focus:outline-none">
                             </div>
                             <div>
+                                <label class="block text-slate-300 font-bold mb-1">รูปแบบเป้าหมาย (โหมด AR):</label>
+                                <select id="moving-target-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none">
+                                    <option value="false" selected>🛑 นิ่งอยู่กับที่ (มาตรฐาน)</option>
+                                    <option value="true">☄️ ลอยเด้งไปมา (ท้าทาย)</option>
+                                </select>
+                            </div>
+                            <div>
                                 <label class="block text-slate-300 font-bold mb-1">ส่วนตรวจจับ (AI Tracking):</label>
                                 <select id="tracking-target-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none">
                                     <option value="all" selected>⭐ ทั้งหมด (นิ้วชี้ซ้าย, ขวา, ลำตัว)</option>
@@ -460,7 +420,6 @@
         </div>
     </div>
 
-    <!-- ================= EDIT PROFILE ================= -->
     <div id="modal-auth" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-amber-500 p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl relative text-white max-h-[95vh] overflow-y-auto">
             <button onclick="window.toggleAuthModal()" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
@@ -475,14 +434,11 @@
                     <input type="text" id="auth-grade" class="w-full bg-slate-950 text-white font-bold px-3 py-2 md:px-4 md:py-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500">
                 </div>
                 
-                <!-- Avatar Selector Update -->
                 <div class="text-left mt-2">
                     <label class="block text-amber-400 font-bold mb-2 text-sm">🎭 เปลี่ยนรูปโปรไฟล์ประจำตัว:</label>
                     <div id="avatar-container-edit" class="flex flex-wrap gap-2 justify-center bg-slate-950 p-4 rounded-xl border border-white/10 shadow-inner">
-                        <!-- Avatars generated via JS -->
                     </div>
                 </div>
-
             </div>
             <button onclick="window.updateProfileSafe()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl">
                 💾 บันทึกการเปลี่ยนแปลง
@@ -490,7 +446,6 @@
         </div>
     </div>
 
-    <!-- QUIT CONFIRM -->
     <div id="modal-quit-confirm" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-white/10 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl">
             <div class="text-5xl md:text-6xl mb-3 md:mb-4 animate-bounce">⚠️</div>
@@ -503,7 +458,6 @@
         </div>
     </div>
 
-    <!-- MODAL: RESET LEADERBOARD CONFIRM -->
     <div id="modal-reset-confirm" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-rose-500 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl">
             <div class="text-5xl md:text-6xl mb-3 md:mb-4 animate-pulse">🗑️</div>
@@ -516,7 +470,6 @@
         </div>
     </div>
     
-    <!-- MODAL: JOIN ROOM PROMPT -->
     <div id="modal-join-room" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-cyan-500 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl relative">
             <button onclick="window.hideModal('modal-join-room')" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
@@ -529,7 +482,6 @@
         </div>
     </div>
 
-    <!-- MODAL: LOBBY WAITING ROOM (Kahoot Style Lobby) -->
     <div id="modal-lobby" class="hidden fixed inset-0 bg-slate-950/95 z-[250] items-center justify-center p-4">
         <div class="bg-slate-900 border-4 border-amber-500 p-6 md:p-8 rounded-3xl w-full max-w-3xl text-center shadow-[0_0_40px_rgba(245,158,11,0.3)] relative flex flex-col max-h-[95vh]">
             
@@ -538,42 +490,33 @@
                 <button onclick="window.cancelRoomSafe()" class="text-slate-400 hover:text-rose-500 font-bold text-4xl transition">×</button>
             </div>
             
-            <!-- Room PIN -->
             <div class="bg-slate-950 border-2 border-white/10 rounded-2xl py-6 mb-8 shrink-0 relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
                 <p class="text-sm md:text-base text-slate-400 font-bold mb-2 uppercase tracking-widest">รหัสห้อง (Room PIN)</p>
                 <span id="lobby-room-id" class="text-6xl md:text-8xl font-black text-white tracking-[0.2em] drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">------</span>
             </div>
 
-            <!-- VS Area -->
             <div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mb-8">
-                
-                <!-- Host Slot -->
                 <div class="flex-1 w-full bg-slate-800/50 border-2 border-amber-500/50 rounded-2xl p-6 flex flex-col items-center justify-center relative shadow-inner h-48 md:h-64">
                     <span class="absolute top-3 left-3 bg-amber-500 text-slate-900 text-xs font-black px-2 py-1 rounded-md uppercase">หัวหน้าห้อง</span>
                     <div id="lobby-host-avatar" class="text-6xl md:text-8xl mb-3 drop-shadow-xl animate-bounce">⏳</div>
                     <div id="lobby-host-name" class="text-xl md:text-2xl font-bold text-white truncate w-full px-2">กำลังรอ...</div>
                 </div>
 
-                <!-- VS Badge -->
                 <div class="shrink-0 flex items-center justify-center">
                     <div class="w-16 h-16 md:w-20 md:h-20 bg-rose-600 rounded-full flex items-center justify-center text-2xl md:text-3xl font-black text-white border-4 border-slate-900 shadow-[0_0_20px_rgba(225,29,72,0.8)] z-10 transform -rotate-12">
                         VS
                     </div>
                 </div>
 
-                <!-- Joiner Slot -->
                 <div class="flex-1 w-full bg-slate-800/50 border-2 border-cyan-500/50 rounded-2xl p-6 flex flex-col items-center justify-center relative shadow-inner h-48 md:h-64">
                     <span class="absolute top-3 right-3 bg-cyan-500 text-slate-900 text-xs font-black px-2 py-1 rounded-md uppercase">ผู้ท้าชิง</span>
                     <div id="lobby-joiner-avatar" class="text-6xl md:text-8xl mb-3 drop-shadow-xl opacity-50">👤</div>
                     <div id="lobby-joiner-name" class="text-xl md:text-2xl font-bold text-slate-400 truncate w-full px-2">รอเพื่อนเข้าร่วม...</div>
                 </div>
-
             </div>
 
-            <!-- Action Button Zone -->
             <div id="lobby-action-zone" class="shrink-0">
-                <!-- Injected dynamically via JS based on Host/Joiner status -->
             </div>
         </div>
     </div>
@@ -583,163 +526,44 @@
         <span class="text-sm md:text-xl break-words" id="toast-message">แจ้งเตือน</span>
     </div>
 
-    <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
         const vocabEngine = {
             "A1": {
                 name: "🟢 A1 (Beginner)",
                 categories: {
-                    "nouns_basic": { 
-                        title: "📦 คำนามพื้นฐาน", 
-                        words: [
-                            {en:"age",th:"อายุ"}, {en:"air",th:"อากาศ"}, {en:"animal",th:"สัตว์"}, 
-                            {en:"answer",th:"คำตอบ"}, {en:"apple",th:"แอปเปิล"}, {en:"art",th:"ศิลปะ"}, 
-                            {en:"baby",th:"ทารก"}, {en:"back",th:"หลัง"}, {en:"bag",th:"กระเป๋า"}, 
-                            {en:"ball",th:"ลูกบอล"}, {en:"bank",th:"ธนาคาร"}, {en:"bath",th:"การอาบน้ำ"}, 
-                            {en:"bed",th:"เตียงนอน"}, {en:"bird",th:"นก"}, {en:"blood",th:"เลือด"}, 
-                            {en:"boat",th:"เรือ"}, {en:"body",th:"ร่างกาย"}, {en:"bone",th:"กระดูก"}, 
-                            {en:"book",th:"หนังสือ"}, {en:"box",th:"กล่อง"}, {en:"boy",th:"เด็กผู้ชาย"}, 
-                            {en:"bread",th:"ขนมปัง"}, {en:"brother",th:"พี่ชาย/น้องชาย"}, {en:"bus",th:"รถประจำทาง"}, 
-                            {en:"car",th:"รถยนต์"}
-                        ] 
-                    },
-                    "verbs_basic": { 
-                        title: "🏃 กริยาพื้นฐาน", 
-                        words: [
-                            {en:"act",th:"กระทำ"}, {en:"add",th:"เพิ่ม/บวก"}, {en:"answer",th:"ตอบ"}, 
-                            {en:"ask",th:"ถาม/ขอร้อง"}, {en:"build",th:"สร้าง"}, {en:"burn",th:"เผา/ไหม้"}, 
-                            {en:"buy",th:"ซื้อ"}, {en:"call",th:"โทรหา/เรียก"}, {en:"listen",th:"ฟัง"}, 
-                            {en:"smile",th:"ยิ้ม"}, {en:"drink",th:"ดื่ม"}, {en:"eat",th:"กิน"}, 
-                            {en:"read",th:"อ่าน"}, {en:"write",th:"เขียน"}
-                        ] 
-                    },
-                    "adjectives_basic": { 
-                        title: "🎨 คุณศัพท์พื้นฐาน", 
-                        words: [
-                            {en:"bad",th:"เลว/แย่"}, {en:"big",th:"ใหญ่"}, {en:"black",th:"สีดำ"}, 
-                            {en:"blue",th:"สีน้ำเงิน"}, {en:"brown",th:"สีน้ำตาล"}, {en:"busy",th:"ยุ่ง"},
-                            {en:"alone",th:"ลำพัง"}, {en:"beautiful",th:"สวย"}, {en:"new",th:"ใหม่"},
-                            {en:"clean",th:"สะอาด"}, {en:"small",th:"เล็ก"}, {en:"cold",th:"เย็น"},
-                            {en:"old",th:"เก่า"}, {en:"good",th:"ดี"}, {en:"hungry",th:"หิว"}
-                        ] 
-                    }
+                    "nouns_basic": { title: "📦 คำนามพื้นฐาน", words: [{en:"age",th:"อายุ"}, {en:"air",th:"อากาศ"}, {en:"animal",th:"สัตว์"}, {en:"answer",th:"คำตอบ"}, {en:"apple",th:"แอปเปิล"}, {en:"art",th:"ศิลปะ"}, {en:"baby",th:"ทารก"}, {en:"back",th:"หลัง"}, {en:"bag",th:"กระเป๋า"}, {en:"ball",th:"ลูกบอล"}, {en:"bank",th:"ธนาคาร"}, {en:"bath",th:"การอาบน้ำ"}, {en:"bed",th:"เตียงนอน"}, {en:"bird",th:"นก"}, {en:"blood",th:"เลือด"}, {en:"boat",th:"เรือ"}, {en:"body",th:"ร่างกาย"}, {en:"bone",th:"กระดูก"}, {en:"book",th:"หนังสือ"}, {en:"box",th:"กล่อง"}, {en:"boy",th:"เด็กผู้ชาย"}, {en:"bread",th:"ขนมปัง"}, {en:"brother",th:"พี่ชาย/น้องชาย"}, {en:"bus",th:"รถประจำทาง"}, {en:"car",th:"รถยนต์"}] },
+                    "verbs_basic": { title: "🏃 กริยาพื้นฐาน", words: [{en:"act",th:"กระทำ"}, {en:"add",th:"เพิ่ม/บวก"}, {en:"answer",th:"ตอบ"}, {en:"ask",th:"ถาม/ขอร้อง"}, {en:"build",th:"สร้าง"}, {en:"burn",th:"เผา/ไหม้"}, {en:"buy",th:"ซื้อ"}, {en:"call",th:"โทรหา/เรียก"}] },
+                    "adjectives_basic": { title: "🎨 คุณศัพท์พื้นฐาน", words: [{en:"bad",th:"เลว/แย่"}, {en:"big",th:"ใหญ่"}, {en:"black",th:"สีดำ"}, {en:"blue",th:"สีน้ำเงิน"}, {en:"brown",th:"สีน้ำตาล"}, {en:"busy",th:"ยุ่ง"}, {en:"alone",th:"ลำพัง"}] }
                 }
             },
             "A2": {
                 name: "🟡 A2 (Elementary)",
                 categories: {
-                    "nouns_daily": { 
-                        title: "🏕️ คำนามชีวิตประจำวัน", 
-                        words: [
-                            {en:"activity",th:"กิจกรรม"}, {en:"adult",th:"ผู้ใหญ่"}, {en:"adventure",th:"การผจญภัย"}, 
-                            {en:"aim",th:"เป้าหมาย"}, {en:"area",th:"พื้นที่"}, {en:"article",th:"บทความ"}, 
-                            {en:"attack",th:"การโจมตี"}, {en:"attention",th:"ความสนใจ"}, {en:"audience",th:"ผู้ชม/ผู้ฟัง"}, 
-                            {en:"award",th:"รางวัล"}, {en:"base",th:"รากฐาน"}, {en:"battle",th:"การต่อสู้"}, 
-                            {en:"beauty",th:"ความงาม"}, {en:"beginning",th:"จุดเริ่มต้น"}, {en:"behavior",th:"พฤติกรรม"}, 
-                            {en:"benefit",th:"ผลประโยชน์"}, {en:"board",th:"กระดาน"}, {en:"border",th:"ชายแดน"}, 
-                            {en:"bottle",th:"ขวด"}, {en:"bottom",th:"ก้น/ส่วนล่างสุด"}, {en:"accident",th:"อุบัติเหตุ"},
-                            {en:"journey",th:"เดินทาง"}, {en:"kitchen",th:"ห้องครัว"}, {en:"airport",th:"สนามบิน"},
-                            {en:"medicine",th:"ยา"}, {en:"shopping",th:"ซื้อของ"}, {en:"bicycle",th:"จักรยาน"}
-                        ] 
-                    },
-                    "verbs_daily": { 
-                        title: "🏃 กริยาชีวิตประจำวัน", 
-                        words: [
-                            {en:"aim",th:"ตั้งเป้า"}, {en:"allow",th:"อนุญาต"}, {en:"appear",th:"ปรากฏตัว"}, 
-                            {en:"argue",th:"โต้เถียง"}, {en:"arrive",th:"มาถึง"}, {en:"attack",th:"โจมตี"}, 
-                            {en:"avoid",th:"หลีกเลี่ยง"}, {en:"award",th:"มอบรางวัล"}, {en:"benefit",th:"ได้รับประโยชน์"}, 
-                            {en:"blow",th:"เป่า/พัด"}, {en:"born",th:"เกิด"}, {en:"borrow",th:"ยืม"},
-                            {en:"repeat",th:"ทำซ้ำ"}, {en:"return",th:"กลับคืน"}, {en:"agree",th:"เห็นด้วย"},
-                            {en:"laugh",th:"หัวเราะ"}, {en:"decide",th:"ตัดสินใจ"}, {en:"explain",th:"อธิบาย"},
-                            {en:"choose",th:"เลือก"}
-                        ] 
-                    },
-                    "adj_adv_daily": { 
-                        title: "🎨 ขยายความ(A2)", 
-                        words: [
-                            {en:"active",th:"กระตือรือร้น"}, {en:"actually",th:"ตามความเป็นจริง"}, {en:"afraid",th:"หวาดกลัว"}, 
-                            {en:"ahead",th:"ข้างหน้า"}, {en:"alive",th:"มีชีวิตอยู่"}, {en:"angry",th:"โกรธ"}, 
-                            {en:"average",th:"ค่าเฉลี่ย"}, {en:"basic",th:"พื้นฐาน"}, {en:"behind",th:"ข้างหลัง"}, 
-                            {en:"blank",th:"ว่างเปล่า"}
-                        ] 
-                    }
+                    "nouns_daily": { title: "🏕️ คำนามชีวิตประจำวัน", words: [{en:"activity",th:"กิจกรรม"}, {en:"adult",th:"ผู้ใหญ่"}, {en:"adventure",th:"การผจญภัย"}, {en:"aim",th:"เป้าหมาย"}, {en:"area",th:"พื้นที่"}, {en:"article",th:"บทความ"}, {en:"attack",th:"การโจมตี"}, {en:"attention",th:"ความสนใจ"}, {en:"audience",th:"ผู้ชม/ผู้ฟัง"}, {en:"award",th:"รางวัล"}, {en:"base",th:"รากฐาน"}, {en:"battle",th:"การต่อสู้"}, {en:"beauty",th:"ความงาม"}, {en:"beginning",th:"จุดเริ่มต้น"}, {en:"behavior",th:"พฤติกรรม"}, {en:"benefit",th:"ผลประโยชน์"}, {en:"board",th:"กระดาน"}, {en:"border",th:"ชายแดน"}, {en:"bottle",th:"ขวด"}, {en:"bottom",th:"ก้น/ส่วนล่างสุด"}] },
+                    "verbs_daily": { title: "🏃 กริยาชีวิตประจำวัน", words: [{en:"aim",th:"ตั้งเป้า"}, {en:"allow",th:"อนุญาต"}, {en:"appear",th:"ปรากฏตัว"}, {en:"argue",th:"โต้เถียง"}, {en:"arrive",th:"มาถึง"}, {en:"attack",th:"โจมตี"}, {en:"avoid",th:"หลีกเลี่ยง"}, {en:"award",th:"มอบรางวัล"}, {en:"benefit",th:"ได้รับประโยชน์"}, {en:"blow",th:"เป่า/พัด"}, {en:"born",th:"เกิด"}, {en:"borrow",th:"ยืม"}] },
+                    "adj_adv_daily": { title: "🎨 ขยายความ(A2)", words: [{en:"active",th:"กระตือรือร้น"}, {en:"actually",th:"ตามความเป็นจริง"}, {en:"afraid",th:"หวาดกลัว"}, {en:"ahead",th:"ข้างหน้า"}, {en:"alive",th:"มีชีวิตอยู่"}, {en:"angry",th:"โกรธ"}, {en:"average",th:"ค่าเฉลี่ย"}, {en:"basic",th:"พื้นฐาน"}, {en:"behind",th:"ข้างหลัง"}, {en:"blank",th:"ว่างเปล่า"}] }
                 }
             },
             "B1": {
                 name: "🟠 B1 (Intermediate)",
                 categories: {
-                    "verbs_action": { 
-                        title: "🏃 กริยาการกระทำ (B1)", 
-                        words: [
-                            {en:"abuse",th:"ใช้ในทางที่ผิด"}, {en:"acquire",th:"ได้รับมา"}, {en:"adapt",th:"ปรับตัว"}, 
-                            {en:"adjust",th:"ปรับเปลี่ยน"}, {en:"adopt",th:"รับเลี้ยง/นำมาใช้"}, {en:"alter",th:"เปลี่ยนแปลง"}, 
-                            {en:"assess",th:"ประเมินผล"}, {en:"assign",th:"มอบหมาย"}, {en:"attach",th:"แนบ/ติดกัน"}, 
-                            {en:"attract",th:"ดึงดูด"}, {en:"bear",th:"ทน/แบกรับ"}, {en:"blame",th:"กล่าวโทษ"}, 
-                            {en:"bother",th:"รบกวน"}, {en:"calculate",th:"คำนวณ"}, {en:"cancel",th:"ยกเลิก"}, 
-                            {en:"capture",th:"จับกุม/จับภาพ"}, {en:"cast",th:"ทอด(เงา)/หล่อ"}, {en:"cause",th:"ทำให้เกิด"}, 
-                            {en:"cease",th:"ยุติ/เลิก"}, {en:"persuade",th:"โน้มน้าว"}, {en:"identify",th:"ระบุตัวตน"},
-                            {en:"achieve",th:"บรรลุผล"}, {en:"predict",th:"ทำนาย"}, {en:"imagine",th:"จินตนาการ"},
-                            {en:"improve",th:"ปรับปรุง"}, {en:"discover",th:"ค้นพบ"}, {en:"recommend",th:"แนะนำ"},
-                            {en:"encourage",th:"สนับสนุน"}
-                        ] 
-                    },
-                    "nouns_abstract": { 
-                        title: "📦 นามธรรม (B1)", 
-                        words: [
-                            {en:"abuse",th:"การล่วงละเมิด"}, {en:"asset",th:"ทรัพย์สิน"}, {en:"authority",th:"อำนาจ"}, 
-                            {en:"bias",th:"อคติ"}, {en:"blame",th:"ความผิด"}, {en:"budget",th:"งบประมาณ"}, 
-                            {en:"candidate",th:"ผู้สมัคร"}, {en:"category",th:"หมวดหมู่"}, {en:"cause",th:"สาเหตุ"}, 
-                            {en:"client",th:"ลูกค้า"}
-                        ] 
-                    },
-                    "adjectives": {
-                        title: "🎨 คำคุณศัพท์ (B1)",
-                        words: [
-                            {en:"definite",th:"แน่นอน"}, {en:"pleasant",th:"เพลิดเพลิน"}, {en:"delicious",th:"อร่อย"},
-                            {en:"disappointed",th:"ผิดหวัง"}, {en:"anxious",th:"วิตกกังวล"}, {en:"intelligent",th:"ฉลาด"},
-                            {en:"familiar",th:"คุ้นเคย"}, {en:"generous",th:"ใจกว้าง"}
-                        ]
-                    }
+                    "verbs_action": { title: "🏃 กริยาการกระทำ (B1)", words: [{en:"abuse",th:"ใช้ในทางที่ผิด"}, {en:"acquire",th:"ได้รับมา"}, {en:"adapt",th:"ปรับตัว"}, {en:"adjust",th:"ปรับเปลี่ยน"}, {en:"adopt",th:"รับเลี้ยง/นำมาใช้"}, {en:"alter",th:"เปลี่ยนแปลง"}, {en:"assess",th:"ประเมินผล"}, {en:"assign",th:"มอบหมาย"}, {en:"attach",th:"แนบ/ติดกัน"}, {en:"attract",th:"ดึงดูด"}, {en:"bear",th:"ทน/แบกรับ"}, {en:"blame",th:"กล่าวโทษ"}, {en:"bother",th:"รบกวน"}, {en:"calculate",th:"คำนวณ"}, {en:"cancel",th:"ยกเลิก"}, {en:"capture",th:"จับกุม/จับภาพ"}, {en:"cast",th:"ทอด(เงา)/หล่อ"}, {en:"cause",th:"ทำให้เกิด"}, {en:"cease",th:"ยุติ/เลิก"}] },
+                    "nouns_abstract": { title: "📦 นามธรรม (B1)", words: [{en:"abuse",th:"การล่วงละเมิด"}, {en:"asset",th:"ทรัพย์สิน"}, {en:"authority",th:"อำนาจ"}, {en:"bias",th:"อคติ"}, {en:"blame",th:"ความผิด"}, {en:"budget",th:"งบประมาณ"}, {en:"candidate",th:"ผู้สมัคร"}, {en:"category",th:"หมวดหมู่"}, {en:"cause",th:"สาเหตุ"}, {en:"client",th:"ลูกค้า"}] }
                 }
             },
             "B2": {
                 name: "🔴 B2 (Upper-Intermediate)",
                 categories: {
-                    "adjectives_adv_complex": { 
-                        title: "🎨 ขยายความซับซ้อน (B2)", 
-                        words: [
-                            {en:"accurate",th:"ถูกต้อง/แม่นยำ"}, {en:"aggressive",th:"ก้าวร้าว"}, {en:"artificial",th:"เทียม/ประดิษฐ์ขึ้น"}, 
-                            {en:"automatically",th:"อย่างอัตโนมัติ"}, {en:"available",th:"พร้อมใช้งาน"}, {en:"aware",th:"ตระหนักรู้"}, 
-                            {en:"basically",th:"โดยพื้นฐานแล้ว"}, {en:"blind",th:"ตาบอด/มองไม่เห็น"}, {en:"brief",th:"สั้นๆ/กะทัดรัด"}, 
-                            {en:"brilliant",th:"ฉลาดหลักแหลม"}, {en:"broad",th:"กว้าง"}, {en:"capable",th:"มีศักยภาพ"}, 
-                            {en:"civil",th:"เกี่ยวกับพลเมือง"}, {en:"classic",th:"คลาสสิก/ยอดเยี่ยม"}
-                        ] 
-                    },
-                     "academic_verbs": { 
-                        title: "🏃 กริยาวิชาการ (B2)", 
-                        words: [
-                            {en:"Acknowledge",th:"ยอมรับ"}, {en:"Regulate",th:"ควบคุม"}, {en:"Incorporate",th:"รวมเข้า"}, 
-                            {en:"Distinguish",th:"แยกแยะ"}, {en:"Dominate",th:"ครอบงำ"}, {en:"Analyze",th:"วิเคราะห์"}, 
-                            {en:"Interpret",th:"ตีความ"}, {en:"Investigate",th:"สืบสวน"}, {en:"Maintain",th:"รักษาไว้"}
-                        ] 
-                    },
-                    "academic_nouns": { 
-                        title: "📦 นามวิชาการ (B2)", 
-                        words: [
-                            {en:"Alternative",th:"ทางเลือก"}, {en:"Requirement",th:"ข้อกำหนด"}, {en:"Efficiency",th:"ประสิทธิภาพ"}, 
-                            {en:"Resolution",th:"แก้ปัญหา"}, {en:"Emphasis",th:"การเน้นย้ำ"}, {en:"Evidence",th:"หลักฐาน"}, 
-                            {en:"Phenomenon",th:"ปรากฏการณ์"}, {en:"Consequence",th:"ผลลัพธ์"}, {en:"Hypothesis",th:"สมมติฐาน"}
-                        ] 
-                    }
+                    "adjectives_adv_complex": { title: "🎨 ขยายความซับซ้อน (B2)", words: [{en:"accurate",th:"ถูกต้อง/แม่นยำ"}, {en:"aggressive",th:"ก้าวร้าว"}, {en:"artificial",th:"เทียม/ประดิษฐ์ขึ้น"}, {en:"automatically",th:"อย่างอัตโนัติ"}, {en:"available",th:"พร้อมใช้งาน"}, {en:"aware",th:"ตระหนักรู้"}, {en:"basically",th:"โดยพื้นฐานแล้ว"}, {en:"blind",th:"ตาบอด/มองไม่เห็น"}, {en:"brief",th:"สั้นๆ/กะทัดรัด"}, {en:"brilliant",th:"ฉลาดหลักแหลม"}, {en:"broad",th:"กว้าง"}, {en:"capable",th:"มีศักยภาพ"}, {en:"civil",th:"เกี่ยวกับพลเมือง"}, {en:"classic",th:"คลาสสิก/ยอดเยี่ยม"}] },
+                     "academic_verbs": { title: "🏃 กริยาวิชาการ", words: [{en:"Acknowledge",th:"ยอมรับ"}, {en:"Regulate",th:"ควบคุม"}, {en:"Incorporate",th:"รวมเข้า"}, {en:"Distinguish",th:"แยกแยะ"}, {en:"Dominate",th:"ครอบงำ"}, {en:"Analyze",th:"วิเคราะห์"}, {en:"Interpret",th:"ตีความ"}, {en:"Investigate",th:"สืบสวน"}, {en:"Maintain",th:"รักษาไว้"}] },
+                    "academic_nouns": { title: "📦 นามวิชาการ", words: [{en:"Alternative",th:"ทางเลือก"}, {en:"Requirement",th:"ข้อกำหนด"}, {en:"Efficiency",th:"ประสิทธิภาพ"}, {en:"Resolution",th:"แก้ปัญหา"}, {en:"Emphasis",th:"การเน้นย้ำ"}, {en:"Evidence",th:"หลักฐาน"}, {en:"Phenomenon",th:"ปรากฏการณ์"}, {en:"Consequence",th:"ผลลัพธ์"}, {en:"Hypothesis",th:"สมมติฐาน"}] }
                 }
             }
         };
 
-        // Avatar Options (Cool emojis for gamers)
         const avatarList = ['🦊','🥷','🧑‍💻','🐼','🦁','🧙‍♂️','🧛‍♂️','🐉','👽','🤖','👻','💀','🎃','🦄','🦖'];
-        let selectedAvatar = '🦊'; // Default
+        let selectedAvatar = '🦊'; 
 
-        // 🛠️ [Fix Cat 5]: ปลดล็อกระบบเสียงสำหรับ Mobile Browsers (Audio Primer) ทันทีที่ผู้เล่นสัมผัสจอ
         let isAudioUnlocked = false;
         async function unlockAudioContext() {
             if(isAudioUnlocked) return;
@@ -756,18 +580,13 @@
         document.body.addEventListener('touchstart', unlockAudioContext, {once:true, passive:true});
         document.body.addEventListener('pointerdown', unlockAudioContext, {once:true, passive:true});
 
-        // ฟังก์ชันอัปเดตสไตล์ของ Avatar อย่างปลอดภัย (สโคปเฉพาะ container ที่ระบุ เพื่อไม่ให้ชนกันระหว่าง signup/edit)
         window.selectAvatar = function(emoji, containerId) {
             try { initAudio(); playSound('click'); } catch(e){} 
             selectedAvatar = emoji;
             const scope = containerId ? document.getElementById(containerId) : document;
             const options = (scope || document).querySelectorAll('.avatar-option');
             options.forEach(span => {
-                if (span.innerText === emoji) {
-                    span.classList.add('selected');
-                } else {
-                    span.classList.remove('selected');
-                }
+                if (span.innerText === emoji) { span.classList.add('selected'); } else { span.classList.remove('selected'); }
             });
         };
 
@@ -785,7 +604,9 @@
         }
 
         let activeVocabList = [];
-        let gameConfig = { difficulty: "A1", category: "nouns_basic", targetCount: 4, duration: 20, trackingTarget: "all", questionLang: "th-en" };
+        let gameConfig = { difficulty: "A1", category: "nouns", targetCount: 4, duration: 20, trackingTarget: "all", questionLang: "th-en", movingTargets: false };
+        
+        // 🚀 ADVENTURE MODE ADDITION TO STATE
         let gameState = {
             scoreP1: 0, timeLeft: 20, isPaused: false, gameActive: false,
             currentQuestion: null, options: [], targets: [], availableVocabs: [], 
@@ -793,7 +614,8 @@
             lastTapTime: 0, questionIndex: 1, maxQuestions: 10,
             player1Name: "ผู้ทดสอบ", currentUser: null, isTeacherVerified: false,
             isKahootMode: true, isRoomHost: false,
-            streak: 0, maxStreak: 0
+            streak: 0, maxStreak: 0,
+            isAdventureMode: false, currentAdventureStyle: 'ar'
         };
 
         let videoElement = document.getElementById('webcam');
@@ -805,14 +627,20 @@
         let isProcessingPose = false;
         let isLoopRunning = false;
         let simulatedPointer = null;
-        
         let lastAiFrameTime = 0; 
         let renderLoopId = null; 
 
-        // ================= ระบบเสียงเพลงประกอบ BGM =================
         const gameBGM = new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3");
-        gameBGM.loop = true;
-        gameBGM.volume = 0.3;
+        gameBGM.loop = true; gameBGM.volume = 0.3;
+
+        // 🚀 CRITICAL FIX: Proper Memory & Camera Management
+        function killCameraAndAI() {
+            if (videoElement.srcObject) {
+                videoElement.srcObject.getTracks().forEach(track => track.stop());
+                videoElement.srcObject = null;
+            }
+            stopGameLoops();
+        }
 
         function resizeDrawingBuffer() {
             if (gameState.isKahootMode) return;
@@ -829,11 +657,9 @@
         }
         
         window.addEventListener('resize', resizeDrawingBuffer);
-        window.addEventListener('orientationchange', () => {
-            setTimeout(resizeDrawingBuffer, 500); 
-        });
+        window.addEventListener('orientationchange', () => { setTimeout(resizeDrawingBuffer, 500); });
 
-        // 🛠️ [Fix Cat 4]: สมการคำนวณพิกัดบน Canvas ใหม่ สำหรับมือถือ (BoundingClientRect Scale Factor + Mirror X-Axis + Object Contain adjustments)
+        // 🚀 CRITICAL FIX: Pointer Events & Exact Mobile Canvas Calculation
         function getCanvasMousePos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
             if (rect.width === 0 || rect.height === 0 || canvas.width === 0 || canvas.height === 0) return { x: 0, y: 0 };
@@ -848,10 +674,10 @@
             const x = (e.clientX - rect.left - offsetX) / scale;
             const y = (e.clientY - rect.top - offsetY) / scale; 
             
+            // Mirror X because of CSS -scale-x-100
             return { x: canvas.width - x, y: y }; 
         }
 
-        // 🛠️ [Fix Cat 4]: อัปเกรดเป็น Pointer Events เพื่อครอบคลุมทั้ง Mouse และ Touch อย่างราบรื่น ไร้ Ghost Clicks
         canvasElement.addEventListener('pointerdown', (e) => {
             if (gameState.isKahootMode || !gameState.gameActive) return;
             const pos = getCanvasMousePos(e, canvasElement);
@@ -874,12 +700,8 @@
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
         async function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new AudioContext();
-            }
-            if (audioCtx.state === 'suspended') {
-                try { await audioCtx.resume(); } catch(e){}
-            }
+            if (!audioCtx) { audioCtx = new AudioContext(); }
+            if (audioCtx.state === 'suspended') { try { await audioCtx.resume(); } catch(e){} }
         }
 
         window.playSound = async function(type) {
@@ -887,8 +709,7 @@
                 await initAudio();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                osc.connect(gain); gain.connect(audioCtx.destination);
                 const now = audioCtx.currentTime;
 
                 if (type === 'success') {
@@ -917,328 +738,237 @@
         window.hideModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } }
         window.showModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); } }
 
-        window.executeInitialSignup = async function() {
-            await unlockAudioContext(); 
-            
-            // 🛠️ [Fix Cat 1]: Ensure Firebase logic is called safely
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.executeInitialSignup === 'function') {
-                window.WordHunterFirebase.executeInitialSignup();
-            } else {
-                console.warn("[Firebase Debug]: Offline or Module not ready.");
-            }
-        }
-
         window.toggleAuthModal = function() {
-            playSound('click');
-            const modal = document.getElementById('modal-auth');
+            playSound('click'); const modal = document.getElementById('modal-auth');
             if (modal.classList.contains('hidden')) {
                 buildAvatarSelector('avatar-container-edit');
                 if (gameState.currentUser) {
                     document.getElementById('auth-username').value = gameState.currentUser.username || "";
                     document.getElementById('auth-grade').value = gameState.currentUser.grade || "";
-                    if(gameState.currentUser.photoURL) {
-                        window.selectAvatar(gameState.currentUser.photoURL, 'avatar-container-edit');
-                    }
+                    if(gameState.currentUser.photoURL) { window.selectAvatar(gameState.currentUser.photoURL, 'avatar-container-edit'); }
                 }
                 showModal('modal-auth');
             } else { hideModal('modal-auth'); }
         }
 
         window.toggleTeacherConsole = function() {
-            playSound('click');
-            const panel = document.getElementById('teacher-console-overlay');
-            if (panel.classList.contains('hidden')) { 
-                showModal('teacher-console-overlay'); 
-                window.adjustCategorySelection(); 
-            } 
-            else { hideModal('teacher-console-overlay'); }
-        }
-
-        window.verifyTeacherAccess = function() {
-            playSound('click');
-            const passInput = document.getElementById('teacher-pass-input');
-            const pass = passInput ? passInput.value : '';
-            if (pass === "1234") {
-                gameState.isTeacherVerified = true;
-                const authZone = document.getElementById('teacher-auth-zone');
-                if (authZone) authZone.classList.add('hidden');
-                document.getElementById('teacher-control-zone').classList.remove('hidden');
-                window.adjustCategorySelection();
-                showToast("ปลดล็อกระบบตั้งค่าเกมเรียบร้อย!", "🛡️");
-            } else { showToast("รหัสผ่านผิดพลาดเด้อจ้า", "❌"); }
+            playSound('click'); const panel = document.getElementById('teacher-console-overlay');
+            if (panel.classList.contains('hidden')) { showModal('teacher-console-overlay'); window.adjustCategorySelection(); } else { hideModal('teacher-console-overlay'); }
         }
 
         window.adjustCategorySelection = function() {
             const diff = document.getElementById('difficulty-input').value;
-            const select = document.getElementById('vocab-category-input');
-            select.innerHTML = '';
-            const categoriesMap = vocabEngine[diff].categories;
-            let firstKey = null;
+            const select = document.getElementById('vocab-category-input'); select.innerHTML = '';
+            const categoriesMap = vocabEngine[diff].categories; let firstKey = null;
             for (const key in categoriesMap) {
                 if (!firstKey) firstKey = key;
-                const opt = document.createElement('option');
-                opt.value = key; opt.innerText = categoriesMap[key].title;
-                select.appendChild(opt);
+                const opt = document.createElement('option'); opt.value = key; opt.innerText = categoriesMap[key].title; select.appendChild(opt);
             }
-            gameConfig.difficulty = diff;
-            gameConfig.category = firstKey;
+            gameConfig.difficulty = diff; gameConfig.category = firstKey;
         }
 
         window.updateLeaderboardCategoryFilter = function() {
             const diffKey = document.getElementById('lb-filter-diff').value;
-            const selectCat = document.getElementById('lb-filter-cat');
-            if(!selectCat) return;
+            const selectCat = document.getElementById('lb-filter-cat'); if(!selectCat) return;
             selectCat.innerHTML = '';
             
-            const categoriesMap = vocabEngine[diffKey].categories;
-            for (const key in categoriesMap) {
-                const opt = document.createElement('option');
-                opt.value = key; 
-                opt.innerText = categoriesMap[key].title;
-                selectCat.appendChild(opt);
+            if (diffKey === "ADV") {
+                const opt = document.createElement('option'); opt.value = "ALL"; opt.innerText = "คลังศัพท์ผสมทุกระดับ"; selectCat.appendChild(opt);
+            } else {
+                const categoriesMap = vocabEngine[diffKey].categories;
+                for (const key in categoriesMap) {
+                    const opt = document.createElement('option'); opt.value = key; opt.innerText = categoriesMap[key].title; selectCat.appendChild(opt);
+                }
             }
-            
-            if(window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') {
-                window.WordHunterFirebase.loadLeaderboard();
-            }
+            if(window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') window.WordHunterFirebase.loadLeaderboard();
         };
 
         window.togglePauseGame = function() {
-            playSound('click');
-            const btn = document.getElementById('live-pause-btn');
+            playSound('click'); const btn = document.getElementById('live-pause-btn');
             if (gameState.isPaused) {
-                gameState.isPaused = false;
-                gameBGM.play().catch(e=>console.warn(e)); 
-                btn.innerText = "⏸️ พัก";
-                btn.className = "bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
-                showToast("กลับเข้าสู่เกม!", "🎯");
-                lastAiFrameTime = performance.now(); 
+                gameState.isPaused = false; gameBGM.play().catch(e=>console.warn(e)); 
+                btn.innerText = "⏸️ พัก"; btn.className = "bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
+                showToast("กลับเข้าสู่เกม!", "🎯"); lastAiFrameTime = performance.now(); 
             } else {
-                gameState.isPaused = true;
-                gameBGM.pause(); 
-                btn.innerText = "▶️ ต่อ";
-                btn.className = "bg-emerald-500 hover:bg-emerald-400 text-white font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
+                gameState.isPaused = true; gameBGM.pause(); 
+                btn.innerText = "▶️ ต่อ"; btn.className = "bg-emerald-500 hover:bg-emerald-400 text-white font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg";
                 showToast("พักเกมชั่วคราว", "⏸️");
             }
         }
 
         window.switchToKahootUI = function() {
-            document.getElementById('current-play-mode').innerText = "โหมด 4 ตัวเลือก (คลิกตอบ)";
-            const arContainer = document.getElementById('ar-container');
-            if (arContainer) { arContainer.classList.add('hidden'); arContainer.classList.remove('flex'); }
-            
-            const kahootContainer = document.getElementById('kahoot-container');
-            if (kahootContainer) { kahootContainer.classList.remove('hidden'); kahootContainer.classList.add('flex'); }
-            
-            const aiLoader = document.getElementById('ai-loading');
-            if (aiLoader) { aiLoader.classList.add('hidden'); aiLoader.classList.remove('flex'); }
+            document.getElementById('current-play-mode').innerText = "โหมดคลิกตอบ (Kahoot)";
+            const arContainer = document.getElementById('ar-container'); if (arContainer) { arContainer.classList.add('hidden'); arContainer.classList.remove('flex'); }
+            const kahootContainer = document.getElementById('kahoot-container'); if (kahootContainer) { kahootContainer.classList.remove('hidden'); kahootContainer.classList.add('flex'); }
+            const aiLoader = document.getElementById('ai-loading'); if (aiLoader) { aiLoader.classList.add('hidden'); aiLoader.classList.remove('flex'); }
+        }
+        
+        window.switchToARUI = function() {
+            document.getElementById('current-play-mode').innerText = "โหมดเปิดกล้อง (AR)";
+            const arContainer = document.getElementById('ar-container'); if (arContainer) { arContainer.classList.remove('hidden'); arContainer.classList.add('flex'); }
+            const kahootContainer = document.getElementById('kahoot-container'); if (kahootContainer) { kahootContainer.classList.add('hidden'); kahootContainer.classList.remove('flex'); }
         }
 
         async function setupCamera() {
             try {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error("เบราว์เซอร์ไม่รองรับ หรือ ไม่ได้เปิดบน HTTPS");
-                }
-                
-                if (videoElement.srcObject) {
-                    videoElement.srcObject.getTracks().forEach(track => track.stop());
-                    videoElement.srcObject = null;
-                }
-                
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("เบราว์เซอร์ไม่รองรับ หรือ ไม่ได้เปิดบน HTTPS");
+                if (videoElement.srcObject) { videoElement.srcObject.getTracks().forEach(track => track.stop()); videoElement.srcObject = null; }
                 let stream;
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, 
-                        audio: false 
-                    });
-                } catch (e) {
-                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                }
+                try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }); } 
+                catch (e) { stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false }); }
                 
-                videoElement.setAttribute('autoplay', '');
-                videoElement.setAttribute('muted', '');
-                videoElement.setAttribute('playsinline', '');
-                videoElement.muted = true; 
-                videoElement.srcObject = stream;
-                
-                try {
-                    await videoElement.play(); 
-                } catch (e) {
-                    console.warn("Explicit play failed:", e);
-                }
+                videoElement.setAttribute('autoplay', ''); videoElement.setAttribute('muted', ''); videoElement.setAttribute('playsinline', '');
+                videoElement.muted = true; videoElement.srcObject = stream;
+                try { await videoElement.play(); } catch (e) { console.warn("Explicit play failed:", e); }
                 
                 return new Promise((resolve) => {
                     let attempts = 0;
                     const checkReady = () => {
-                        if (videoElement.readyState >= 2 && videoElement.videoWidth > 0) {
-                            resolve(true);
-                        } else if (attempts < 100) { 
-                            attempts++;
-                            setTimeout(checkReady, 100);
-                        } else {
-                            resolve(false); 
-                        }
+                        if (videoElement.readyState >= 2 && videoElement.videoWidth > 0) resolve(true);
+                        else if (attempts < 100) { attempts++; setTimeout(checkReady, 100); } 
+                        else resolve(false); 
                     };
                     checkReady();
                 });
             } catch (err) {
                 console.warn("Camera Error:", err);
-                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                    showToast("คุณไม่อนุญาตสิทธิ์กล้อง! สลับโหมดอัตโนมัติ", "🚫");
-                } else {
-                    showToast("กล้องมีปัญหา สลับเป็นโหมดคลิกตอบ!", "⚠️");
-                }
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') showToast("คุณไม่อนุญาตสิทธิ์กล้อง! สลับโหมดอัตโนมัติ", "🚫");
+                else showToast("กล้องมีปัญหา สลับเป็นโหมดคลิกตอบ!", "⚠️");
                 return false;
             }
         }
 
         function startGameLoops() {
-            if (isLoopRunning) return;
-            isLoopRunning = true;
-            lastAiFrameTime = performance.now();
-            runRenderLoop(lastAiFrameTime);
-            runAiLoop();
+            if (isLoopRunning) return; isLoopRunning = true; lastAiFrameTime = performance.now(); runRenderLoop(lastAiFrameTime); runAiLoop();
         }
 
         function stopGameLoops() {
-            isLoopRunning = false;
-            if (renderLoopId) cancelAnimationFrame(renderLoopId);
+            isLoopRunning = false; if (renderLoopId) cancelAnimationFrame(renderLoopId);
+        }
+
+        // 🚀 ADVENTURE MODE SYSTEM (Pooling ALL words & Fisher-Yates)
+        function compileAdventureVocab() {
+            let pool = [];
+            for (let diffKey in vocabEngine) {
+                for (let catKey in vocabEngine[diffKey].categories) {
+                    pool = pool.concat(vocabEngine[diffKey].categories[catKey].words);
+                }
+            }
+            return shuffleArray(pool);
+        }
+
+        window.runAdventureSequence = async function() {
+            if (gameState.gameActive || isLoopRunning) return; 
+            if (!gameState.currentUser) { showToast("โปรดลงชื่อก่อนเริ่มเกมเด้อจ้า!", "⚠️"); showModal('modal-initial-signup'); return; }
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') window.WordHunterFirebase.forceCleanup();
+
+            playSound('click'); await initAudio();
+            gameState.isAdventureMode = true;
+            gameState.currentAdventureStyle = Math.random() > 0.5 ? 'ar' : 'kahoot'; // Start with a random mode
+            
+            document.getElementById('live-pause-btn').classList.remove('hidden');
+            gameConfig.duration = parseInt(document.getElementById('timer-input').value || 20);
+            
+            const trackingTargetEl = document.getElementById('tracking-target-input'); if (trackingTargetEl) gameConfig.trackingTarget = trackingTargetEl.value;
+            const langEl = document.getElementById('question-lang-input'); if (langEl) gameConfig.questionLang = langEl.value;
+            const movingTargetEl = document.getElementById('moving-target-input'); if (movingTargetEl) gameConfig.movingTargets = (movingTargetEl.value === 'true');
+
+            // Set UI Labels
+            document.getElementById('current-diff-lbl').innerText = "🌋 Adventure Mode";
+            document.getElementById('current-category-lbl').innerText = "คลังศัพท์ผสมทุกระดับ";
+
+            document.getElementById('screen-lobby').classList.add('hidden');
+            const screenGame = document.getElementById('screen-game'); screenGame.classList.remove('hidden'); screenGame.classList.add('flex');
+
+            gameState.scoreP1 = 0; gameState.timeLeft = gameConfig.duration; gameState.successfulTaps = 0; gameState.tapTimes = [];
+            gameState.gameActive = false; gameState.isPaused = false; gameState.questionIndex = 1;
+            gameState.availableVocabs = compileAdventureVocab(); // Ensure massive pool is loaded
+            gameState.streak = 0; gameState.maxStreak = 0; simulatedPointer = null; 
+            
+            document.getElementById('hud-score-p1').innerText = "0"; document.getElementById('hud-timer').innerText = `${gameConfig.duration}s`; window.updateStreakHUD();
+
+            await handleModeInitialization(gameState.currentAdventureStyle);
+            
+            await playCountdown();
+            gameState.gameActive = true; gameState.lastTapTime = Date.now();
+            generateNewQuestion(); startCountdownLoop();
         }
 
         window.runStartSequence = async function(mode) {
             if (gameState.gameActive || isLoopRunning) return; 
+            if (!gameState.currentUser) { showToast("โปรดลงชื่อก่อนเริ่มเกมเด้อจ้า!", "⚠️"); showModal('modal-initial-signup'); return; }
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') window.WordHunterFirebase.forceCleanup();
 
-            if (!gameState.currentUser) {
-                showToast("โปรดลงชื่อก่อนเริ่มเกมเด้อจ้า!", "⚠️");
-                showModal('modal-initial-signup');
-                return;
-            }
-
-            // 🛠️ [Fix Cat 2]: Memory Leak Prevention 
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') {
-                window.WordHunterFirebase.forceCleanup();
-            }
-
-            playSound('click');
-            await initAudio();
-            gameState.isKahootMode = (mode === 'kahoot');
-            document.getElementById('live-pause-btn').classList.remove('hidden');
-
-            const diff = document.getElementById('difficulty-input').value || "A1";
-            gameConfig.difficulty = diff;
+            playSound('click'); await initAudio();
+            gameState.isAdventureMode = false;
             
-            let cat = document.getElementById('vocab-category-input').value;
-            if (!cat || !vocabEngine[diff].categories[cat]) {
-                cat = Object.keys(vocabEngine[diff].categories)[0];
-            }
-            gameConfig.category = cat;
-
+            document.getElementById('live-pause-btn').classList.remove('hidden');
+            const diff = document.getElementById('difficulty-input').value || "A1"; gameConfig.difficulty = diff;
+            let cat = document.getElementById('vocab-category-input').value; if (!cat || !vocabEngine[diff].categories[cat]) { cat = Object.keys(vocabEngine[diff].categories)[0]; } gameConfig.category = cat;
             gameConfig.duration = parseInt(document.getElementById('timer-input').value || 20);
             
-            const trackingTargetEl = document.getElementById('tracking-target-input');
-            if (trackingTargetEl) gameConfig.trackingTarget = trackingTargetEl.value;
-            
-            const langEl = document.getElementById('question-lang-input');
-            if (langEl) gameConfig.questionLang = langEl.value;
-
-            const customTargetCountEl = document.getElementById('custom-target-count');
-            if (customTargetCountEl) {
-                const customTargets = parseInt(customTargetCountEl.value);
-                gameConfig.targetCount = gameState.isKahootMode ? 4 : ((customTargets >= 2 && customTargets <= 6) ? customTargets : 4);
-            }
+            const trackingTargetEl = document.getElementById('tracking-target-input'); if (trackingTargetEl) gameConfig.trackingTarget = trackingTargetEl.value;
+            const langEl = document.getElementById('question-lang-input'); if (langEl) gameConfig.questionLang = langEl.value;
+            const movingTargetEl = document.getElementById('moving-target-input'); if (movingTargetEl) gameConfig.movingTargets = (movingTargetEl.value === 'true');
 
             activeVocabList = [...vocabEngine[gameConfig.difficulty].categories[gameConfig.category].words];
+            document.getElementById('current-diff-lbl').innerText = vocabEngine[gameConfig.difficulty].name; document.getElementById('current-category-lbl').innerText = vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title;
+
+            document.getElementById('screen-lobby').classList.add('hidden'); const screenGame = document.getElementById('screen-game'); screenGame.classList.remove('hidden'); screenGame.classList.add('flex');
+
+            gameState.scoreP1 = 0; gameState.timeLeft = gameConfig.duration; gameState.successfulTaps = 0; gameState.tapTimes = [];
+            gameState.gameActive = false; gameState.isPaused = false; gameState.questionIndex = 1;
+            gameState.availableVocabs = shuffleArray(activeVocabList); gameState.streak = 0; gameState.maxStreak = 0; simulatedPointer = null; 
             
-            document.getElementById('current-diff-lbl').innerText = vocabEngine[gameConfig.difficulty].name;
-            document.getElementById('current-category-lbl').innerText = vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title;
+            document.getElementById('hud-score-p1').innerText = "0"; document.getElementById('hud-timer').innerText = `${gameConfig.duration}s`; window.updateStreakHUD();
 
-            document.getElementById('screen-lobby').classList.add('hidden');
-            const screenGame = document.getElementById('screen-game');
-            screenGame.classList.remove('hidden');
-            screenGame.classList.add('flex');
+            await handleModeInitialization(mode);
+            await playCountdown();
+            gameState.gameActive = true; gameState.lastTapTime = Date.now();
+            generateNewQuestion(); startCountdownLoop();
+        }
 
-            gameState.scoreP1 = 0;
-            gameState.timeLeft = gameConfig.duration; 
-            gameState.successfulTaps = 0;
-            gameState.tapTimes = [];
-            gameState.gameActive = false; 
-            gameState.isPaused = false;
-            gameState.questionIndex = 1;
-            gameState.availableVocabs = shuffleArray(activeVocabList);
-            gameState.streak = 0;
-            gameState.maxStreak = 0;
-            simulatedPointer = null; 
-            
-            document.getElementById('hud-score-p1').innerText = "0";
-            document.getElementById('hud-timer').innerText = `${gameConfig.duration}s`;
-            window.updateStreakHUD();
-
-            if (!gameState.isKahootMode) {
-                const aiLoader = document.getElementById('ai-loading');
-                if (aiLoader) { aiLoader.classList.remove('hidden'); aiLoader.classList.add('flex'); }
-                
+        async function handleModeInitialization(mode) {
+            if (mode === 'kahoot') {
+                gameState.isKahootMode = true; killCameraAndAI(); window.switchToKahootUI();
+            } else {
+                gameState.isKahootMode = false; window.switchToARUI();
+                const aiLoader = document.getElementById('ai-loading'); if (aiLoader) { aiLoader.classList.remove('hidden'); aiLoader.classList.add('flex'); }
                 const cameraSuccess = await setupCamera();
                 if (cameraSuccess) {
-                    document.getElementById('current-play-mode').innerText = "โหมด AR กล้อง";
-                    const arContainer = document.getElementById('ar-container');
-                    if (arContainer) { arContainer.classList.remove('hidden'); arContainer.classList.add('flex'); }
-                    const kahootContainer = document.getElementById('kahoot-container');
-                    if (kahootContainer) { kahootContainer.classList.add('hidden'); kahootContainer.classList.remove('flex'); }
-                    
                     const aiSuccess = await loadAiModel();
-                    if (aiSuccess) {
-                        resizeDrawingBuffer();
-                    } else {
-                        gameState.isKahootMode = true;
-                        gameConfig.targetCount = 4;
-                        window.switchToKahootUI();
-                    }
+                    if (aiSuccess) { resizeDrawingBuffer(); startGameLoops(); } 
+                    else { gameState.isKahootMode = true; killCameraAndAI(); window.switchToKahootUI(); }
                 } else {
-                    gameState.isKahootMode = true;
-                    gameConfig.targetCount = 4; 
-                    window.switchToKahootUI();
+                    gameState.isKahootMode = true; killCameraAndAI(); window.switchToKahootUI();
                 }
-            } else {
-                window.switchToKahootUI();
-            }
-
-            await playCountdown();
-
-            gameState.gameActive = true;
-            gameState.lastTapTime = Date.now();
-            generateNewQuestion();
-            startCountdownLoop();
-
-            if (!gameState.isKahootMode && !isLoopRunning) {
-                startGameLoops();
+                if (aiLoader) { aiLoader.classList.add('hidden'); aiLoader.classList.remove('flex'); }
             }
         }
 
+        async function showTransitionOverlay(nextMode) {
+            const overlay = document.getElementById('transition-overlay'); const subEl = document.getElementById('transition-sub');
+            subEl.innerText = nextMode === 'kahoot' ? "เตรียมใช้นิ้วจิ้ม สลับไปโหมดคลิกตอบ! 🖱️" : "เตรียมขยับร่างกาย สลับไปโหมด AR! 🏃";
+            overlay.classList.remove('hidden'); overlay.classList.add('flex'); playSound('tick');
+            await new Promise(r => setTimeout(r, 2000));
+            overlay.classList.remove('flex'); overlay.classList.add('hidden');
+        }
+
         async function playCountdown() {
-            const overlay = document.getElementById('countdown-overlay');
-            const textEl = document.getElementById('countdown-text');
-            const subEl = document.getElementById('countdown-sub');
-            
+            const overlay = document.getElementById('countdown-overlay'); const textEl = document.getElementById('countdown-text'); const subEl = document.getElementById('countdown-sub');
             subEl.innerText = gameState.isKahootMode ? "เตรียมตัวคลิกเลือกคำตอบที่ถูกต้อง!" : "เตรียมตัวให้พร้อม! ถอยไปยืนหน้ากล้องเลย";
             overlay.classList.remove('hidden'); overlay.classList.add('flex');
 
             const steps = ["3", "2", "1", "GO!"];
             for (let i = 0; i < steps.length; i++) {
                 textEl.innerText = steps[i];
-                if (steps[i] === "GO!") {
-                    textEl.className = "text-8xl md:text-9xl font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in leading-none";
-                } else {
-                    textEl.className = "text-[120px] md:text-[180px] font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in leading-none";
-                }
+                if (steps[i] === "GO!") { textEl.className = "text-8xl md:text-9xl font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in leading-none"; } 
+                else { textEl.className = "text-[120px] md:text-[180px] font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in leading-none"; }
                 if(i < 3) playSound('tick');
                 textEl.classList.remove('animate-pop-in'); void textEl.offsetWidth; textEl.classList.add('animate-pop-in');
                 await new Promise(r => setTimeout(r, 1000));
             }
-            playSound('success'); 
-            
-            gameBGM.currentTime = 0;
-            gameBGM.play().catch(e => console.warn("BGM Autoplay blocked:", e));
-
+            playSound('success'); gameBGM.currentTime = 0; gameBGM.play().catch(e => console.warn("BGM Autoplay blocked:", e));
             overlay.classList.remove('flex'); overlay.classList.add('hidden');
         }
 
@@ -1246,78 +976,54 @@
             clearInterval(gameState.gameTimerInterval);
             gameState.gameTimerInterval = setInterval(() => {
                 if (!gameState.gameActive || gameState.isPaused) return;
-                gameState.timeLeft--;
-                document.getElementById('hud-timer').innerText = `${gameState.timeLeft}s`;
-
-                if (gameState.timeLeft <= 10 && gameState.timeLeft > 0) {
-                    if (window.playSound) window.playSound('tick'); 
-                }
-
-                if (gameState.timeLeft <= 0) {
-                    gameState.gameActive = false;
-                    handleTimeUp();
-                }
+                gameState.timeLeft--; document.getElementById('hud-timer').innerText = `${gameState.timeLeft}s`;
+                if (gameState.timeLeft <= 10 && gameState.timeLeft > 0) { if (window.playSound) window.playSound('tick'); }
+                if (gameState.timeLeft <= 0) { gameState.gameActive = false; handleTimeUp(); }
             }, 1000);
         }
 
-        // ===================================================================
-        // ===== ระบบ Combo Streak: ตอบถูกต่อเนื่องยิ่งเยอะยิ่งได้คะแนนโบนัส =====
-        // ===================================================================
         window.updateStreakHUD = function() {
-            const wrap = document.getElementById('hud-streak-wrap');
-            const label = document.getElementById('hud-streak');
-            if (!wrap || !label) return;
+            const wrap = document.getElementById('hud-streak-wrap'); const label = document.getElementById('hud-streak'); if (!wrap || !label) return;
             if (gameState.streak >= 2) {
-                wrap.classList.remove('opacity-0');
-                label.innerText = `🔥 x${gameState.streak}`;
-                label.classList.remove('streak-fire');
-                void label.offsetWidth;
-                label.classList.add('streak-fire');
-            } else {
-                wrap.classList.add('opacity-0');
-            }
+                wrap.classList.remove('opacity-0'); label.innerText = `🔥 x${gameState.streak}`;
+                label.classList.remove('streak-fire'); void label.offsetWidth; label.classList.add('streak-fire');
+            } else { wrap.classList.add('opacity-0'); }
         }
 
-        function getStreakBonus(streak) {
-            // ทุกๆ 3 ข้อถูกติดต่อกัน จะได้โบนัสเพิ่ม (สูงสุด +15 แต้ม/ข้อ)
-            if (streak < 2) return 0;
-            return Math.min(15, (streak - 1) * 3);
-        }
+        function getStreakBonus(streak) { if (streak < 2) return 0; return Math.min(15, (streak - 1) * 3); }
 
         function showComboBanner(streak) {
-            const banner = document.getElementById('bonus-banner');
-            const text = document.getElementById('bonus-banner-text');
-            if (!banner || !text) return;
-            const milestones = { 3: "combo x3! 🔥", 5: "combo x5! ⚡", 7: "combo x7! 💥", 10: "PERFECT STREAK! 🏆" };
-            if (!milestones[streak]) return;
-            text.innerText = milestones[streak];
-            banner.classList.remove('hidden');
-            banner.classList.add('streak-pop');
-            playSound('combo');
-            setTimeout(() => {
-                banner.classList.add('hidden');
-                banner.classList.remove('streak-pop');
-            }, 1400);
+            const banner = document.getElementById('bonus-banner'); const text = document.getElementById('bonus-banner-text'); if (!banner || !text) return;
+            const milestones = { 3: "combo x3! 🔥", 5: "combo x5! ⚡", 7: "combo x7! 💥", 10: "PERFECT STREAK! 🏆" }; if (!milestones[streak]) return;
+            text.innerText = milestones[streak]; banner.classList.remove('hidden'); banner.classList.add('streak-pop'); playSound('combo');
+            setTimeout(() => { banner.classList.add('hidden'); banner.classList.remove('streak-pop'); }, 1400);
+        }
+
+        async function processNextQuestion() {
+            gameState.questionIndex++;
+            if (gameState.questionIndex <= gameState.maxQuestions) {
+                // 🚀 ADVENTURE MODE DYNAMIC SWITCH
+                if (gameState.isAdventureMode) {
+                    const nextMode = Math.random() > 0.5 ? 'ar' : 'kahoot';
+                    if (gameState.currentAdventureStyle !== nextMode) {
+                        gameState.currentAdventureStyle = nextMode;
+                        await showTransitionOverlay(nextMode);
+                        await handleModeInitialization(nextMode);
+                    }
+                }
+                gameState.gameActive = true; gameState.lastTapTime = Date.now();
+                gameBGM.currentTime = 0; gameBGM.play().catch(e => console.warn(e));
+                generateNewQuestion();
+            } else { window.endGame(); }
         }
 
         function handleTimeUp() {
-            gameBGM.pause(); 
-            playSound('timeup'); 
-            gameState.scoreP1 = Math.max(0, gameState.scoreP1 - 5);
-            gameState.streak = 0; // หมดเวลา = คอมโบขาด
-            window.updateStreakHUD();
+            gameBGM.pause(); playSound('timeup'); gameState.scoreP1 = Math.max(0, gameState.scoreP1 - 5); gameState.streak = 0; window.updateStreakHUD();
             document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
 
-            const popup = document.getElementById('feedback-popup');
-            const card = document.getElementById('feedback-card');
-            
-            document.getElementById('feedback-emoji').innerText = "⏱️";
-            const title = document.getElementById('feedback-title');
-            title.innerText = `หมดเวลา!`;
-            title.className = "text-4xl md:text-7xl font-black text-rose-500";
-            
-            const isEnTh = gameConfig.questionLang === 'en-th';
-            document.getElementById('feedback-detail').innerText = `เฉลย: "${gameState.currentQuestion.en}" = "${gameState.currentQuestion.th}" (-5 แต้ม)`;
+            const popup = document.getElementById('feedback-popup'); const card = document.getElementById('feedback-card');
+            document.getElementById('feedback-emoji').innerText = "⏱️"; const title = document.getElementById('feedback-title'); title.innerText = `หมดเวลา!`; title.className = "text-4xl md:text-7xl font-black text-rose-500";
+            const isEnTh = gameConfig.questionLang === 'en-th'; document.getElementById('feedback-detail').innerText = `เฉลย: "${gameState.currentQuestion.en}" = "${gameState.currentQuestion.th}" (-5 แต้ม)`;
 
             popup.classList.remove('hidden'); card.classList.remove('scale-50', 'opacity-0'); card.classList.add('scale-100', 'opacity-100');
 
@@ -1325,18 +1031,8 @@
                 card.classList.add('scale-50', 'opacity-0'); card.classList.remove('scale-100', 'opacity-100');
                 setTimeout(() => {
                     if (document.getElementById('screen-game').classList.contains('hidden')) return;
-
                     popup.classList.add('hidden');
-                    gameState.questionIndex++;
-                    if (gameState.questionIndex <= gameState.maxQuestions) {
-                        gameState.gameActive = true;
-                        gameState.lastTapTime = Date.now();
-                        
-                        gameBGM.currentTime = 0;
-                        gameBGM.play().catch(e => console.warn(e));
-
-                        generateNewQuestion();
-                    } else { window.endGame(); }
+                    processNextQuestion();
                 }, 200);
             }, 1500);
         }
@@ -1344,98 +1040,60 @@
         function generateNewQuestion() {
             if (gameState.questionIndex > gameState.maxQuestions) { window.endGame(); return; }
             document.getElementById('hud-question-count').innerText = `ข้อ ${gameState.questionIndex}/10`;
-            
-            gameState.timeLeft = gameConfig.duration;
-            document.getElementById('hud-timer').innerText = `${gameConfig.duration}s`;
+            gameState.timeLeft = gameConfig.duration; document.getElementById('hud-timer').innerText = `${gameConfig.duration}s`;
 
-            if (!gameState.availableVocabs || gameState.availableVocabs.length === 0) gameState.availableVocabs = shuffleArray(activeVocabList);
-            const correctVocab = gameState.availableVocabs.pop();
-            gameState.currentQuestion = correctVocab;
-            const targetLength = Math.min(gameConfig.targetCount, activeVocabList.length);
-            const distractors = shuffleArray(activeVocabList.filter(v => v.en !== correctVocab.en));
-            let selection = [correctVocab];
-            
-            for (let i = 0; i < targetLength - 1; i++) {
-                if (distractors[i]) {
-                    selection.push(distractors[i]);
-                }
+            if (!gameState.availableVocabs || gameState.availableVocabs.length === 0) {
+                gameState.availableVocabs = gameState.isAdventureMode ? compileAdventureVocab() : shuffleArray(activeVocabList);
             }
+            const correctVocab = gameState.availableVocabs.pop(); gameState.currentQuestion = correctVocab;
+            
+            // Generate Distractors (Ensuring they are from the correct pool)
+            let fullList = gameState.isAdventureMode ? compileAdventureVocab() : activeVocabList;
+            gameConfig.targetCount = gameState.isKahootMode ? 4 : gameConfig.targetCount;
+            const targetLength = Math.min(gameConfig.targetCount, fullList.length);
+            const distractors = shuffleArray(fullList.filter(v => v.en !== correctVocab.en));
+            let selection = [correctVocab];
+            for (let i = 0; i < targetLength - 1; i++) { if (distractors[i]) { selection.push(distractors[i]); } }
             gameState.options = shuffleArray(selection);
 
             const isEnTh = gameConfig.questionLang === 'en-th';
             document.getElementById('hud-instruction-text').innerText = `"${isEnTh ? gameState.currentQuestion.en : gameState.currentQuestion.th}"`;
-            
-            const instructionSpan = document.querySelector('#hud-instruction-box span.hidden.sm\\:inline');
-            if(instructionSpan) instructionSpan.innerText = isEnTh ? "🔍 ค้นหาคำแปลภาษาไทย" : "🔍 ค้นหาคำแปลภาษาอังกฤษ";
+            const instructionSpan = document.querySelector('#hud-instruction-box span.hidden.sm\\:inline'); if(instructionSpan) instructionSpan.innerText = isEnTh ? "🔍 ค้นหาคำแปลภาษาไทย" : "🔍 ค้นหาคำแปลภาษาอังกฤษ";
             
             simulatedPointer = null; 
 
-            if (gameState.isKahootMode) {
-                buildKahootGrid();
-            } else {
-                mapTargetsPositions();
-            }
+            if (gameState.isKahootMode) { buildKahootGrid(); } else { mapTargetsPositions(); }
         }
 
         function buildKahootGrid() {
-            const grid = document.getElementById('kahoot-grid');
-            grid.innerHTML = '';
-            
-            const bgColors = [
-                'bg-red-500 hover:bg-red-600', 
-                'bg-blue-500 hover:bg-blue-600', 
-                'bg-yellow-500 hover:bg-yellow-600', 
-                'bg-green-500 hover:bg-green-600',
-                'bg-purple-500 hover:bg-purple-600',
-                'bg-cyan-500 hover:bg-cyan-600'
-            ];
+            const grid = document.getElementById('kahoot-grid'); grid.innerHTML = '';
+            const bgColors = ['bg-red-500 hover:bg-red-600', 'bg-blue-500 hover:bg-blue-600', 'bg-yellow-500 hover:bg-yellow-600', 'bg-green-500 hover:bg-green-600', 'bg-purple-500 hover:bg-purple-600', 'bg-cyan-500 hover:bg-cyan-600'];
 
             gameState.options.forEach((vocab, index) => {
-                const btn = document.createElement('button');
-                const colorClass = bgColors[index % bgColors.length];
+                const btn = document.createElement('button'); const colorClass = bgColors[index % bgColors.length];
+                btn.className = `kahoot-btn w-full h-full min-h-[100px] md:min-h-[130px] rounded-2xl md:rounded-[2rem] shadow-2xl flex items-center justify-center border-b-4 md:border-b-8 border-black/20 transition-all ${colorClass} text-white font-bold tracking-wide text-3xl md:text-5xl lg:text-6xl drop-shadow-lg cursor-pointer relative overflow-hidden`;
+                btn.style.fontFamily = "'Kanit', sans-serif";
                 
-                btn.className = `kahoot-btn w-full h-full min-h-[100px] md:min-h-[130px] rounded-2xl md:rounded-[2rem] shadow-2xl flex items-center justify-center border-b-4 md:border-b-8 border-black/20 transition-all ${colorClass} text-white font-black text-3xl md:text-5xl lg:text-6xl drop-shadow-lg cursor-pointer relative overflow-hidden`;
+                const shapes = ['▲', '♦', '●', '■', '★', '♥']; const shape = document.createElement('span');
+                shape.className = "absolute left-4 md:left-10 opacity-25 text-5xl md:text-7xl"; shape.innerText = shapes[index % shapes.length];
                 
-                const shapes = ['▲', '♦', '●', '■', '★', '♥'];
-                const shape = document.createElement('span');
-                shape.className = "absolute left-4 md:left-10 opacity-25 text-5xl md:text-7xl";
-                shape.innerText = shapes[index % shapes.length];
-                
-                const text = document.createElement('span');
-                const isEnTh = gameConfig.questionLang === 'en-th';
-                text.innerText = isEnTh ? vocab.th : vocab.en;
-                // 🎨 [Fix]: บังคับใช้ Kanit และลดความหนาเป็น font-bold เพื่อลดปัญหาวรรณยุกต์จม
-                text.className = "z-10 px-2 text-center leading-tight break-words font-bold tracking-wide";
-                text.style.fontFamily = "'Kanit', sans-serif";
+                const text = document.createElement('span'); const isEnTh = gameConfig.questionLang === 'en-th';
+                text.innerText = isEnTh ? vocab.th : vocab.en; text.className = "z-10 px-2 text-center leading-tight break-words font-bold";
 
-                btn.appendChild(shape);
-                btn.appendChild(text);
-
-                btn.onclick = () => {
-                    if (!gameState.gameActive) return;
-                    const isCorrect = (vocab.en === gameState.currentQuestion.en);
-                    registerDynamicTap({ vocab: vocab, isCorrect: isCorrect });
-                };
-
+                btn.appendChild(shape); btn.appendChild(text);
+                btn.onclick = () => { if (!gameState.gameActive) return; const isCorrect = (vocab.en === gameState.currentQuestion.en); registerDynamicTap({ vocab: vocab, isCorrect: isCorrect }); };
                 grid.appendChild(btn);
             });
         }
 
         function mapTargetsPositions() {
             if (!gameState.options || gameState.options.length === 0) return;
-            const width = canvasElement.width || 1280;
-            const height = canvasElement.height || 720;
-            
-            const radius = gameConfig.targetCount > 4 ? 45 : 65; 
-            const padding = radius + 20; 
-            
+            const width = canvasElement.width || 1280; const height = canvasElement.height || 720;
+            const radius = gameConfig.targetCount > 4 ? 45 : 65; const padding = radius + 20; 
             gameState.targets = [];
 
             const isOverlapping = (x, y) => {
-                for (let t of gameState.targets) {
-                    if (Math.hypot(t.x - x, t.y - y) < radius * 2.2) return true; 
-                }
-                return false;
+                for (let t of gameState.targets) { if (Math.hypot(t.x - x, t.y - y) < radius * 2.2) return true; } return false;
             };
 
             gameState.options.forEach((vocab, index) => {
@@ -1443,14 +1101,13 @@
                 while (!foundPosition && attempts < 150) {
                     x = padding + Math.random() * Math.max(0, width - 2 * padding);
                     y = 120 + padding + Math.random() * Math.max(0, height - 120 - 2 * padding);
-                    if (!isOverlapping(x, y)) foundPosition = true;
-                    attempts++;
+                    if (!isOverlapping(x, y)) foundPosition = true; attempts++;
                 }
-                if (!foundPosition) {
-                    x = padding + Math.random() * Math.max(0, width - 2 * padding);
-                    y = 120 + padding + Math.random() * Math.max(0, height - 120 - 2 * padding);
-                }
-                gameState.targets.push({ x: x, y: y, radius: radius, vocab: vocab, isCorrect: vocab.en === gameState.currentQuestion.en, hoverProgress: 0 });
+                if (!foundPosition) { x = padding + Math.random() * Math.max(0, width - 2 * padding); y = 120 + padding + Math.random() * Math.max(0, height - 120 - 2 * padding); }
+                
+                const vx = (Math.random() > 0.5 ? 1 : -1) * (40 + Math.random() * 60);
+                const vy = (Math.random() > 0.5 ? 1 : -1) * (40 + Math.random() * 60);
+                gameState.targets.push({ x: x, y: y, vx: vx, vy: vy, radius: radius, vocab: vocab, isCorrect: vocab.en === gameState.currentQuestion.en, hoverProgress: 0 });
             });
         }
 
@@ -1460,40 +1117,27 @@
                     isProcessingPose = true;
                     try {
                         const poses = await detector.estimatePoses(videoElement, { maxPoses: 1, flipHorizontal: false });
-                        currentPoses = poses; // Atomic swap
-                    } catch (err) { }
-                    finally { isProcessingPose = false; }
+                        currentPoses = poses; 
+                    } catch (err) { } finally { isProcessingPose = false; }
                 }
-                // 🛠️ [Fix Cat 6]: Throttle AI Loop เพื่อคืนทรัพยากรให้ Canvas Render Loop ป้องกันมือถือร้อนและกระตุก
                 await new Promise(r => setTimeout(r, 30));
             }
         }
 
         function runRenderLoop(timestamp) {
-            if (!isLoopRunning) return;
-            if (!timestamp) timestamp = performance.now();
-
+            if (!isLoopRunning) return; if (!timestamp) timestamp = performance.now();
             let dt = (lastAiFrameTime === 0) ? 0.016 : (timestamp - lastAiFrameTime) / 1000;
-            dt = Math.min(dt, 0.1); 
-            lastAiFrameTime = timestamp;
-
-            try { 
-                if (!gameState.isKahootMode) renderGameCanvas(dt); 
-            } catch (err) {}
-
+            dt = Math.min(dt, 0.1); lastAiFrameTime = timestamp;
+            try { if (!gameState.isKahootMode) renderGameCanvas(dt); } catch (err) {}
             renderLoopId = requestAnimationFrame(runRenderLoop);
         }
 
         function renderGameCanvas(dt) {
             if (!ctx) return;
             if (videoElement.readyState >= 2) { 
-                if (canvasElement.width !== videoElement.videoWidth && videoElement.videoWidth > 0) {
-                    resizeDrawingBuffer();
-                }
+                if (canvasElement.width !== videoElement.videoWidth && videoElement.videoWidth > 0) { resizeDrawingBuffer(); }
                 ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height); 
-            } else { 
-                ctx.fillStyle = '#0c080d'; ctx.fillRect(0, 0, canvasElement.width, canvasElement.height); 
-            }
+            } else { ctx.fillStyle = '#0c080d'; ctx.fillRect(0, 0, canvasElement.width, canvasElement.height); }
 
             let touchPoints = [];
             if (simulatedPointer) { touchPoints.push(simulatedPointer); drawInteractivePointer(simulatedPointer.x, simulatedPointer.y, `🔴 ${simulatedPointer.label}`, "#ef4444"); }
@@ -1515,7 +1159,19 @@
                 touchPoints.forEach(pt => drawInteractivePointer(pt.x, pt.y, `🔴 ${pt.label}`, "#ef4444"));
             }
 
-            if (gameState.gameActive && !gameState.isPaused) { processCollisions(touchPoints, dt); }
+            if (gameState.gameActive && !gameState.isPaused) { 
+                processCollisions(touchPoints, dt); 
+                if (gameConfig.movingTargets) {
+                    gameState.targets.forEach(target => {
+                        target.x += target.vx * dt; target.y += target.vy * dt;
+                        if (target.x - target.radius < 0) { target.x = target.radius; target.vx *= -1; } 
+                        else if (target.x + target.radius > canvasElement.width) { target.x = canvasElement.width - target.radius; target.vx *= -1; }
+                        const topBoundary = 120; 
+                        if (target.y - target.radius < topBoundary) { target.y = target.radius + topBoundary; target.vy *= -1; } 
+                        else if (target.y + target.radius > canvasElement.height) { target.y = canvasElement.height - target.radius; target.vy *= -1; }
+                    });
+                }
+            }
             gameState.targets.forEach(target => drawTargetNode(target));
         }
 
@@ -1537,51 +1193,39 @@
             }
 
             ctx.translate(x, y); ctx.scale(-1, 1); ctx.fillStyle = '#ffffff';
-            
             const size = radius < 55 ? '20px' : '28px';
-            // 🎨 [Fix]: บังคับใช้ Kanit ล้วน และลดความหนาเป็นตัวหนาปกติ (bold) แทน black เพื่อให้สระอ่านง่าย
-            ctx.font = `bold ${size} Kanit, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
+            ctx.font = `bold ${size} 'Kanit', sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
             
             const isEnTh = gameConfig.questionLang === 'en-th';
             ctx.fillText(isEnTh ? vocab.th : vocab.en, 0, -5); 
-            
-            ctx.fillStyle = '#67e8f9'; ctx.font = 'bold 14px Kanit'; 
-            ctx.fillText("แตะสิ!", 0, 25); 
-            ctx.restore();
+            ctx.fillStyle = '#67e8f9'; ctx.font = 'bold 14px Kanit'; ctx.fillText("แตะสิ!", 0, 25); ctx.restore();
         }
 
         function processCollisions(touchPoints, dt) {
-            if (!gameState.gameActive) return; 
-            let triggered = false;
+            if (!gameState.gameActive) return; let triggered = false;
             gameState.targets.forEach(target => {
                 let hit = false;
-                touchPoints.forEach(pt => { if (Math.hypot(pt.x - target.x, pt.y - target.y) < target.radius + 25) hit = true; }); // Increased hit radius for mobile
+                touchPoints.forEach(pt => { if (Math.hypot(pt.x - target.x, pt.y - target.y) < target.radius + 25) hit = true; }); 
                 if (hit) {
                     target.hoverProgress += 120 * dt; 
                     if (target.hoverProgress >= 100 && !triggered) { registerDynamicTap(target); triggered = true; }
-                } else { 
-                    target.hoverProgress = Math.max(0, target.hoverProgress - 200 * dt); 
-                }
+                } else { target.hoverProgress = Math.max(0, target.hoverProgress - 200 * dt); }
             });
         }
 
         function registerDynamicTap(target) {
-            if (!gameState.gameActive) return; 
-            gameState.gameActive = false; 
+            if (!gameState.gameActive) return; gameState.gameActive = false; 
             const duration = (Date.now() - gameState.lastTapTime) / 1000;
             gameState.tapTimes.push(duration); gameState.lastTapTime = Date.now(); gameState.successfulTaps++;
 
             const popup = document.getElementById('feedback-popup'); const card = document.getElementById('feedback-card');
             popup.classList.remove('hidden'); setTimeout(() => { card.classList.remove('scale-50', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 10);
 
-            const basePts = 10;
-            const isEnTh = gameConfig.questionLang === 'en-th';
+            const basePts = 10; const isEnTh = gameConfig.questionLang === 'en-th';
             
             if (target.isCorrect) {
-                gameState.streak++;
-                if (gameState.streak > gameState.maxStreak) gameState.maxStreak = gameState.streak;
-                const comboBonus = getStreakBonus(gameState.streak);
-                const totalPts = basePts + comboBonus;
+                gameState.streak++; if (gameState.streak > gameState.maxStreak) gameState.maxStreak = gameState.streak;
+                const comboBonus = getStreakBonus(gameState.streak); const totalPts = basePts + comboBonus;
 
                 playSound('success'); gameState.scoreP1 += totalPts;
                 document.getElementById('feedback-emoji').innerText = comboBonus > 0 ? "🔥" : "✅";
@@ -1589,71 +1233,60 @@
                 const bonusText = comboBonus > 0 ? ` <span class="text-orange-400">(+โบนัสคอมโบ ${comboBonus})</span>` : '';
                 document.getElementById('feedback-detail').innerHTML = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}" (+${totalPts} แต้ม)${bonusText}`;
 
-                window.updateStreakHUD();
-                showComboBanner(gameState.streak);
+                window.updateStreakHUD(); showComboBanner(gameState.streak);
             } else {
-                gameState.streak = 0; // ตอบผิด = คอมโบขาด
-                window.updateStreakHUD();
+                gameState.streak = 0; window.updateStreakHUD();
                 playSound('fail'); const deduction = 5; gameState.scoreP1 = Math.max(0, gameState.scoreP1 - deduction);
                 document.getElementById('feedback-emoji').innerText = "❌";
                 const title = document.getElementById('feedback-title'); title.innerText = `ผิดนะจ๊ะ!`; title.className = "text-4xl md:text-7xl font-black text-rose-500";
                 document.getElementById('feedback-detail').innerHTML = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}"<br><span class="text-emerald-400 text-2xl md:text-4xl mt-2 block">(เฉลยข้อนี้: ${isEnTh ? gameState.currentQuestion.th : gameState.currentQuestion.en})</span><br>หัก ${deduction} แต้ม`;
             }
-
             document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
 
             setTimeout(() => {
                 card.classList.add('scale-50', 'opacity-0'); card.classList.remove('scale-100', 'opacity-100');
                 setTimeout(() => {
                     if (document.getElementById('screen-game').classList.contains('hidden')) return;
-
                     popup.classList.add('hidden');
-                    gameState.questionIndex++;
-                    if (gameState.questionIndex <= gameState.maxQuestions) {
-                        gameState.gameActive = true;
-                        gameState.lastTapTime = Date.now();
-                        
-                        gameBGM.currentTime = 0;
-                        gameBGM.play().catch(e => console.warn(e));
-
-                        generateNewQuestion();
-                    } else { window.endGame(); }
+                    processNextQuestion();
                 }, 200);
             }, 1500);
         }
 
         window.endGame = async function() {
-            gameBGM.pause(); 
-            gameState.gameActive = false; stopGameLoops(); clearInterval(gameState.gameTimerInterval);
-            
-            // 🛠️ [Fix Cat 2]: Memory Leak Prevention. ฆ่า Listener ให้เรียบเมื่อจบเกม
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') {
-                window.WordHunterFirebase.forceCleanup();
-            }
-
-            if (videoElement.srcObject) {
-                videoElement.srcObject.getTracks().forEach(track => track.stop());
-                videoElement.srcObject = null;
-            }
+            gameBGM.pause(); gameState.gameActive = false; killCameraAndAI(); clearInterval(gameState.gameTimerInterval);
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') { window.WordHunterFirebase.forceCleanup(); }
 
             playSound('gameover');
             let avg = 0; if (gameState.tapTimes.length > 0) avg = gameState.tapTimes.reduce((a, b) => a + b, 0) / gameState.tapTimes.length;
-            
             const avgTimeStr = avg.toFixed(2);
+            
+            // 🚀 CRITICAL FIX: Proper Labelling for Cloud Save
+            const diffLabel = gameState.isAdventureMode ? "🌋 Adventure Mode" : vocabEngine[gameConfig.difficulty].name;
+            const catLabel = gameState.isAdventureMode ? "คลังศัพท์ผสมทุกระดับ" : vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title;
+
             if (window.WordHunterFirebase && typeof window.WordHunterFirebase.saveScoreToCloud === 'function') {
-                await window.WordHunterFirebase.saveScoreToCloud(gameState.player1Name, gameState.scoreP1, avgTimeStr);
+                await window.WordHunterFirebase.saveScoreToCloud(gameState.player1Name, gameState.scoreP1, avgTimeStr, diffLabel, catLabel);
             }
 
             document.getElementById('screen-game').classList.add('hidden'); document.getElementById('screen-game').classList.remove('flex'); 
-            
-            document.getElementById('screen-results').classList.remove('hidden');
-            document.getElementById('screen-results').classList.add('flex');
+            document.getElementById('screen-results').classList.remove('hidden'); document.getElementById('screen-results').classList.add('flex');
 
-            document.getElementById('res-mode-label').innerText = `ระดับ CEFR: ${vocabEngine[gameConfig.difficulty].name} | หมวด: ${vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title}`;
+            document.getElementById('res-mode-label').innerText = `ระดับ CEFR: ${diffLabel} | หมวด: ${catLabel}`;
             document.getElementById('res-score-p1').innerText = `${gameState.scoreP1}`; 
             document.getElementById('res-avg-time').innerText = `${avgTimeStr}s`;
-            const maxStreakEl = document.getElementById('res-max-streak');
-            if (maxStreakEl) maxStreakEl.innerText = `🔥 ${gameState.maxStreak}`;
+            const maxStreakEl = document.getElementById('res-max-streak'); if (maxStreakEl) maxStreakEl.innerText = `🔥 ${gameState.maxStreak}`;
+        }
+
+        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
         }
 
         async function loadAiModel() {
@@ -1674,8 +1307,7 @@
             } catch (err) { 
                 console.warn("AI ล้มเหลว สลับโหมดอัตโนมัติ", err);
                 if (el) { el.classList.add('hidden'); el.classList.remove('flex'); } 
-                showToast("เครื่องไม่รองรับ AI สลับเป็นโหมดกดตอบให้จ้า!", "⚠️");
-                return false; 
+                showToast("เครื่องไม่รองรับ AI สลับเป็นโหมดกดตอบให้จ้า!", "⚠️"); return false; 
             }
         }
 
@@ -1684,41 +1316,20 @@
         window.confirmQuit = function(quit) {
             playSound('click'); hideModal('modal-quit-confirm');
             if (quit) {
-                clearInterval(gameState.gameTimerInterval); stopGameLoops(); 
-                if (videoElement.srcObject) {
-                    videoElement.srcObject.getTracks().forEach(track => track.stop());
-                    videoElement.srcObject = null;
-                }
-                window.backToLobby();
+                clearInterval(gameState.gameTimerInterval); killCameraAndAI(); window.backToLobby();
             } else { 
-                gameState.gameActive = true; 
-                gameState.lastTapTime = Date.now();
-                lastAiFrameTime = performance.now(); 
+                gameState.gameActive = true; gameState.lastTapTime = Date.now(); lastAiFrameTime = performance.now(); 
             }
         }
 
         window.backToLobby = function() {
-            gameBGM.pause(); 
-            playSound('click');
-            
-            // 🛠️ [Fix Cat 2]: Memory Leak Prevention. ฆ่า Listener ให้เรียบเมื่อยกเลิกเข้าหน้าแรก
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') {
-                window.WordHunterFirebase.forceCleanup();
-            }
-
-            document.getElementById('screen-results').classList.add('hidden');
-            document.getElementById('screen-results').classList.remove('flex');
-
+            gameBGM.pause(); playSound('click');
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.forceCleanup === 'function') { window.WordHunterFirebase.forceCleanup(); }
+            document.getElementById('screen-results').classList.add('hidden'); document.getElementById('screen-results').classList.remove('flex');
             const screenGame = document.getElementById('screen-game'); screenGame.classList.add('hidden'); screenGame.classList.remove('flex'); 
             document.getElementById('screen-lobby').classList.remove('hidden');
-            clearInterval(gameState.gameTimerInterval); stopGameLoops(); 
-            if (videoElement.srcObject) { 
-                videoElement.srcObject.getTracks().forEach(track => track.stop()); 
-                videoElement.srcObject = null; 
-            }
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') {
-                window.WordHunterFirebase.loadLeaderboard();
-            }
+            clearInterval(gameState.gameTimerInterval); killCameraAndAI(); 
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') window.WordHunterFirebase.loadLeaderboard();
         }
 
         window.sendChatMessage = function() {
@@ -1736,20 +1347,13 @@
             }, 800);
         }
 
-        // 🛠️ [Fix]: แก้ไขบั๊กแชทเบิ้ล 2 ข้อความ
         function appendChatMessage(text, className) {
-            const history = document.getElementById('ai-chat-history'); 
-            const msg = document.createElement('div');
-            msg.className = `leading-relaxed ${className}`; 
-            msg.innerText = text; 
-            history.appendChild(msg); 
-            history.scrollTop = history.scrollHeight; 
-            return msg;
+            const history = document.getElementById('ai-chat-history'); const msg = document.createElement('div');
+            msg.className = `leading-relaxed ${className}`; msg.innerText = text; history.appendChild(msg); history.scrollTop = history.scrollHeight; return msg;
         }
 
         window.renderLeaderboardUI = function(dataArray = null) {
-            const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = '';
-            let leaderboard = dataArray || [];
+            const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = ''; let leaderboard = dataArray || [];
             if (leaderboard.length === 0) { tbody.innerHTML = `<tr><td colspan=\"6\" class=\"p-6 text-center text-slate-400 italic font-bold\">ยังไม่มีข้อมูลในระบบ หรือกำลังโหลด...</td></tr>`; return; }
             leaderboard.forEach((record, index) => {
                 let rankIcon = `${index + 1}`; if (index === 0) rankIcon = '🥇'; else if (index === 1) rankIcon = '🥈'; else if (index === 2) rankIcon = '🥉';
@@ -1757,7 +1361,7 @@
                 const avatar = record.photoURL || '👨‍🚀';
                 tr.innerHTML = `
                     <td class="p-4 text-center font-black text-amber-400 text-xl">${rankIcon}</td>
-                    <td class="p-4 font-bold text-white flex items-center gap-2"><span class="text-2xl">${avatar}</span> ${escapeHtml(record.name)}</td>
+                    <td class="p-4 font-bold text-white flex items-center gap-2"><span class="text-2xl">${avatar}</span> ${escapeHtml(record.name)} <span class="text-xs text-slate-400 font-normal">(${escapeHtml(record.grade)})</span></td>
                     <td class="p-4 text-center text-slate-300 font-bold">${escapeHtml(record.difficulty)}</td>
                     <td class="p-4 text-center text-cyan-300 text-xs">${escapeHtml(record.category)}</td>
                     <td class="p-4 text-center font-black text-yellow-400 text-xl">${record.score}</td>
@@ -1768,639 +1372,277 @@
         }
 
         window.renderLeaderboardError = function(message) {
-            const tbody = document.getElementById('leaderboard-body');
-            tbody.innerHTML = `<tr><td colspan=\"6\" class=\"p-6 text-center text-rose-400 font-bold bg-rose-900/20 rounded-xl\">${message}</td></tr>`;
+            const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = `<tr><td colspan=\"6\" class=\"p-6 text-center text-rose-400 font-bold bg-rose-900/20 rounded-xl\">${message}</td></tr>`;
         }
 
         window.shareResult = function() {
-            playSound('click'); 
-            const text = `ฉันทำได้ ${gameState.scoreP1} คะแนน (คอมโบสูงสุด x${gameState.maxStreak}) ในเกม Words Hunter AR Hunsa! มาประลองความเร็วกัน!`;
+            playSound('click'); const text = `ฉันทำได้ ${gameState.scoreP1} คะแนน (คอมโบสูงสุด x${gameState.maxStreak}) ในเกม Words Hunter AR Hunsa! มาประลองความเร็วกัน!`;
             const textArea = document.createElement("textarea"); textArea.value = text; document.body.appendChild(textArea); textArea.select();
-            try { document.execCommand('copy'); showToast("คัดลอกคะแนนเพื่อแชร์แล้วจ้า!", "📋"); } catch (err) { showToast("ไม่สามารถคัดลอกได้", "❌"); }
-            document.body.removeChild(textArea);
+            try { document.execCommand('copy'); showToast("คัดลอกคะแนนเพื่อแชร์แล้วจ้า!", "📋"); } catch (err) { showToast("ไม่สามารถคัดลอกได้", "❌"); } document.body.removeChild(textArea);
         }
 
-        window.promptResetLeaderboard = function() {
-            playSound('click');
-            showModal('modal-reset-confirm');
-        }
-
-        window.executeResetLeaderboard = function() {
-            playSound('click');
-            renderLeaderboardUI([]);
-            hideModal('modal-reset-confirm');
-            showToast("ฟังก์ชันนี้ถูกปิดการใช้งานในระบบ Cloud Leaderboard", "🛡️");
-        }
-
+        window.promptResetLeaderboard = function() { playSound('click'); showModal('modal-reset-confirm'); }
+        window.executeResetLeaderboard = function() { playSound('click'); renderLeaderboardUI([]); hideModal('modal-reset-confirm'); showToast("ฟังก์ชันนี้ถูกปิดการใช้งานในระบบ Cloud Leaderboard", "🛡️"); }
         window.showToast = function(message, icon = "✨") {
             const toast = document.getElementById('toast-notification'); document.getElementById('toast-icon').innerText = icon; document.getElementById('toast-message').innerText = message;
             toast.classList.remove('translate-y-20', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100');
             setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
         }
 
-        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
-
-        // 🛠️ [Fix] Fisher-Yates shuffle ที่ปลอดภัยและสุ่มจริง (โค้ดต้นฉบับเรียกใช้ shuffleArray แต่ไม่เคยประกาศฟังก์ชันนี้ไว้ที่ไหนเลย ทำให้เกมพังทันทีที่กดเริ่ม)
-        function shuffleArray(arr) {
-            const a = [...arr];
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
-            }
-            return a;
-        }
-
         window.addEventListener('DOMContentLoaded', () => {
-            window.adjustCategorySelection();
-            buildAvatarSelector('avatar-container-signup');
+            window.adjustCategorySelection(); window.updateLeaderboardCategoryFilter(); buildAvatarSelector('avatar-container-signup'); buildAvatarSelector('avatar-container-edit'); 
+            const savedUser = localStorage.getItem('word_hunter_user');
+            if (savedUser) { 
+                try { 
+                    const profile = JSON.parse(savedUser); document.getElementById('initial-username').value = profile.username || ""; document.getElementById('initial-grade').value = profile.grade || ""; 
+                    if(profile.photoURL) { selectedAvatar = profile.photoURL; window.selectAvatar(profile.photoURL, 'avatar-container-signup'); }
+                } catch(e) {} 
+            }
             window.showModal('modal-initial-signup');
         });
     </script>
 
-    <!-- ================= [เพิ่ม Fallback Safe Wrappers] ================= -->
     <script>
-        // 🛠️ [Fix Cat 1]: Safe Wrappers สำหรับเรียกใช้ Firebase Function ป้องกันปัญหา TypeError ถ้าโหลดไม่เสร็จ
         window.executeInitialSignupSafe = function() {
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.executeInitialSignup === 'function') {
-                window.WordHunterFirebase.executeInitialSignup();
-            } else {
-                // Fallback to local directly (Offline-first approach)
-                const username = document.getElementById('initial-username').value.trim();
-                const grade = document.getElementById('initial-grade').value.trim();
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.executeInitialSignup === 'function') { window.WordHunterFirebase.executeInitialSignup(); } 
+            else {
+                const username = document.getElementById('initial-username').value.trim(); const grade = document.getElementById('initial-grade').value.trim();
                 if (!username || !grade) { window.showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️"); return; }
-                const profile = { username, grade, photoURL: selectedAvatar, uid: 'LOCAL_' + Date.now() };
-                gameState.currentUser = profile;
-                gameState.player1Name = username;
-                localStorage.setItem('word_hunter_user', JSON.stringify(profile));
-                document.getElementById('user-display-name').innerText = `${username} (${grade})`;
-                document.getElementById('topbar-avatar').innerText = selectedAvatar;
-                document.getElementById('topbar-avatar').classList.remove('hidden');
-                window.hideModal('modal-initial-signup');
-                window.showToast(`ยินดีต้อนรับ คุณ ${username}! (ออฟไลน์)`, "🎉");
+                const profile = { username, grade, photoURL: selectedAvatar, uid: 'LOCAL_' + Date.now() }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; document.getElementById('topbar-avatar').classList.remove('hidden');
+                window.hideModal('modal-initial-signup'); window.showToast(`ยินดีต้อนรับ คุณ ${username}! (ออฟไลน์)`, "🎉");
             }
         };
         window.updateProfileSafe = function() {
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.updateProfile === 'function') {
-                window.WordHunterFirebase.updateProfile();
-            } else {
-                const username = document.getElementById('auth-username').value.trim();
-                const grade = document.getElementById('auth-grade').value.trim();
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.updateProfile === 'function') { window.WordHunterFirebase.updateProfile(); } 
+            else {
+                const username = document.getElementById('auth-username').value.trim(); const grade = document.getElementById('auth-grade').value.trim();
                 if (!username || !grade) { showToast("กรุณากรอกข้อมูลให้ครบจ้า!", "⚠️"); return; }
-                const profile = { ...gameState.currentUser, username, grade, photoURL: selectedAvatar };
-                gameState.currentUser = profile;
-                gameState.player1Name = username;
-                localStorage.setItem('word_hunter_user', JSON.stringify(profile));
-                document.getElementById('user-display-name').innerText = `${username} (${grade})`;
-                document.getElementById('topbar-avatar').innerText = selectedAvatar;
-                hideModal('modal-auth');
-                showToast("อัปเดตข้อมูลผู้เล่นเรียบร้อย! (Local)", "✅");
+                const profile = { ...gameState.currentUser, username, grade, photoURL: selectedAvatar }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; hideModal('modal-auth'); showToast("อัปเดตข้อมูลผู้เล่นเรียบร้อย! (Local)", "✅");
             }
         };
-        window.createRoomFirebase = function() {
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.createRoom === 'function') window.WordHunterFirebase.createRoom();
-            else { if(window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); }
-        };
-        window.joinRoomFirebase = function() {
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.openJoinModal === 'function') window.WordHunterFirebase.openJoinModal();
-            else { if(window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); }
-        };
-        // 🛠️ [Fix]: เดิมเรียก WordHunterFirebase.submitJoinRoom() ซึ่ง"ไม่มีอยู่จริง" (ของจริงชื่อ processJoinRoom)
-        // ทำให้ปุ่ม "เข้าร่วมเลย!" ไม่ทำงานเลยแม้จะกรอกรหัสห้องถูกต้อง ตอนนี้แก้ให้เรียกฟังก์ชันที่ถูกต้องแล้ว
+        window.createRoomFirebase = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.createRoom === 'function') window.WordHunterFirebase.createRoom(); else { if(window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); } };
+        window.joinRoomFirebase = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.openJoinModal === 'function') window.WordHunterFirebase.openJoinModal(); else { if(window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); } };
         window.submitJoinRoomSafe = function() {
-            const input = document.getElementById('join-room-input');
-            const roomId = input ? input.value.trim() : '';
-            if (!roomId || roomId.length !== 6) {
-                if (window.showToast) window.showToast("กรุณากรอกรหัสห้อง 6 หลักให้ครบ", "⚠️");
-                return;
-            }
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.processJoinRoom === 'function') {
-                window.WordHunterFirebase.processJoinRoom(roomId);
-            } else {
-                if (window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️");
-                window.hideModal('modal-join-room');
-            }
+            const input = document.getElementById('join-room-input'); const roomId = input ? input.value.trim() : '';
+            if (!roomId || roomId.length !== 6) { if (window.showToast) window.showToast("กรุณากรอกรหัสห้อง 6 หลักให้ครบ", "⚠️"); return; }
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.processJoinRoom === 'function') { window.WordHunterFirebase.processJoinRoom(roomId); } else { if (window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); window.hideModal('modal-join-room'); }
         };
-        window.cancelRoomSafe = function() {
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.cancelRoom === 'function') window.WordHunterFirebase.cancelRoom();
-            else window.hideModal('modal-lobby');
-        };
-        window.loadLeaderboardSafe = function() {
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') window.WordHunterFirebase.loadLeaderboard();
-        };
-        window.startGameHostSafe = function() {
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.startGameAsHost === 'function') window.WordHunterFirebase.startGameAsHost();
-        }
+        window.cancelRoomSafe = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.cancelRoom === 'function') window.WordHunterFirebase.cancelRoom(); else window.hideModal('modal-lobby'); };
+        window.loadLeaderboardSafe = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.loadLeaderboard === 'function') window.WordHunterFirebase.loadLeaderboard(); };
+        window.startGameHostSafe = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.startGameAsHost === 'function') window.WordHunterFirebase.startGameAsHost(); }
     </script>
 
-    <!-- ================= [โมดูล Firebase (V11.6.1) + Real-time Multiplayer] ================= -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         window.WordHunterFirebase = {
-            app: null,
-            db: null,
-            auth: null,
-            currentRoomId: null,
-            unsubscribeLobby: null,
-            isProcessing: false,
-            isCanvasEnv: false,
-            appId: "default-app-id",
+            app: null, db: null, auth: null, currentRoomId: null, unsubscribeLobby: null, isProcessing: false, isCanvasEnv: false, appId: "default-app-id",
 
             config: {
-                apiKey: "AIzaSyAKAPwkT-WefQ4KWCLrdLJtl7DHfNgmdq8",
-                authDomain: "word-hunter-ar-hunsa.firebaseapp.com",
-                projectId: "word-hunter-ar-hunsa",
-                storageBucket: "word-hunter-ar-hunsa.firebasestorage.app",
-                messagingSenderId: "443417643469",
-                appId: "1:443417643469:web:d41dc7cfe744d8783bdc84"
+                apiKey: "AIzaSyAKAPwkT-WefQ4KWCLrdLJtl7DHfNgmdq8", authDomain: "word-hunter-ar-hunsa.firebaseapp.com", projectId: "word-hunter-ar-hunsa",
+                storageBucket: "word-hunter-ar-hunsa.firebasestorage.app", messagingSenderId: "443417643469", appId: "1:443417643469:web:d41dc7cfe744d8783bdc84"
             },
 
             init: async function() {
-                console.log("[Firebase Debug]: 🚀 Initializing Firebase Module...");
                 try {
-                    if (typeof __firebase_config !== 'undefined') {
-                        this.config = JSON.parse(__firebase_config);
-                        this.isCanvasEnv = true;
-                        this.appId = typeof __app_id !== 'undefined' ? __app_id : this.appId;
-                        console.log("[Firebase Debug]: 🛠️ Canvas Environment Detected. Using secure paths.");
+                    if (typeof __firebase_config !== 'undefined') { this.config = JSON.parse(__firebase_config); this.isCanvasEnv = true; this.appId = typeof __app_id !== 'undefined' ? __app_id : this.appId; }
+                    this.app = initializeApp(this.config); this.db = getFirestore(this.app); this.auth = getAuth(this.app);
+                    try { if (this.isCanvasEnv && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(this.auth, __initial_auth_token); } else { await signInAnonymously(this.auth); } } catch (authErr) { }
+                    const savedUser = localStorage.getItem('word_hunter_user');
+                    if (savedUser) {
+                        try {
+                            const profile = JSON.parse(savedUser); gameState.currentUser = profile; gameState.player1Name = profile.username; selectedAvatar = profile.photoURL || '🦊';
+                            document.getElementById('user-display-name').innerText = `${profile.username} (${profile.grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; document.getElementById('topbar-avatar').classList.remove('hidden'); document.getElementById('user-status-dot').className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
+                            window.hideModal('modal-initial-signup');
+                        } catch(e) {}
                     }
-
-                    this.app = initializeApp(this.config);
-                    this.db = getFirestore(this.app);
-                    this.auth = getAuth(this.app);
-                    
-                    try {
-                        if (this.isCanvasEnv && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(this.auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(this.auth);
-                        }
-                    } catch (authErr) {
-                        console.warn("[Firebase Debug]: ⚠️ Silent Auth Warning:", authErr);
-                    }
-                    
-                    console.log("[Firebase Debug]: ✅ Firebase initialized securely.");
-                    
                     await this.loadLeaderboard();
-
-                } catch (error) {
-                    console.warn("[Firebase Debug]: ❌ Firebase Init Error: ", error);
-                }
+                } catch (error) { console.warn("[Firebase Debug]: ❌ Firebase Init Error: ", error); }
             },
 
-            getCollectionPath: function(colName) {
-                if (this.isCanvasEnv) return `artifacts/${this.appId}/public/data/${colName}`;
-                return colName;
-            },
+            getCollectionPath: function(colName) { if (this.isCanvasEnv) return `artifacts/${this.appId}/public/data/${colName}`; return colName; },
 
-            // 🛠️ [Fix Cat 2]: Memory Leak Prevention. ฆ่า Listener ให้เรียบทุกครั้งที่ถูกเรียก และป้องกันการฟังซ้อน
             forceCleanup: function() {
-                if (this.unsubscribeLobby) {
-                    this.unsubscribeLobby();
-                    this.unsubscribeLobby = null;
-                    console.log("[Firebase Debug]: 🛑 Listener Unsubscribed to prevent Memory Leaks.");
-                }
+                if (this.unsubscribeLobby) { this.unsubscribeLobby(); this.unsubscribeLobby = null; }
             },
 
-            // 🛠️ [Fix Cat 1]: Async Lock & Race Condition Prevention
             executeInitialSignup: async function() {
-                if (!this.db) return;
-                if (this.isProcessing) return;
-                this.isProcessing = true;
-
-                const usernameInput = document.getElementById('initial-username').value.trim();
-                const gradeInput = document.getElementById('initial-grade').value.trim();
-
-                if (!usernameInput || !gradeInput) {
-                    if (window.showToast) window.showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️");
-                    this.isProcessing = false;
-                    return;
-                }
-
-                console.log("[Firebase Debug]: 🔐 Starting Profile Save process...");
+                if (!this.db) return; if (this.isProcessing) return; this.isProcessing = true;
+                const usernameInput = document.getElementById('initial-username').value.trim(); const gradeInput = document.getElementById('initial-grade').value.trim();
+                if (!usernameInput || !gradeInput) { if (window.showToast) window.showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️"); this.isProcessing = false; return; }
                 if (window.showToast) window.showToast("กำลังเข้าสู่ระบบ...", "⏳");
-
                 try {
-                    let savedUser = null;
-                    try { savedUser = JSON.parse(localStorage.getItem('word_hunter_user')); } catch(e) {}
-                    
+                    let savedUser = null; try { savedUser = JSON.parse(localStorage.getItem('word_hunter_user')); } catch(e) {}
                     const uid = (savedUser && savedUser.uid) ? savedUser.uid : 'PLAYER_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-
-                    const profileData = {
-                        uid: uid,
-                        username: usernameInput,
-                        email: "no-login@local",
-                        grade: gradeInput,
-                        photoURL: selectedAvatar || '🦊',
-                        createdAt: new Date().toISOString()
-                    };
-
-                    const userRef = doc(this.db, this.getCollectionPath('users'), uid);
-                    await setDoc(userRef, profileData, { merge: true });
-                    console.log("[Firebase Debug]: 🆕 Profile saved to Firestore successfully", profileData);
-
-                    if (typeof gameState !== 'undefined') {
-                        gameState.currentUser = profileData;
-                        gameState.player1Name = profileData.username;
-                    }
-                    
+                    const profileData = { uid: uid, username: usernameInput, email: "no-login@local", grade: gradeInput, photoURL: selectedAvatar || '🦊', createdAt: new Date().toISOString() };
+                    const userRef = doc(this.db, this.getCollectionPath('users'), uid); await setDoc(userRef, profileData, { merge: true });
+                    if (typeof gameState !== 'undefined') { gameState.currentUser = profileData; gameState.player1Name = profileData.username; }
                     localStorage.setItem('word_hunter_user', JSON.stringify(profileData));
-                    
-                    document.getElementById('user-display-name').innerText = `${profileData.username} (${profileData.grade})`;
-                    document.getElementById('topbar-avatar').innerText = profileData.photoURL;
-                    document.getElementById('topbar-avatar').classList.remove('hidden');
-                    document.getElementById('user-status-dot').classList.remove('bg-red-500');
-                    document.getElementById('user-status-dot').classList.add('bg-emerald-500');
-
-                    if (window.hideModal) window.hideModal('modal-initial-signup');
-                    if (window.showToast) window.showToast(`ยินดีต้อนรับ คุณ ${profileData.username}!`, "🎉");
-
-                } catch (error) {
-                    console.error("[Firebase Debug]: ❌ Signup Flow Error:", error);
-                    if (window.showToast) window.showToast("เกิดข้อผิดพลาดในการเข้าสู่ระบบ", "❌");
-                } finally {
-                    this.isProcessing = false;
-                }
+                    document.getElementById('user-display-name').innerText = `${profileData.username} (${profileData.grade})`; document.getElementById('topbar-avatar').innerText = profileData.photoURL; document.getElementById('topbar-avatar').classList.remove('hidden'); document.getElementById('user-status-dot').className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
+                    if (window.hideModal) window.hideModal('modal-initial-signup'); if (window.showToast) window.showToast(`ยินดีต้อนรับ คุณ ${profileData.username}!`, "🎉");
+                } catch (error) { console.error("[Firebase Debug]: ❌ Signup Flow Error:", error); if (window.showToast) window.showToast("เกิดข้อผิดพลาดในการเข้าสู่ระบบ", "❌"); } finally { this.isProcessing = false; }
             },
 
             updateProfile: async function() {
-                if (window.playSound) window.playSound('click');
-                if (!this.db || !gameState.currentUser) return;
-                
-                if (this.isProcessing) return;
-                this.isProcessing = true;
-
-                const username = document.getElementById('auth-username').value.trim();
-                const grade = document.getElementById('auth-grade').value.trim();
+                if (window.playSound) window.playSound('click'); if (!this.db || !gameState.currentUser) return; if (this.isProcessing) return; this.isProcessing = true;
+                const username = document.getElementById('auth-username').value.trim(); const grade = document.getElementById('auth-grade').value.trim();
                 if (!username || !grade) { if(window.showToast) window.showToast("กรุณากรอกข้อมูลให้ครบจ้า!", "⚠️"); this.isProcessing = false; return; }
-                
                 try {
-                    const profile = { ...gameState.currentUser, username, grade, photoURL: selectedAvatar };
-                    gameState.currentUser = profile;
-                    gameState.player1Name = username;
-                    localStorage.setItem('word_hunter_user', JSON.stringify(profile));
-                    
-                    const userRef = doc(this.db, this.getCollectionPath('users'), profile.uid);
-                    await updateDoc(userRef, { username: username, grade: grade, photoURL: selectedAvatar });
-                    
-                    document.getElementById('user-display-name').innerText = `${username} (${grade})`;
-                    document.getElementById('topbar-avatar').innerText = selectedAvatar;
-                    if(window.hideModal) window.hideModal('modal-auth');
-                    if(window.showToast) window.showToast("อัปเดตข้อมูลผู้เล่นเรียบร้อย!", "✅");
-                } catch(e) {
-                    console.error("Update profile error", e);
-                } finally {
-                    this.isProcessing = false;
-                }
+                    const profile = { ...gameState.currentUser, username, grade, photoURL: selectedAvatar }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                    const userRef = doc(this.db, this.getCollectionPath('users'), profile.uid); await updateDoc(userRef, { username: username, grade: grade, photoURL: selectedAvatar });
+                    document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar;
+                    if(window.hideModal) window.hideModal('modal-auth'); if(window.showToast) window.showToast("อัปเดตข้อมูลผู้เล่นเรียบร้อย!", "✅");
+                } catch(e) { console.error("Update profile error", e); } finally { this.isProcessing = false; }
             },
 
-            saveScoreToCloud: async function(name, score, avgTime) {
+            // 🚀 CRITICAL FIX: Save Score Labels
+            saveScoreToCloud: async function(name, score, avgTime, diffLabel, catLabel) {
                 if (!this.db || !gameState.currentUser) return;
-                
-                console.log("[Firebase Debug]: 💾 Saving game score to Cloud...");
                 try {
                     const lbCollection = collection(this.db, this.getCollectionPath('leaderboard'));
                     const record = {
-                        uid: gameState.currentUser.uid,
-                        name: name,
-                        grade: gameState.currentUser.grade,
-                        difficulty: gameConfig.difficulty,
-                        category: vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title,
-                        score: Number(score), // บังคับเป็น Number
-                        avgTime: avgTime + "s",
-                        photoURL: gameState.currentUser.photoURL || '🦊',
-                        timestamp: new Date().toISOString() // Safe timestamp
+                        uid: gameState.currentUser.uid, name: name, grade: gameState.currentUser.grade,
+                        difficulty: diffLabel || vocabEngine[gameConfig.difficulty].name,
+                        category: catLabel || vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title,
+                        score: Number(score), avgTime: avgTime + "s", photoURL: gameState.currentUser.photoURL || '🦊', timestamp: new Date().toISOString()
                     };
-                    await addDoc(lbCollection, record);
-                    this.loadLeaderboard();
-                } catch (e) {
-                    console.error("[Firebase Debug]: ❌ Save score error:", e);
-                }
+                    await addDoc(lbCollection, record); this.loadLeaderboard();
+                } catch (e) { console.error("[Firebase Debug]: ❌ Save score error:", e); }
             },
 
-            // 🛠️ [Fix Cat 3]: ดักจับ Error ดัชนี Composite Index พัง พร้อม UI แจ้งเตือน และ Smart Fallback กลับมาใช้ Firebase Query
+            // 🚀 CRITICAL FIX: Smart Fallback Logic for Composite Index Errors
             loadLeaderboard: async function() {
                 if (!this.db) return;
-                
-                console.log("[Firebase Debug]: 📊 Fetching Leaderboard Data...");
-                const diffInput = document.getElementById('lb-filter-diff');
-                const catInput = document.getElementById('lb-filter-cat');
-                
-                let targetDiffName = "🟢 A1 (Beginner)";
-                let targetCatTitle = "📦 คำนามรอบตัว";
-                
-                if (diffInput && catInput && diffInput.value && catInput.value) {
-                    const diffKey = diffInput.value;
-                    const catKey = catInput.value;
-                    if(vocabEngine[diffKey]) {
-                        targetDiffName = vocabEngine[diffKey].name;
-                        if(vocabEngine[diffKey].categories[catKey]) {
-                            targetCatTitle = vocabEngine[diffKey].categories[catKey].title;
-                        }
-                    }
-                }
-
-                const lbCollection = collection(this.db, this.getCollectionPath('leaderboard'));
-                
                 try {
-                    // ลองใช้ Composite Index 
-                    const q = query(lbCollection, 
-                        where("difficulty", "==", targetDiffName),
-                        where("category", "==", targetCatTitle),
-                        orderBy("score", "desc"),
-                        limit(10)
-                    );
-                    const snapshot = await getDocs(q);
-                    let records = [];
-                    snapshot.forEach(doc => { records.push(doc.data()); });
+                    const diffInput = document.getElementById('lb-filter-diff'); const catInput = document.getElementById('lb-filter-cat');
+                    let targetDiffName = "🟢 A1 (Beginner)"; let targetCatTitle = "📦 คำนามรอบตัว";
                     
-                    const liveBadge = document.getElementById('lb-sync-status');
-                    if(liveBadge) liveBadge.classList.remove('hidden');
+                    if (diffInput && diffInput.value === "ADV") {
+                        targetDiffName = "🌋 Adventure Mode"; targetCatTitle = "คลังศัพท์ผสมทุกระดับ";
+                    } else if (diffInput && catInput && diffInput.value && catInput.value) {
+                        const diffKey = diffInput.value; const catKey = catInput.value;
+                        if(vocabEngine[diffKey]) { targetDiffName = vocabEngine[diffKey].name; if(vocabEngine[diffKey].categories[catKey]) { targetCatTitle = vocabEngine[diffKey].categories[catKey].title; } }
+                    }
 
+                    const lbCollection = collection(this.db, this.getCollectionPath('leaderboard'));
+                    const q = query(lbCollection, where("difficulty", "==", targetDiffName), where("category", "==", targetCatTitle), orderBy("score", "desc"), limit(10));
+                    const snapshot = await getDocs(q); let records = []; snapshot.forEach(doc => { records.push(doc.data()); });
+                    const liveBadge = document.getElementById('lb-sync-status'); if(liveBadge) liveBadge.classList.remove('hidden');
                     if (window.renderLeaderboardUI) window.renderLeaderboardUI(records);
                 } catch (e) {
                     console.error("[Firebase Debug]: ❌ Indexed query failed, attempting Smart Fallback:", e);
-                    
-                    // หากเกิด Error เรื่อง Index ให้แสดง UI สวยๆ แจ้งเตือนผู้ใช้ก่อน
                     if (e.message && (e.message.includes("index") || e.message.includes("FAILED_PRECONDITION"))) {
-                        if (window.renderLeaderboardError) {
-                            window.renderLeaderboardError("⚠️ ระบบกำลังจัดเตรียมดัชนีคลาวด์ (Index Building)...<br><span class='text-sm text-slate-300 font-normal'>ระบบสลับใช้โหมดดึงข้อมูลสำรองชั่วคราว</span>");
-                        }
+                        if (window.renderLeaderboardError) window.renderLeaderboardError("⚠️ ระบบกำลังจัดเตรียมดัชนีคลาวด์ (Index Building)...<br><span class='text-sm text-slate-300 font-normal'>ระบบสลับใช้โหมดดึงข้อมูลสำรองชั่วคราว</span>");
                     }
                     
-                    // Smart Fallback: โหลดข้อมูลทั้งหมดมาฟิลเตอร์เองบนเครื่อง (In-memory filter) ป้องกันตารางว่าง
+                    // Smart Fallback (In-memory Filtering)
                     try {
-                        const snapshotAll = await getDocs(lbCollection);
-                        let recordsAll = [];
-                        snapshotAll.forEach(doc => { recordsAll.push(doc.data()); });
-
-                        let filteredRecords = recordsAll.filter(r => 
-                            r.difficulty === targetDiffName && 
-                            r.category === targetCatTitle
-                        );
-                        filteredRecords.sort((a, b) => b.score - a.score);
-                        const top10 = filteredRecords.slice(0, 10);
-
-                        // โชว์ผลลัพธ์ผ่าน Fallback หลังจากแสดง Error ไป 1 วินาที เพื่อให้ผู้ใช้ทราบว่าระบบกำลังจัดการตัวเอง
-                        setTimeout(() => {
-                            if (window.renderLeaderboardUI) window.renderLeaderboardUI(top10);
-                        }, 1000);
-                        
-                    } catch(fallbackErr) {
-                         if (window.renderLeaderboardError) {
-                             window.renderLeaderboardError("❌ โหลดข้อมูลคะแนนล้มเหลว โปรดตรวจสอบอินเทอร์เน็ต");
-                         }
-                    }
+                        const lbCollectionFallback = collection(this.db, this.getCollectionPath('leaderboard'));
+                        const snapshotAll = await getDocs(lbCollectionFallback); let recordsAll = []; snapshotAll.forEach(doc => { recordsAll.push(doc.data()); });
+                        let filteredRecords = recordsAll.filter(r => r.difficulty === targetDiffName && r.category === targetCatTitle);
+                        filteredRecords.sort((a, b) => b.score - a.score); const top10 = filteredRecords.slice(0, 10);
+                        setTimeout(() => { if (window.renderLeaderboardUI) window.renderLeaderboardUI(top10); }, 1000);
+                    } catch(fallbackErr) { if (window.renderLeaderboardError) window.renderLeaderboardError("❌ โหลดข้อมูลคะแนนล้มเหลว โปรดตรวจสอบอินเทอร์เน็ต"); }
                 }
             },
 
-            // --- 👑 Kahoot-style Room Management ---
-
             renderLobbyState: function(roomData) {
-                const hostAvatar = document.getElementById('lobby-host-avatar');
-                const hostName = document.getElementById('lobby-host-name');
-                if(hostAvatar && hostName) {
-                    hostAvatar.innerText = roomData.hostPhotoURL || '🦊';
-                    hostAvatar.classList.remove('animate-bounce');
-                    hostName.innerText = roomData.hostId;
-                }
-
-                const joinerAvatar = document.getElementById('lobby-joiner-avatar');
-                const joinerName = document.getElementById('lobby-joiner-name');
-                const hasJoiner = roomData.joinerId && roomData.joinerId !== "";
+                const hostAvatar = document.getElementById('lobby-host-avatar'); const hostName = document.getElementById('lobby-host-name');
+                if(hostAvatar && hostName) { hostAvatar.innerText = roomData.hostPhotoURL || '🦊'; hostAvatar.classList.remove('animate-bounce'); hostName.innerText = roomData.hostId; }
+                const joinerAvatar = document.getElementById('lobby-joiner-avatar'); const joinerName = document.getElementById('lobby-joiner-name'); const hasJoiner = roomData.joinerId && roomData.joinerId !== "";
 
                 if(joinerAvatar && joinerName) {
                     if(hasJoiner) {
-                        joinerAvatar.innerText = roomData.joinerPhotoURL || '🐼';
-                        joinerAvatar.classList.remove('opacity-50');
-                        joinerAvatar.classList.add('animate-bounce');
-                        joinerName.innerText = roomData.joinerId;
-                        joinerName.classList.remove('text-slate-400');
-                        joinerName.classList.add('text-cyan-400');
+                        joinerAvatar.innerText = roomData.joinerPhotoURL || '🐼'; joinerAvatar.classList.remove('opacity-50'); joinerAvatar.classList.add('animate-bounce'); joinerName.innerText = roomData.joinerId; joinerName.classList.remove('text-slate-400'); joinerName.classList.add('text-cyan-400');
                     } else {
-                        joinerAvatar.innerText = '👤';
-                        joinerAvatar.classList.add('opacity-50');
-                        joinerAvatar.classList.remove('animate-bounce');
-                        joinerName.innerText = 'รอผู้ท้าชิง...';
-                        joinerName.classList.add('text-slate-400');
-                        joinerName.classList.remove('text-cyan-400');
+                        joinerAvatar.innerText = '👤'; joinerAvatar.classList.add('opacity-50'); joinerAvatar.classList.remove('animate-bounce'); joinerName.innerText = 'รอเพื่อนเข้าร่วม...'; joinerName.classList.add('text-slate-400'); joinerName.classList.remove('text-cyan-400');
                     }
                 }
 
                 const actionZone = document.getElementById('lobby-action-zone');
                 if(actionZone && gameState.isRoomHost) {
-                    if(hasJoiner) {
-                        actionZone.innerHTML = `<button onclick="window.startGameHostSafe()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-4 rounded-xl transition-all text-xl shadow-xl animate-pulse">🚀 เริ่มเกมเลย!</button>
-                                                <button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ยุบห้อง</button>`;
-                    } else {
-                        actionZone.innerHTML = `<button disabled class="w-full bg-slate-700 text-slate-500 font-black py-4 rounded-xl text-xl cursor-not-allowed">🚀 รอผู้ท้าชิง...</button>
-                                                <button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ยุบห้อง</button>`;
-                    }
-                } else if(actionZone && !gameState.isRoomHost) {
-                    actionZone.innerHTML = `<button disabled class="w-full bg-amber-500/50 text-white font-black py-4 rounded-xl text-xl animate-pulse">⏳ รอหัวหน้าห้องเริ่มเกม...</button>
-                                            <button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ออกห้อง</button>`;
-                }
+                    if(hasJoiner) { actionZone.innerHTML = `<button onclick="window.startGameHostSafe()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-4 rounded-xl transition-all text-xl shadow-xl animate-pulse">🚀 เริ่มเกมเลย!</button><button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ยุบห้อง</button>`; } 
+                    else { actionZone.innerHTML = `<button disabled class="w-full bg-slate-700 text-slate-500 font-black py-4 rounded-xl text-xl cursor-not-allowed">🚀 รอผู้ท้าชิง...</button><button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ยุบห้อง</button>`; }
+                } else if(actionZone && !gameState.isRoomHost) { actionZone.innerHTML = `<button disabled class="w-full bg-amber-500/50 text-white font-black py-4 rounded-xl text-xl animate-pulse">⏳ รอหัวหน้าห้องเริ่มเกม...</button><button onclick="window.cancelRoomSafe()" class="w-full text-rose-500 font-bold mt-3 underline text-sm">ออกห้อง</button>`; }
             },
 
             createRoom: async function() {
-                if (window.playSound) window.playSound('click');
-                if (this.isProcessing) return; 
-
-                if (!this.db || !gameState.currentUser) {
-                    if (window.showToast) window.showToast("โปรดลงชื่อเข้าระบบก่อนสร้างห้อง!", "⚠️");
-                    return;
-                }
-
-                this.isProcessing = true;
-                const hostProfile = gameState.currentUser;
-                gameState.isRoomHost = true;
-                
-                console.log("[Firebase Debug]: 👑 Starting Create Room Process for Host:", hostProfile.username);
+                if (window.playSound) window.playSound('click'); if (this.isProcessing) return; 
+                if (!this.db || !gameState.currentUser) { if (window.showToast) window.showToast("โปรดลงชื่อเข้าระบบก่อนสร้างห้อง!", "⚠️"); return; }
+                this.isProcessing = true; const hostProfile = gameState.currentUser; gameState.isRoomHost = true;
                 if (window.showToast) window.showToast("กำลังสร้างห้อง...", "⏳");
 
                 try {
-                    let roomId;
-                    let isUnique = false;
-                    let roomRef;
-
-                    while (!isUnique) {
-                        roomId = Math.floor(100000 + Math.random() * 900000).toString();
-                        roomRef = doc(this.db, this.getCollectionPath('room'), roomId);
-                        const snap = await getDoc(roomRef);
-                        if (!snap.exists()) {
-                            isUnique = true; 
-                        }
-                    }
-
-                    const roomDataInitial = {
-                        roomId: roomId,
-                        hostId: hostProfile.username,
-                        hostPhotoURL: hostProfile.photoURL || '🦊',
-                        joinerId: "",
-                        joinerPhotoURL: "",
-                        status: "waiting",
-                        createdAt: new Date().toISOString()
-                    };
-
+                    let roomId; let isUnique = false; let roomRef;
+                    while (!isUnique) { roomId = Math.floor(100000 + Math.random() * 900000).toString(); roomRef = doc(this.db, this.getCollectionPath('room'), roomId); const snap = await getDoc(roomRef); if (!snap.exists()) { isUnique = true; } }
+                    const roomDataInitial = { roomId: roomId, hostId: hostProfile.username, hostPhotoURL: hostProfile.photoURL || '🦊', joinerId: "", joinerPhotoURL: "", status: "waiting", createdAt: new Date().toISOString() };
                     await setDoc(roomRef, roomDataInitial);
-
-                    this.currentRoomId = roomId;
-                    document.getElementById('lobby-room-id').innerText = roomId;
-                    
-                    this.renderLobbyState(roomDataInitial);
-                    
-                    if (window.showModal) window.showModal('modal-lobby');
-                    this.forceCleanup(); 
-                    
-                    console.log("[Firebase Debug]: 👂 Listening for room updates...");
+                    this.currentRoomId = roomId; document.getElementById('lobby-room-id').innerText = roomId; this.renderLobbyState(roomDataInitial);
+                    if (window.showModal) window.showModal('modal-lobby'); this.forceCleanup(); 
                     
                     this.unsubscribeLobby = onSnapshot(roomRef, (docSnap) => {
                         if (docSnap.exists()) {
-                            const data = docSnap.data();
-                            this.renderLobbyState(data);
-                            
-                            if (data.status === "playing") {
-                                console.log("[Firebase Debug]: 🚀 Game Started by Host!");
-                                this.forceCleanup(); // เคลียร์ทันทีป้องกันรั่ว
-                                if (window.hideModal) window.hideModal('modal-lobby');
-                                if (window.runStartSequence) window.runStartSequence('kahoot'); 
-                            }
-                        } else {
-                            this.forceCleanup();
-                            if (window.hideModal) window.hideModal('modal-lobby');
-                            if (window.showToast) window.showToast("ห้องถูกยกเลิกแล้ว", "⚠️");
-                        }
+                            const data = docSnap.data(); this.renderLobbyState(data);
+                            if (data.status === "playing") { this.forceCleanup(); if (window.hideModal) window.hideModal('modal-lobby'); if (window.runStartSequence) window.runStartSequence('kahoot'); }
+                        } else { this.forceCleanup(); if (window.hideModal) window.hideModal('modal-lobby'); if (window.showToast) window.showToast("ห้องถูกยกเลิกแล้ว", "⚠️"); }
                     });
-
-                } catch (error) {
-                    console.error("[Firebase Debug]: ❌ Create Room Error:", error);
-                    if (window.showToast) window.showToast("สร้างห้องล้มเหลว", "❌");
-                } finally {
-                    this.isProcessing = false;
-                }
+                } catch (error) { console.error("[Firebase Debug]: ❌ Create Room Error:", error); if (window.showToast) window.showToast("สร้างห้องล้มเหลว", "❌"); } finally { this.isProcessing = false; }
             },
 
             openJoinModal: function() {
                 if (window.playSound) window.playSound('click');
-                if (!this.db || !gameState.currentUser) {
-                    if (window.showToast) window.showToast("โปรดลงชื่อเข้าระบบก่อนเข้าร่วมห้อง!", "⚠️");
-                    return;
-                }
-                document.getElementById('join-room-input').value = "";
-                if (window.showModal) window.showModal('modal-join-room');
+                if (!this.db || !gameState.currentUser) { if (window.showToast) window.showToast("โปรดลงชื่อเข้าระบบก่อนเข้าร่วมห้อง!", "⚠️"); return; }
+                document.getElementById('join-room-input').value = ""; if (window.showModal) window.showModal('modal-join-room');
             },
 
             processJoinRoom: async function(roomId) {
-                if (this.isProcessing) return; 
-                this.isProcessing = true;
-                
-                if (window.showToast) window.showToast("กำลังค้นหาห้อง...", "🔍");
-                const profile = gameState.currentUser;
-                gameState.isRoomHost = false;
+                if (this.isProcessing) return; this.isProcessing = true;
+                if (window.showToast) window.showToast("กำลังค้นหาห้อง...", "🔍"); const profile = gameState.currentUser; gameState.isRoomHost = false;
 
                 try {
-                    const roomRef = doc(this.db, this.getCollectionPath('room'), roomId);
-                    const roomSnap = await getDoc(roomRef);
-
+                    const roomRef = doc(this.db, this.getCollectionPath('room'), roomId); const roomSnap = await getDoc(roomRef);
                     if (roomSnap.exists()) {
                         const roomData = roomSnap.data();
-                        
                         if (roomData.status === "waiting") {
-                            await updateDoc(roomRef, {
-                                joinerId: profile.username,
-                                joinerPhotoURL: profile.photoURL || '🦊'
-                            });
-
-                            this.currentRoomId = roomId;
-                            if (window.hideModal) window.hideModal('modal-join-room');
-                            
-                            document.getElementById('lobby-room-id').innerText = roomId;
-                            
-                            roomData.joinerId = profile.username;
-                            roomData.joinerPhotoURL = profile.photoURL;
-                            this.renderLobbyState(roomData);
-
-                            if (window.showModal) window.showModal('modal-lobby');
-                            
-                            this.forceCleanup();
+                            await updateDoc(roomRef, { joinerId: profile.username, joinerPhotoURL: profile.photoURL || '🦊' });
+                            this.currentRoomId = roomId; if (window.hideModal) window.hideModal('modal-join-room'); document.getElementById('lobby-room-id').innerText = roomId;
+                            roomData.joinerId = profile.username; roomData.joinerPhotoURL = profile.photoURL; this.renderLobbyState(roomData);
+                            if (window.showModal) window.showModal('modal-lobby'); this.forceCleanup();
                             
                             this.unsubscribeLobby = onSnapshot(roomRef, (docSnap) => {
                                 if (docSnap.exists()) {
-                                    const data = docSnap.data();
-                                    this.renderLobbyState(data);
-                                    
-                                    if (data.status === "playing") {
-                                        console.log("[Firebase Debug]: 🚀 Game Started by Host!");
-                                        this.forceCleanup(); // เคลียร์ทันที
-                                        if (window.hideModal) window.hideModal('modal-lobby');
-                                        if (window.runStartSequence) window.runStartSequence('kahoot'); 
-                                    }
-                                } else {
-                                    this.forceCleanup();
-                                    if (window.hideModal) window.hideModal('modal-lobby');
-                                    if (window.showToast) window.showToast("ห้องถูกยุบแล้ว", "⚠️");
-                                }
+                                    const data = docSnap.data(); this.renderLobbyState(data);
+                                    if (data.status === "playing") { this.forceCleanup(); if (window.hideModal) window.hideModal('modal-lobby'); if (window.runStartSequence) window.runStartSequence('kahoot'); }
+                                } else { this.forceCleanup(); if (window.hideModal) window.hideModal('modal-lobby'); if (window.showToast) window.showToast("ห้องถูกยุบแล้ว", "⚠️"); }
                             });
-
-                        } else {
-                            if (window.showToast) window.showToast("ห้องนี้กำลังเล่นอยู่หรือปิดไปแล้วครับ", "⏳");
-                        }
-                    } else {
-                        if (window.showToast) window.showToast("ไม่พบรหัสห้องนี้ในระบบ!", "❌");
-                    }
-                } catch (error) {
-                    console.error("[Firebase Debug]: ❌ Join Room Error:", error);
-                    if (window.showToast) window.showToast("เข้าร่วมห้องล้มเหลว", "❌");
-                } finally {
-                    this.isProcessing = false;
-                }
+                        } else { if (window.showToast) window.showToast("ห้องนี้กำลังเล่นอยู่หรือปิดไปแล้วครับ", "⏳"); }
+                    } else { if (window.showToast) window.showToast("ไม่พบรหัสห้องนี้ในระบบ!", "❌"); }
+                } catch (error) { console.error("[Firebase Debug]: ❌ Join Room Error:", error); if (window.showToast) window.showToast("เข้าร่วมห้องล้มเหลว", "❌"); } finally { this.isProcessing = false; }
             },
 
             startGameAsHost: async function() {
-                if(!this.currentRoomId || !this.db) return;
-                if(window.playSound) window.playSound('click');
-                
-                try {
-                    console.log("[Firebase Debug]: 🚀 Host is starting the game...");
-                    const roomRef = doc(this.db, this.getCollectionPath('room'), this.currentRoomId);
-                    await updateDoc(roomRef, { status: "playing" });
-                } catch (error) {
-                    console.error("Error starting game", error);
-                }
+                if(!this.currentRoomId || !this.db) return; if(window.playSound) window.playSound('click');
+                try { const roomRef = doc(this.db, this.getCollectionPath('room'), this.currentRoomId); await updateDoc(roomRef, { status: "playing" }); } catch (error) {}
             },
 
             cancelRoom: async function() {
-                if (window.playSound) window.playSound('click');
-                if (window.hideModal) window.hideModal('modal-lobby');
-                this.forceCleanup();
-
+                if (window.playSound) window.playSound('click'); if (window.hideModal) window.hideModal('modal-lobby'); this.forceCleanup();
                 if (this.currentRoomId && this.db) {
                     try {
                         const roomRef = doc(this.db, this.getCollectionPath('room'), this.currentRoomId);
-                        
-                        if(gameState.isRoomHost) {
-                            console.log(`[Firebase Debug]: 🗑️ Host deleting room...`);
-                            await deleteDoc(roomRef);
-                            if (window.showToast) window.showToast("ยุบห้องแล้ว", "🗑️");
-                        } else {
-                            await updateDoc(roomRef, {
-                                joinerId: "",
-                                joinerPhotoURL: ""
-                            });
-                            if (window.showToast) window.showToast("ออกจากห้องแล้ว", "🚪");
-                        }
-                    } catch (error) {
-                        console.error("[Firebase Debug]: ❌ Cancel Room Error:", error);
-                    }
+                        if(gameState.isRoomHost) { await deleteDoc(roomRef); if (window.showToast) window.showToast("ยุบห้องแล้ว", "🗑️"); } 
+                        else { await updateDoc(roomRef, { joinerId: "", joinerPhotoURL: "" }); if (window.showToast) window.showToast("ออกจากห้องแล้ว", "🚪"); }
+                    } catch (error) { console.error("[Firebase Debug]: ❌ Cancel Room Error:", error); }
                 }
                 this.currentRoomId = null;
             }
         };
 
         window.WordHunterFirebase.init();
-
     </script>
 </body>
 </html>
