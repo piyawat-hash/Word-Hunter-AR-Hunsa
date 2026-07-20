@@ -586,34 +586,134 @@
     <!-- ================= JAVASCRIPT LOGIC ================= -->
     <!-- รวม Script มาตรฐานไว้ในบล็อกเดียว ป้องกันบั๊ก ReferenceError -->
     <script>
-        const vocabEngine = {
+       const vocabEngine = {
             "A1": {
                 name: "🟢 A1 (Beginner)",
                 categories: {
-                    "nouns": { title: "📦 คำนามรอบตัว", words: [{en:"Animal",th:"สัตว์"}, {en:"House",th:"บ้าน"}, {en:"Apple",th:"แอปเปิ้ล"}, {en:"Man",th:"ผู้ชาย"}, {en:"Mother",th:"แม่"}, {en:"Book",th:"หนังสือ"}, {en:"Name",th:"ชื่อ"}, {en:"Boy",th:"เด็กผู้ชาย"}, {en:"Bread",th:"ขนมปัง"}, {en:"Night",th:"กลางคืน"}, {en:"School",th:"โรงเรียน"}, {en:"City",th:"เมือง"}, {en:"Day",th:"วัน"}, {en:"Doctor",th:"หมอ"}, {en:"Dog",th:"สุนัข"}, {en:"Sun",th:"พระอาทิตย์"}, {en:"Teacher",th:"ครู"}, {en:"Water",th:"น้ำ"}, {en:"Cat",th:"แมว"}, {en:"Pen",th:"ปากกา"}] },
-                    "verbs": { title: "🏃 คำกริยา", words: [{en:"Listen",th:"ฟัง"}, {en:"Smile",th:"ยิ้ม"}, {en:"Drink",th:"ดื่ม"}, {en:"Eat",th:"กิน"}, {en:"Read",th:"อ่าน"}, {en:"Write",th:"เขียน"}] },
-                    "general": { title: "✨ ทั่วไป", words: [{en:"Always",th:"เสมอ"}, {en:"Hello",th:"สวัสดี"}, {en:"Hungry",th:"หิว"}, {en:"Bad",th:"ไม่ดี"}, {en:"Beautiful",th:"สวย"}, {en:"Big",th:"ใหญ่"}, {en:"New",th:"ใหม่"}, {en:"Clean",th:"สะอาด"}, {en:"Small",th:"เล็ก"}, {en:"Cold",th:"เย็น"}, {en:"Old",th:"เก่า"}, {en:"Good",th:"ดี"}] }
+                    "nouns_basic": { 
+                        title: "📦 คำนามพื้นฐาน", 
+                        words: [
+                            {en:"age",th:"อายุ"}, {en:"air",th:"อากาศ"}, {en:"animal",th:"สัตว์"}, 
+                            {en:"answer",th:"คำตอบ"}, {en:"apple",th:"แอปเปิล"}, {en:"art",th:"ศิลปะ"}, 
+                            {en:"baby",th:"ทารก"}, {en:"back",th:"หลัง"}, {en:"bag",th:"กระเป๋า"}, 
+                            {en:"ball",th:"ลูกบอล"}, {en:"bank",th:"ธนาคาร"}, {en:"bath",th:"การอาบน้ำ"}, 
+                            {en:"bed",th:"เตียงนอน"}, {en:"bird",th:"นก"}, {en:"blood",th:"เลือด"}, 
+                            {en:"boat",th:"เรือ"}, {en:"body",th:"ร่างกาย"}, {en:"bone",th:"กระดูก"}, 
+                            {en:"book",th:"หนังสือ"}, {en:"box",th:"กล่อง"}, {en:"boy",th:"เด็กผู้ชาย"}, 
+                            {en:"bread",th:"ขนมปัง"}, {en:"brother",th:"พี่ชาย/น้องชาย"}, {en:"bus",th:"รถประจำทาง"}, 
+                            {en:"car",th:"รถยนต์"}
+                        ] 
+                    },
+                    "verbs_basic": { 
+                        title: "🏃 กริยาพื้นฐาน", 
+                        words: [
+                            {en:"act",th:"กระทำ"}, {en:"add",th:"เพิ่ม/บวก"}, {en:"answer",th:"ตอบ"}, 
+                            {en:"ask",th:"ถาม/ขอร้อง"}, {en:"build",th:"สร้าง"}, {en:"burn",th:"เผา/ไหม้"}, 
+                            {en:"buy",th:"ซื้อ"}, {en:"call",th:"โทรหา/เรียก"}
+                        ] 
+                    },
+                    "adjectives_basic": { 
+                        title: "🎨 คุณศัพท์พื้นฐาน", 
+                        words: [
+                            {en:"bad",th:"เลว/แย่"}, {en:"big",th:"ใหญ่"}, {en:"black",th:"สีดำ"}, 
+                            {en:"blue",th:"สีน้ำเงิน"}, {en:"brown",th:"สีน้ำตาล"}, {en:"busy",th:"ยุ่ง"},
+                            {en:"alone",th:"ลำพัง"}
+                        ] 
+                    }
                 }
             },
             "A2": {
                 name: "🟡 A2 (Elementary)",
                 categories: {
-                    "travel_daily": { title: "✈️ ชีวิตประจำวัน", words: [{en:"Accident",th:"อุบัติเหตุ"}, {en:"Journey",th:"เดินทาง"}, {en:"Kitchen",th:"ห้องครัว"}, {en:"Airport",th:"สนามบิน"}, {en:"Medicine",th:"ยา"}, {en:"Shopping",th:"ซื้อของ"}, {en:"Bicycle",th:"จักรยาน"}, {en:"Dinner",th:"อาหารเย็น"}, {en:"Ticket",th:"ตั๋ว"}, {en:"Passport",th:"พาสปอร์ต"}, {en:"Travel",th:"ท่องเที่ยว"}, {en:"Company",th:"บริษัท"}, {en:"Weather",th:"อากาศ"}] },
-                    "verbs": { title: "🏃 คำกริยา", words: [{en:"Repeat",th:"ทำซ้ำ"}, {en:"Return",th:"กลับคืน"}, {en:"Agree",th:"เห็นด้วย"}, {en:"Laugh",th:"หัวเราะ"}, {en:"Decide",th:"ตัดสินใจ"}, {en:"Arrive",th:"มาถึง"}, {en:"Explain",th:"อธิบาย"}, {en:"Borrow",th:"ขอยืม"}, {en:"Choose",th:"เลือก"}] }
+                    "nouns_daily": { 
+                        title: "🏕️ คำนามชีวิตประจำวัน", 
+                        words: [
+                            {en:"activity",th:"กิจกรรม"}, {en:"adult",th:"ผู้ใหญ่"}, {en:"adventure",th:"การผจญภัย"}, 
+                            {en:"aim",th:"เป้าหมาย"}, {en:"area",th:"พื้นที่"}, {en:"article",th:"บทความ"}, 
+                            {en:"attack",th:"การโจมตี"}, {en:"attention",th:"ความสนใจ"}, {en:"audience",th:"ผู้ชม/ผู้ฟัง"}, 
+                            {en:"award",th:"รางวัล"}, {en:"base",th:"รากฐาน"}, {en:"battle",th:"การต่อสู้"}, 
+                            {en:"beauty",th:"ความงาม"}, {en:"beginning",th:"จุดเริ่มต้น"}, {en:"behavior",th:"พฤติกรรม"}, 
+                            {en:"benefit",th:"ผลประโยชน์"}, {en:"board",th:"กระดาน"}, {en:"border",th:"ชายแดน"}, 
+                            {en:"bottle",th:"ขวด"}, {en:"bottom",th:"ก้น/ส่วนล่างสุด"}
+                        ] 
+                    },
+                    "verbs_daily": { 
+                        title: "🏃 กริยาชีวิตประจำวัน", 
+                        words: [
+                            {en:"aim",th:"ตั้งเป้า"}, {en:"allow",th:"อนุญาต"}, {en:"appear",th:"ปรากฏตัว"}, 
+                            {en:"argue",th:"โต้เถียง"}, {en:"arrive",th:"มาถึง"}, {en:"attack",th:"โจมตี"}, 
+                            {en:"avoid",th:"หลีกเลี่ยง"}, {en:"award",th:"มอบรางวัล"}, {en:"benefit",th:"ได้รับประโยชน์"}, 
+                            {en:"blow",th:"เป่า/พัด"}, {en:"born",th:"เกิด"}, {en:"borrow",th:"ยืม"}
+                        ] 
+                    },
+                    "adj_adv_daily": { 
+                        title: "🎨 ขยายความ(A2)", 
+                        words: [
+                            {en:"active",th:"กระตือรือร้น"}, {en:"actually",th:"ตามความเป็นจริง"}, {en:"afraid",th:"หวาดกลัว"}, 
+                            {en:"ahead",th:"ข้างหน้า"}, {en:"alive",th:"มีชีวิตอยู่"}, {en:"angry",th:"โกรธ"}, 
+                            {en:"average",th:"ค่าเฉลี่ย"}, {en:"basic",th:"พื้นฐาน"}, {en:"behind",th:"ข้างหลัง"}, 
+                            {en:"blank",th:"ว่างเปล่า"}
+                        ] 
+                    }
                 }
             },
             "B1": {
                 name: "🟠 B1 (Intermediate)",
                 categories: {
-                    "verbs": { title: "🏃 คำกริยา", words: [{en:"Persuade",th:"โน้มน้าว"}, {en:"Identify",th:"ระบุตัวตน"}, {en:"Achieve",th:"บรรลุผล"}, {en:"Predict",th:"ทำนาย"}, {en:"Imagine",th:"จินตนาการ"}, {en:"Improve",th:"ปรับปรุง"}, {en:"Discover",th:"ค้นพบ"}, {en:"Recommend",th:"แนะนำ"}, {en:"Encourage",th:"สนับสนุน"}] },
-                    "adjectives": { title: "🎨 คำคุณศัพท์", words: [{en:"Definite",th:"แน่นอน"}, {en:"Pleasant",th:"เพลิดเพลิน"}, {en:"Delicious",th:"อร่อย"}, {en:"Disappointed",th:"ผิดหวัง"}, {en:"Anxious",th:"วิตกกังวล"}, {en:"Intelligent",th:"ฉลาด"}, {en:"Familiar",th:"คุ้นเคย"}, {en:"Generous",th:"ใจกว้าง"}] }
+                    "verbs_action": { 
+                        title: "🏃 กริยาการกระทำ (B1)", 
+                        words: [
+                            {en:"abuse",th:"ใช้ในทางที่ผิด"}, {en:"acquire",th:"ได้รับมา"}, {en:"adapt",th:"ปรับตัว"}, 
+                            {en:"adjust",th:"ปรับเปลี่ยน"}, {en:"adopt",th:"รับเลี้ยง/นำมาใช้"}, {en:"alter",th:"เปลี่ยนแปลง"}, 
+                            {en:"assess",th:"ประเมินผล"}, {en:"assign",th:"มอบหมาย"}, {en:"attach",th:"แนบ/ติดกัน"}, 
+                            {en:"attract",th:"ดึงดูด"}, {en:"bear",th:"ทน/แบกรับ"}, {en:"blame",th:"กล่าวโทษ"}, 
+                            {en:"bother",th:"รบกวน"}, {en:"calculate",th:"คำนวณ"}, {en:"cancel",th:"ยกเลิก"}, 
+                            {en:"capture",th:"จับกุม/จับภาพ"}, {en:"cast",th:"ทอด(เงา)/หล่อ"}, {en:"cause",th:"ทำให้เกิด"}, 
+                            {en:"cease",th:"ยุติ/เลิก"}
+                        ] 
+                    },
+                    "nouns_abstract": { 
+                        title: "📦 นามธรรม (B1)", 
+                        words: [
+                            {en:"abuse",th:"การล่วงละเมิด"}, {en:"asset",th:"ทรัพย์สิน"}, {en:"authority",th:"อำนาจ"}, 
+                            {en:"bias",th:"อคติ"}, {en:"blame",th:"ความผิด"}, {en:"budget",th:"งบประมาณ"}, 
+                            {en:"candidate",th:"ผู้สมัคร"}, {en:"category",th:"หมวดหมู่"}, {en:"cause",th:"สาเหตุ"}, 
+                            {en:"client",th:"ลูกค้า"}
+                        ] 
+                    }
                 }
             },
             "B2": {
                 name: "🔴 B2 (Upper-Intermediate)",
                 categories: {
-                    "academic_verbs": { title: "🏃 กริยาวิชาการ", words: [{en:"Acknowledge",th:"ยอมรับ"}, {en:"Regulate",th:"ควบคุม"}, {en:"Incorporate",th:"รวมเข้า"}, {en:"Distinguish",th:"แยกแยะ"}, {en:"Dominate",th:"ครอบงำ"}, {en:"Analyze",th:"วิเคราะห์"}, {en:"Interpret",th:"ตีความ"}, {en:"Investigate",th:"สืบสวน"}, {en:"Maintain",th:"รักษาไว้"}] },
-                    "academic_nouns": { title: "📦 นามวิชาการ", words: [{en:"Alternative",th:"ทางเลือก"}, {en:"Requirement",th:"ข้อกำหนด"}, {en:"Efficiency",th:"ประสิทธิภาพ"}, {en:"Resolution",th:"แก้ปัญหา"}, {en:"Emphasis",th:"การเน้นย้ำ"}, {en:"Evidence",th:"หลักฐาน"}, {en:"Phenomenon",th:"ปรากฏการณ์"}, {en:"Consequence",th:"ผลลัพธ์"}, {en:"Hypothesis",th:"สมมติฐาน"}] }
+                    "adjectives_adv_complex": { 
+                        title: "🎨 ขยายความซับซ้อน (B2)", 
+                        words: [
+                            {en:"accurate",th:"ถูกต้อง/แม่นยำ"}, {en:"aggressive",th:"ก้าวร้าว"}, {en:"artificial",th:"เทียม/ประดิษฐ์ขึ้น"}, 
+                            {en:"automatically",th:"อย่างอัตโนมัติ"}, {en:"available",th:"พร้อมใช้งาน"}, {en:"aware",th:"ตระหนักรู้"}, 
+                            {en:"basically",th:"โดยพื้นฐานแล้ว"}, {en:"blind",th:"ตาบอด/มองไม่เห็น"}, {en:"brief",th:"สั้นๆ/กะทัดรัด"}, 
+                            {en:"brilliant",th:"ฉลาดหลักแหลม"}, {en:"broad",th:"กว้าง"}, {en:"capable",th:"มีศักยภาพ"}, 
+                            {en:"civil",th:"เกี่ยวกับพลเมือง"}, {en:"classic",th:"คลาสสิก/ยอดเยี่ยม"}
+                        ] 
+                    },
+                     "academic_verbs": { 
+                        title: "🏃 กริยาวิชาการ", 
+                        words: [
+                            // คำเดิมของ B2 ที่มีอยู่แล้วเพื่อให้หมวดหมู่นี้สมบูรณ์
+                            {en:"Acknowledge",th:"ยอมรับ"}, {en:"Regulate",th:"ควบคุม"}, {en:"Incorporate",th:"รวมเข้า"}, 
+                            {en:"Distinguish",th:"แยกแยะ"}, {en:"Dominate",th:"ครอบงำ"}, {en:"Analyze",th:"วิเคราะห์"}, 
+                            {en:"Interpret",th:"ตีความ"}, {en:"Investigate",th:"สืบสวน"}, {en:"Maintain",th:"รักษาไว้"}
+                        ] 
+                    },
+                    "academic_nouns": { 
+                        title: "📦 นามวิชาการ", 
+                        words: [
+                            // คำเดิมของ B2 ที่มีอยู่แล้วเพื่อให้หมวดหมู่นี้สมบูรณ์
+                            {en:"Alternative",th:"ทางเลือก"}, {en:"Requirement",th:"ข้อกำหนด"}, {en:"Efficiency",th:"ประสิทธิภาพ"}, 
+                            {en:"Resolution",th:"แก้ปัญหา"}, {en:"Emphasis",th:"การเน้นย้ำ"}, {en:"Evidence",th:"หลักฐาน"}, 
+                            {en:"Phenomenon",th:"ปรากฏการณ์"}, {en:"Consequence",th:"ผลลัพธ์"}, {en:"Hypothesis",th:"สมมติฐาน"}
+                        ] 
+                    }
                 }
             }
         };
