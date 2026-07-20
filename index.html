@@ -53,9 +53,6 @@
             50% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .animate-pop-in {
-            animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
         .kahoot-btn:active {
             transform: scale(0.95);
         }
@@ -88,6 +85,24 @@
             background-color: rgba(245, 158, 11, 0.25);
             z-index: 10;
         }
+
+        /* ===== Streak / Combo System styles ===== */
+        @keyframes streak-pop {
+            0% { transform: scale(0.6) rotate(-8deg); opacity: 0; }
+            60% { transform: scale(1.15) rotate(4deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .streak-pop {
+            animation: streak-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes streak-fire {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-3px) scale(1.1); }
+        }
+        .streak-fire {
+            animation: streak-fire 0.6s infinite ease-in-out;
+        }
+        #hud-streak-wrap { transition: opacity 0.25s ease; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center p-2 md:p-4 text-slate-100 no-select">
@@ -125,7 +140,7 @@
                     </div>
                 </div>
 
-                <button onclick="window.WordHunterFirebase.executeInitialSignup()" class="mt-4 w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black py-4 rounded-xl shadow-xl transition-all text-xl transform hover:scale-[1.03] flex justify-center items-center gap-2">
+                <button onclick="window.executeInitialSignupSafe()" class="mt-4 w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black py-4 rounded-xl shadow-xl transition-all text-xl transform hover:scale-[1.03] flex justify-center items-center gap-2">
                     🕹️ เข้าสู่เกม!
                 </button>
             </div>
@@ -153,8 +168,8 @@
                 <span id="user-display-name" class="text-amber-200 text-sm md:text-base truncate max-w-[150px] md:max-w-xs">รอการเชื่อมต่อ...</span>
             </div>
             <div class="flex gap-3 md:gap-4">
-                <button onclick="toggleAuthModal()" class="text-cyan-400 hover:text-cyan-300 transition underline font-bold">🔑 โปรไฟล์</button>
-                <button onclick="toggleTeacherConsole()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 md:px-5 py-1.5 rounded-lg font-black transition shadow-lg flex items-center gap-2">
+                <button onclick="window.toggleAuthModal()" class="text-cyan-400 hover:text-cyan-300 transition underline font-bold">🔑 โปรไฟล์</button>
+                <button onclick="window.toggleTeacherConsole()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 md:px-5 py-1.5 rounded-lg font-black transition shadow-lg flex items-center gap-2">
                     ⚙️ ตั้งค่า
                 </button>
             </div>
@@ -171,12 +186,12 @@
                     </h3>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                        <button onclick="runStartSequence('ar')" class="bg-gradient-to-br from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
+                        <button onclick="window.runStartSequence('ar')" class="bg-gradient-to-br from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">🏃</span>
                             <span class="font-black text-lg md:text-xl">เล่นคนเดียว<br><span class="text-sm">(เปิดกล้อง AR)</span></span>
                         </button>
                         
-                        <button onclick="runStartSequence('kahoot')" class="bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
+                        <button onclick="window.runStartSequence('kahoot')" class="bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">🖱️</span>
                             <span class="font-black text-lg md:text-xl">เล่นคนเดียว<br><span class="text-sm">(จิ้มตอบ 4 สี)</span></span>
                         </button>
@@ -204,7 +219,7 @@
                     </div>
                     <div class="flex gap-2">
                         <input type="text" id="ai-chat-input" placeholder="พิมพ์คุยกับ AI ที่นี่..." class="flex-1 bg-slate-800 border border-white/10 px-3 md:px-4 py-2 md:py-3 rounded-xl text-sm md:text-base font-bold text-white focus:outline-none focus:border-cyan-500">
-                        <button onclick="sendChatMessage()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm md:text-base px-4 md:px-6 rounded-xl transition-all">ส่ง</button>
+                        <button onclick="window.sendChatMessage()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm md:text-base px-4 md:px-6 rounded-xl transition-all">ส่ง</button>
                     </div>
                 </div>
             </div>
@@ -262,6 +277,9 @@
             <div class="bg-slate-900/90 backdrop-blur-md border-2 md:border-4 border-amber-500/50 rounded-2xl p-2 md:p-4 text-white flex flex-col shadow-xl pointer-events-auto min-w-[80px] md:min-w-[120px] text-center">
                 <span class="text-[8px] md:text-sm text-amber-400 font-extrabold uppercase tracking-widest mb-0.5 md:mb-1">คะแนนสะสม</span>
                 <span class="text-3xl md:text-5xl font-black text-yellow-400" id="hud-score-p1">0</span>
+                <div id="hud-streak-wrap" class="mt-1 opacity-0">
+                    <span id="hud-streak" class="inline-flex items-center gap-1 text-[10px] md:text-sm font-black text-orange-400">🔥 x0</span>
+                </div>
             </div>
 
             <!-- QUESTION BOX -->
@@ -283,8 +301,8 @@
         </div>
 
         <div id="bonus-banner" class="hidden absolute top-24 md:top-40 left-1/2 transform -translate-x-1/2 z-30 bg-gradient-to-r from-red-600 via-amber-500 to-red-600 border-2 md:border-4 border-yellow-300 text-white rounded-full px-6 md:px-8 py-2 md:py-3 text-center shadow-[0_0_20px_rgba(245,158,11,0.9)] animate-bounce w-[90%] max-w-sm">
-            <div class="text-[10px] md:text-sm font-black uppercase tracking-widest text-yellow-200">🔥 BONUS ROUND 🔥</div>
-            <div class="text-lg md:text-3xl font-extrabold">แตะด่วนรับ +50 คะแนน!</div>
+            <div class="text-[10px] md:text-sm font-black uppercase tracking-widest text-yellow-200">🔥 COMBO STREAK 🔥</div>
+            <div id="bonus-banner-text" class="text-lg md:text-3xl font-extrabold">ตอบถูกต่อเนื่อง!</div>
         </div>
 
         <div id="feedback-popup" class="hidden absolute inset-0 flex items-center justify-center z-40 bg-black/75 pointer-events-none p-4">
@@ -330,10 +348,10 @@
                 <span id="current-play-mode" class="font-bold text-emerald-400 ml-1 md:ml-2 text-[10px] md:text-base">รอเริ่มเกม...</span>
             </div>
             <div class="flex gap-2 md:gap-4">
-                <button id="live-pause-btn" onclick="togglePauseGame()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg">
+                <button id="live-pause-btn" onclick="window.togglePauseGame()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition text-xs md:text-xl shadow-lg">
                     ⏸️ พัก
                 </button>
-                <button onclick="showQuitConfirmation()" class="bg-rose-600 hover:bg-rose-500 text-white font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition shadow-lg text-xs md:text-xl">
+                <button onclick="window.showQuitConfirmation()" class="bg-rose-600 hover:bg-rose-500 text-white font-black px-4 py-2 md:px-8 md:py-3 rounded-xl md:rounded-2xl transition shadow-lg text-xs md:text-xl">
                     🛑 จบเกม
                 </button>
             </div>
@@ -347,7 +365,7 @@
             <h1 class="text-3xl md:text-5xl font-black text-amber-400 mb-2 md:mb-4">สรุปผลการแข่งขัน!</h1>
             <p class="text-sm md:text-xl text-slate-300 font-bold mb-6 md:mb-10" id="res-mode-label">หมวดหมู่และระดับความยาก</p>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-6 md:mb-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mb-6 md:mb-10">
                 <div class="bg-slate-900 border-2 md:border-4 border-amber-500/30 rounded-2xl md:rounded-3xl p-6 flex flex-col justify-center shadow-xl">
                     <div class="text-sm md:text-xl text-amber-400 font-black uppercase tracking-wider mb-1 md:mb-2">คะแนนที่ทำได้ของคุณ</div>
                     <div class="text-6xl md:text-8xl font-black text-yellow-400" id="res-score-p1">0</div>
@@ -356,13 +374,17 @@
                     <div class="text-sm md:text-xl text-cyan-400 font-black uppercase tracking-wider mb-1 md:mb-2">ความเร็วเฉลี่ยต่อข้อ</div>
                     <div class="text-5xl md:text-7xl font-black text-cyan-400" id="res-avg-time">0.00s</div>
                 </div>
+                <div class="bg-slate-900 border-2 md:border-4 border-orange-500/30 rounded-2xl md:rounded-3xl p-6 flex flex-col justify-center shadow-xl">
+                    <div class="text-sm md:text-xl text-orange-400 font-black uppercase tracking-wider mb-1 md:mb-2">คอมโบสูงสุด</div>
+                    <div class="text-5xl md:text-7xl font-black text-orange-400" id="res-max-streak">🔥 0</div>
+                </div>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full justify-center">
-                <button onclick="shareResult()" class="w-full sm:w-auto px-8 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-3 md:py-4 rounded-xl md:rounded-2xl shadow-xl transition-all text-lg md:text-2xl">
+                <button onclick="window.shareResult()" class="w-full sm:w-auto px-8 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-3 md:py-4 rounded-xl md:rounded-2xl shadow-xl transition-all text-lg md:text-2xl">
                     📤 แชร์ผลลัพธ์
                 </button>
-                <button onclick="backToLobby()" class="w-full sm:w-auto px-8 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 md:py-4 rounded-xl md:rounded-2xl shadow-xl transition-all text-lg md:text-2xl">
+                <button onclick="window.backToLobby()" class="w-full sm:w-auto px-8 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 md:py-4 rounded-xl md:rounded-2xl shadow-xl transition-all text-lg md:text-2xl">
                     🎮 กลับหน้าหลัก
                 </button>
             </div>
@@ -375,7 +397,7 @@
             <div>
                 <div class="flex justify-between items-center mb-6 pb-3 border-b border-white/15">
                     <h2 class="text-2xl font-black text-amber-400 flex items-center gap-2">⚙️ ตั้งค่าระบบเกม</h2>
-                    <button onclick="toggleTeacherConsole()" class="text-slate-400 hover:text-white font-black text-4xl">×</button>
+                    <button onclick="window.toggleTeacherConsole()" class="text-slate-400 hover:text-white font-black text-4xl">×</button>
                 </div>
                 <div id="teacher-control-zone" class="space-y-6">
                     <div class="bg-slate-950 p-4 rounded-2xl border border-white/10">
@@ -383,7 +405,7 @@
                         <div class="space-y-3 text-sm md:text-base">
                             <div>
                                 <label class="block text-slate-300 font-bold mb-1">ระดับความยาก CEFR:</label>
-                                <select id="difficulty-input" onchange="adjustCategorySelection()" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none">
+                                <select id="difficulty-input" onchange="window.adjustCategorySelection()" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none">
                                     <option value="A1" selected>🟢 A1 (Beginner)</option>
                                     <option value="A2">🟡 A2 (Elementary)</option>
                                     <option value="B1">🟠 B1 (Intermediate)</option>
@@ -437,7 +459,7 @@
     <!-- ================= EDIT PROFILE ================= -->
     <div id="modal-auth" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-amber-500 p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl relative text-white max-h-[95vh] overflow-y-auto">
-            <button onclick="toggleAuthModal()" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
+            <button onclick="window.toggleAuthModal()" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
             <h2 class="text-xl md:text-2xl font-black text-amber-400 text-center mb-4 md:mb-6 pb-2 md:pb-3 border-b border-white/10">🎓 แก้ไขข้อมูลผู้เล่น</h2>
             <div class="space-y-4 md:space-y-5 mb-6 md:mb-8 text-sm md:text-base">
                 <div>
@@ -458,7 +480,7 @@
                 </div>
 
             </div>
-            <button onclick="window.WordHunterFirebase.updateProfile()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl">
+            <button onclick="window.updateProfileSafe()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl">
                 💾 บันทึกการเปลี่ยนแปลง
             </button>
         </div>
@@ -471,8 +493,8 @@
             <h3 class="text-2xl md:text-3xl font-bold text-white mb-2">ต้องการออกจากเกม?</h3>
             <p class="text-sm md:text-lg text-slate-400 mb-6 md:mb-8">คะแนนที่เก็บมาในรอบนี้จะไม่ถูกบันทึกนะจ๊ะ</p>
             <div class="flex gap-3 md:gap-4 text-base md:text-lg font-bold">
-                <button onclick="confirmQuit(true)" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-3 md:py-4 rounded-xl transition">ออกเลย</button>
-                <button onclick="confirmQuit(false)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 md:py-4 rounded-xl transition">เล่นต่อ</button>
+                <button onclick="window.confirmQuit(true)" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-3 md:py-4 rounded-xl transition">ออกเลย</button>
+                <button onclick="window.confirmQuit(false)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 md:py-4 rounded-xl transition">เล่นต่อ</button>
             </div>
         </div>
     </div>
@@ -484,8 +506,8 @@
             <h3 class="text-2xl md:text-3xl font-bold text-white mb-2">ล้างข้อมูลผู้นำ?</h3>
             <p class="text-sm md:text-base text-slate-400 mb-6 md:mb-8">กระดานผู้นำทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้ ยืนยันหรือไม่?</p>
             <div class="flex gap-3 md:gap-4 text-base md:text-lg font-bold">
-                <button onclick="executeResetLeaderboard()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-3 md:py-4 rounded-xl transition">ลบข้อมูล</button>
-                <button onclick="hideModal('modal-reset-confirm')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 md:py-4 rounded-xl transition">ยกเลิก</button>
+                <button onclick="window.executeResetLeaderboard()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-3 md:py-4 rounded-xl transition">ลบข้อมูล</button>
+                <button onclick="window.hideModal('modal-reset-confirm')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 md:py-4 rounded-xl transition">ยกเลิก</button>
             </div>
         </div>
     </div>
@@ -493,7 +515,7 @@
     <!-- MODAL: JOIN ROOM PROMPT -->
     <div id="modal-join-room" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-cyan-500 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl relative">
-            <button onclick="hideModal('modal-join-room')" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
+            <button onclick="window.hideModal('modal-join-room')" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
             <h3 class="text-2xl md:text-3xl font-bold text-white mb-4">เข้าร่วมห้องเพื่อน</h3>
             <p class="text-sm md:text-base text-slate-400 mb-4">กรุณากรอกรหัสห้อง 6 หลักเพื่อเข้าร่วม:</p>
             <input type="text" id="join-room-input" maxlength="6" class="w-full bg-slate-950 text-white font-bold text-center text-4xl tracking-[0.5em] px-4 py-4 rounded-xl border border-white/10 focus:outline-none focus:border-cyan-500 mb-6" placeholder="------">
@@ -612,11 +634,12 @@
         document.body.addEventListener('touchstart', unlockAudioContext, {once:true, passive:true});
         document.body.addEventListener('pointerdown', unlockAudioContext, {once:true, passive:true});
 
-        // ฟังก์ชันอัปเดตสไตล์ของ Avatar อย่างปลอดภัย
-        window.selectAvatar = function(emoji) {
+        // ฟังก์ชันอัปเดตสไตล์ของ Avatar อย่างปลอดภัย (สโคปเฉพาะ container ที่ระบุ เพื่อไม่ให้ชนกันระหว่าง signup/edit)
+        window.selectAvatar = function(emoji, containerId) {
             try { initAudio(); playSound('click'); } catch(e){} 
             selectedAvatar = emoji;
-            const options = document.querySelectorAll('.avatar-option');
+            const scope = containerId ? document.getElementById(containerId) : document;
+            const options = (scope || document).querySelectorAll('.avatar-option');
             options.forEach(span => {
                 if (span.innerText === emoji) {
                     span.classList.add('selected');
@@ -634,7 +657,7 @@
                 const span = document.createElement('span');
                 span.innerText = emoji;
                 span.className = `avatar-option text-4xl p-2 rounded-xl border-2 border-transparent bg-slate-800 ${emoji === selectedAvatar ? 'selected' : ''}`;
-                span.onclick = () => window.selectAvatar(emoji); 
+                span.onclick = () => window.selectAvatar(emoji, containerId); 
                 container.appendChild(span);
             });
         }
@@ -647,7 +670,9 @@
             successfulTaps: 0, tapTimes: [], gameTimerInterval: null,
             lastTapTime: 0, questionIndex: 1, maxQuestions: 10,
             player1Name: "ผู้ทดสอบ", currentUser: null, isTeacherVerified: false,
-            isKahootMode: true, isRoomHost: false 
+            isKahootMode: true, isRoomHost: false,
+            // ===== ระบบ Combo Streak (ใหม่) =====
+            streak: 0, maxStreak: 0
         };
 
         let videoElement = document.getElementById('webcam');
@@ -767,6 +792,9 @@
                     osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1);
                 } else if (type === 'tick') {
                     osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1);
+                } else if (type === 'combo') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(660, now); osc.frequency.setValueAtTime(880, now + 0.08); osc.frequency.setValueAtTime(1100, now + 0.16);
+                    gain.gain.setValueAtTime(0.25, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35); osc.start(now); osc.stop(now + 0.35);
                 }
             } catch (err) {}
         }
@@ -789,11 +817,13 @@
             playSound('click');
             const modal = document.getElementById('modal-auth');
             if (modal.classList.contains('hidden')) {
+                // 🛠️ [Fix]: ต้องสร้างตัวเลือก Avatar ของหน้าแก้ไขโปรไฟล์ก่อนทุกครั้ง ไม่งั้นช่องจะว่างเปล่า
+                buildAvatarSelector('avatar-container-edit');
                 if (gameState.currentUser) {
                     document.getElementById('auth-username').value = gameState.currentUser.username || "";
                     document.getElementById('auth-grade').value = gameState.currentUser.grade || "";
                     if(gameState.currentUser.photoURL) {
-                        window.selectAvatar(gameState.currentUser.photoURL);
+                        window.selectAvatar(gameState.currentUser.photoURL, 'avatar-container-edit');
                     }
                 }
                 showModal('modal-auth');
@@ -812,10 +842,12 @@
 
         window.verifyTeacherAccess = function() {
             playSound('click');
-            const pass = document.getElementById('teacher-pass-input').value;
+            const passInput = document.getElementById('teacher-pass-input');
+            const pass = passInput ? passInput.value : '';
             if (pass === "1234") {
                 gameState.isTeacherVerified = true;
-                document.getElementById('teacher-auth-zone').classList.add('hidden');
+                const authZone = document.getElementById('teacher-auth-zone');
+                if (authZone) authZone.classList.add('hidden');
                 document.getElementById('teacher-control-zone').classList.remove('hidden');
                 window.adjustCategorySelection();
                 showToast("ปลดล็อกระบบตั้งค่าเกมเรียบร้อย!", "🛡️");
@@ -888,11 +920,10 @@
             if (aiLoader) { aiLoader.classList.add('hidden'); aiLoader.classList.remove('flex'); }
         }
 
-        // 🛡️ [Fix Cat 4]: AR Fallback Logic
         async function setupCamera() {
             try {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error("HTTPS_REQUIRED");
+                    throw new Error("เบราว์เซอร์ไม่รองรับ หรือ ไม่ได้เปิดบน HTTPS");
                 }
                 
                 if (videoElement.srcObject) {
@@ -900,16 +931,15 @@
                     videoElement.srcObject = null;
                 }
                 
-                // Add a timeout fallback for getUserMedia prompt
-                let streamPromise = navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, 
-                    audio: false 
-                });
-
-                let stream = await Promise.race([
-                    streamPromise,
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 15000))
-                ]);
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, 
+                        audio: false 
+                    });
+                } catch (e) {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                }
                 
                 videoElement.setAttribute('autoplay', '');
                 videoElement.setAttribute('muted', '');
@@ -917,16 +947,11 @@
                 videoElement.muted = true; 
                 videoElement.srcObject = stream;
                 
-                try {
-                    await videoElement.play(); // Explicitly call play to prevent timeout on iOS
-                } catch (e) {
-                    console.warn("Explicit play failed:", e);
-                }
-                
                 return new Promise((resolve) => {
                     let attempts = 0;
                     const checkReady = () => {
                         if (videoElement.readyState >= 2 && videoElement.videoWidth > 0) {
+                            videoElement.play().catch(e => console.warn("Autoplay Prevented:", e));
                             resolve(true);
                         } else if (attempts < 100) { 
                             attempts++;
@@ -939,12 +964,8 @@
                 });
             } catch (err) {
                 console.warn("Camera Error:", err);
-                if (err.message === "HTTPS_REQUIRED") {
-                    showToast("โหมด AR ต้องรันบน HTTPS เท่านั้น! สลับเป็นโหมดคลิกตอบ", "🔒");
-                } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
                     showToast("คุณไม่อนุญาตสิทธิ์กล้อง! สลับโหมดอัตโนมัติ", "🚫");
-                } else if (err.message === "TIMEOUT") {
-                    showToast("กล้องตอบสนองช้าเกินไป! สลับโหมดอัตโนมัติ", "⏳");
                 } else {
                     showToast("กล้องมีปัญหา สลับเป็นโหมดคลิกตอบ!", "⚠️");
                 }
@@ -1025,10 +1046,13 @@
             gameState.isPaused = false;
             gameState.questionIndex = 1;
             gameState.availableVocabs = shuffleArray(activeVocabList);
+            gameState.streak = 0;
+            gameState.maxStreak = 0;
             simulatedPointer = null; 
             
             document.getElementById('hud-score-p1').innerText = "0";
             document.getElementById('hud-timer').innerText = `${gameConfig.duration}s`;
+            window.updateStreakHUD();
 
             if (!gameState.isKahootMode) {
                 const aiLoader = document.getElementById('ai-loading');
@@ -1046,14 +1070,11 @@
                     if (aiSuccess) {
                         resizeDrawingBuffer();
                     } else {
-                        // AI FAILED FALLBACK
                         gameState.isKahootMode = true;
                         gameConfig.targetCount = 4;
                         window.switchToKahootUI();
-                        showToast("เปิด AI ไม่สำเร็จ สลับเป็นโหมดคลิกตอบให้จ้า!", "⚠️");
                     }
                 } else {
-                    // CAMERA FAILED FALLBACK (Ensures no AI is loaded if camera fails)
                     gameState.isKahootMode = true;
                     gameConfig.targetCount = 4; 
                     window.switchToKahootUI();
@@ -1120,10 +1141,52 @@
             }, 1000);
         }
 
+        // ===================================================================
+        // ===== ระบบ Combo Streak: ตอบถูกต่อเนื่องยิ่งเยอะยิ่งได้คะแนนโบนัส =====
+        // ===================================================================
+        window.updateStreakHUD = function() {
+            const wrap = document.getElementById('hud-streak-wrap');
+            const label = document.getElementById('hud-streak');
+            if (!wrap || !label) return;
+            if (gameState.streak >= 2) {
+                wrap.classList.remove('opacity-0');
+                label.innerText = `🔥 x${gameState.streak}`;
+                label.classList.remove('streak-fire');
+                void label.offsetWidth;
+                label.classList.add('streak-fire');
+            } else {
+                wrap.classList.add('opacity-0');
+            }
+        }
+
+        function getStreakBonus(streak) {
+            // ทุกๆ 3 ข้อถูกติดต่อกัน จะได้โบนัสเพิ่ม (สูงสุด +15 แต้ม/ข้อ)
+            if (streak < 2) return 0;
+            return Math.min(15, (streak - 1) * 3);
+        }
+
+        function showComboBanner(streak) {
+            const banner = document.getElementById('bonus-banner');
+            const text = document.getElementById('bonus-banner-text');
+            if (!banner || !text) return;
+            const milestones = { 3: "combo x3! 🔥", 5: "combo x5! ⚡", 7: "combo x7! 💥", 10: "PERFECT STREAK! 🏆" };
+            if (!milestones[streak]) return;
+            text.innerText = milestones[streak];
+            banner.classList.remove('hidden');
+            banner.classList.add('streak-pop');
+            playSound('combo');
+            setTimeout(() => {
+                banner.classList.add('hidden');
+                banner.classList.remove('streak-pop');
+            }, 1400);
+        }
+
         function handleTimeUp() {
             gameBGM.pause(); 
             playSound('timeup'); 
             gameState.scoreP1 = Math.max(0, gameState.scoreP1 - 5);
+            gameState.streak = 0; // หมดเวลา = คอมโบขาด
+            window.updateStreakHUD();
             document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
 
             const popup = document.getElementById('feedback-popup');
@@ -1355,13 +1418,13 @@
             ctx.translate(x, y); ctx.scale(-1, 1); ctx.fillStyle = '#ffffff';
             
             const size = radius < 55 ? '20px' : '28px';
-            ctx.font = `bold ${size} Fredoka One, Kanit`; ctx.textAlign = 'center'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
+            ctx.font = `bold ${size} 'Fredoka One', Kanit`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
             
             const isEnTh = gameConfig.questionLang === 'en-th';
-            ctx.fillText(isEnTh ? vocab.th : vocab.en, 0, 8); 
+            ctx.fillText(isEnTh ? vocab.th : vocab.en, 0, 0); 
             
             ctx.fillStyle = '#67e8f9'; ctx.font = 'bold 14px Kanit'; 
-            ctx.fillText("แตะสิ!", 0, 30); 
+            ctx.fillText("แตะสิ!", 0, 25); 
             ctx.restore();
         }
 
@@ -1370,7 +1433,7 @@
             let triggered = false;
             gameState.targets.forEach(target => {
                 let hit = false;
-                touchPoints.forEach(pt => { if (Math.hypot(pt.x - target.x, pt.y - target.y) < target.radius + 20) hit = true; });
+                touchPoints.forEach(pt => { if (Math.hypot(pt.x - target.x, pt.y - target.y) < target.radius + 25) hit = true; }); // Increased hit radius for mobile
                 if (hit) {
                     target.hoverProgress += 120 * dt; 
                     if (target.hoverProgress >= 100 && !triggered) { registerDynamicTap(target); triggered = true; }
@@ -1389,15 +1452,26 @@
             const popup = document.getElementById('feedback-popup'); const card = document.getElementById('feedback-card');
             popup.classList.remove('hidden'); setTimeout(() => { card.classList.remove('scale-50', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 10);
 
-            const pts = 10;
+            const basePts = 10;
             const isEnTh = gameConfig.questionLang === 'en-th';
             
             if (target.isCorrect) {
-                playSound('success'); gameState.scoreP1 += pts;
-                document.getElementById('feedback-emoji').innerText = "✅";
+                gameState.streak++;
+                if (gameState.streak > gameState.maxStreak) gameState.maxStreak = gameState.streak;
+                const comboBonus = getStreakBonus(gameState.streak);
+                const totalPts = basePts + comboBonus;
+
+                playSound('success'); gameState.scoreP1 += totalPts;
+                document.getElementById('feedback-emoji').innerText = comboBonus > 0 ? "🔥" : "✅";
                 const title = document.getElementById('feedback-title'); title.innerText = `ยอดเยี่ยม!`; title.className = "text-4xl md:text-7xl font-black text-emerald-400";
-                document.getElementById('feedback-detail').innerText = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}" (+${pts} แต้ม)`;
+                const bonusText = comboBonus > 0 ? ` <span class="text-orange-400">(+โบนัสคอมโบ ${comboBonus})</span>` : '';
+                document.getElementById('feedback-detail').innerHTML = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}" (+${totalPts} แต้ม)${bonusText}`;
+
+                window.updateStreakHUD();
+                showComboBanner(gameState.streak);
             } else {
+                gameState.streak = 0; // ตอบผิด = คอมโบขาด
+                window.updateStreakHUD();
                 playSound('fail'); const deduction = 5; gameState.scoreP1 = Math.max(0, gameState.scoreP1 - deduction);
                 document.getElementById('feedback-emoji').innerText = "❌";
                 const title = document.getElementById('feedback-title'); title.innerText = `ผิดนะจ๊ะ!`; title.className = "text-4xl md:text-7xl font-black text-rose-500";
@@ -1456,6 +1530,8 @@
             document.getElementById('res-mode-label').innerText = `ระดับ CEFR: ${vocabEngine[gameConfig.difficulty].name} | หมวด: ${vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title}`;
             document.getElementById('res-score-p1').innerText = `${gameState.scoreP1}`; 
             document.getElementById('res-avg-time').innerText = `${avgTimeStr}s`;
+            const maxStreakEl = document.getElementById('res-max-streak');
+            if (maxStreakEl) maxStreakEl.innerText = `🔥 ${gameState.maxStreak}`;
         }
 
         async function loadAiModel() {
@@ -1538,9 +1614,15 @@
             }, 800);
         }
 
+        // 🛠️ [Fix]: แก้ไขบั๊กแชทเบิ้ล 2 ข้อความ
         function appendChatMessage(text, className) {
-            const history = document.getElementById('ai-chat-history'); const msg = document.createElement('div');
-            msg.className = `leading-relaxed ${className}`; msg.innerText = text; history.appendChild(msg); history.scrollTop = history.scrollHeight; return msg;
+            const history = document.getElementById('ai-chat-history'); 
+            const msg = document.createElement('div');
+            msg.className = `leading-relaxed ${className}`; 
+            msg.innerText = text; 
+            history.appendChild(msg); 
+            history.scrollTop = history.scrollHeight; 
+            return msg;
         }
 
         window.renderLeaderboardUI = function(dataArray = null) {
@@ -1570,7 +1652,7 @@
 
         window.shareResult = function() {
             playSound('click'); 
-            const text = `ฉันทำได้ ${gameState.scoreP1} คะแนน ในเกม Words Hunter AR Hunsa! มาประลองความเร็วกัน!`;
+            const text = `ฉันทำได้ ${gameState.scoreP1} คะแนน (คอมโบสูงสุด x${gameState.maxStreak}) ในเกม Words Hunter AR Hunsa! มาประลองความเร็วกัน!`;
             const textArea = document.createElement("textarea"); textArea.value = text; document.body.appendChild(textArea); textArea.select();
             try { document.execCommand('copy'); showToast("คัดลอกคะแนนเพื่อแชร์แล้วจ้า!", "📋"); } catch (err) { showToast("ไม่สามารถคัดลอกได้", "❌"); }
             document.body.removeChild(textArea);
@@ -1596,6 +1678,16 @@
 
         function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
+        // 🛠️ [Fix] Fisher-Yates shuffle ที่ปลอดภัยและสุ่มจริง (โค้ดต้นฉบับเรียกใช้ shuffleArray แต่ไม่เคยประกาศฟังก์ชันนี้ไว้ที่ไหนเลย ทำให้เกมพังทันทีที่กดเริ่ม)
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             window.adjustCategorySelection();
             buildAvatarSelector('avatar-container-signup');
@@ -1610,7 +1702,7 @@
             if (window.WordHunterFirebase && typeof window.WordHunterFirebase.executeInitialSignup === 'function') {
                 window.WordHunterFirebase.executeInitialSignup();
             } else {
-                // Fallback to local directly
+                // Fallback to local directly (Offline-first approach)
                 const username = document.getElementById('initial-username').value.trim();
                 const grade = document.getElementById('initial-grade').value.trim();
                 if (!username || !grade) { window.showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️"); return; }
@@ -1650,9 +1742,21 @@
             if (window.WordHunterFirebase && typeof window.WordHunterFirebase.openJoinModal === 'function') window.WordHunterFirebase.openJoinModal();
             else { if(window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); }
         };
+        // 🛠️ [Fix]: เดิมเรียก WordHunterFirebase.submitJoinRoom() ซึ่ง"ไม่มีอยู่จริง" (ของจริงชื่อ processJoinRoom)
+        // ทำให้ปุ่ม "เข้าร่วมเลย!" ไม่ทำงานเลยแม้จะกรอกรหัสห้องถูกต้อง ตอนนี้แก้ให้เรียกฟังก์ชันที่ถูกต้องแล้ว
         window.submitJoinRoomSafe = function() {
-            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.submitJoinRoom === 'function') window.WordHunterFirebase.submitJoinRoom();
-            else window.hideModal('modal-join-room');
+            const input = document.getElementById('join-room-input');
+            const roomId = input ? input.value.trim() : '';
+            if (!roomId || roomId.length !== 6) {
+                if (window.showToast) window.showToast("กรุณากรอกรหัสห้อง 6 หลักให้ครบ", "⚠️");
+                return;
+            }
+            if (window.WordHunterFirebase && typeof window.WordHunterFirebase.processJoinRoom === 'function') {
+                window.WordHunterFirebase.processJoinRoom(roomId);
+            } else {
+                if (window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️");
+                window.hideModal('modal-join-room');
+            }
         };
         window.cancelRoomSafe = function() {
             if (window.WordHunterFirebase && typeof window.WordHunterFirebase.cancelRoom === 'function') window.WordHunterFirebase.cancelRoom();
@@ -2066,6 +2170,7 @@
                 if (window.showModal) window.showModal('modal-join-room');
             },
 
+            // 🛠️ [Fix]: ฟังก์ชันนี้คือของจริงที่ทำงานเข้าร่วมห้อง — ก่อนหน้านี้ปุ่มยูสเรียกชื่อ submitJoinRoom ที่ไม่มีอยู่จริง จึงไม่เคยถูกเรียกใช้เลย
             processJoinRoom: async function(roomId) {
                 if (this.isProcessing) return; 
                 this.isProcessing = true;
