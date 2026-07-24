@@ -11,22 +11,24 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
 
+    <!-- [A.E.G.I.S BUGFIX: Core Styles & Theming Engine] -->
     <style>
         html, body { width: 100%; height: 100%; margin: 0; padding: 0; touch-action: pan-y; }
         body {
             font-family: 'Kanit', sans-serif;
             background-color: #0c080d;
             background-image: radial-gradient(rgba(245, 158, 11, 0.08) 1.5px, transparent 1.5px);
-            background-size: 32px 32px; overflow-x: hidden;
+            background-size: 32px 32px; overflow-x: hidden; transition: background 0.3s ease;
         }
         .historic-wall-pattern {
             background-color: #211216;
             background-image: repeating-linear-gradient(45deg, #2e171b 0, #2e171b 2px, transparent 0, transparent 50%),
                               repeating-linear-gradient(-45deg, #2e171b 0, #2e171b 2px, #211216 0, #211216 50%);
-            background-size: 24px 24px;
+            background-size: 24px 24px; transition: all 0.3s ease;
         }
         .glass-card-amber {
             background: rgba(22, 14, 18, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 2px solid rgba(245, 158, 11, 0.15);
+            transition: all 0.3s ease;
         }
         @keyframes sun-glow {
             0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
@@ -49,53 +51,76 @@
         .avatar-option:hover { filter: grayscale(50%) opacity(0.8); transform: scale(1.1); }
         .avatar-option.selected { filter: grayscale(0%) opacity(1); transform: scale(1.25); box-shadow: 0 0 20px rgba(245, 158, 11, 0.9); border-color: #f59e0b; background-color: rgba(245, 158, 11, 0.25); z-index: 10; }
 
-        @keyframes streak-pop {
-            0% { transform: scale(0.6) rotate(-8deg); opacity: 0; }
-            60% { transform: scale(1.15) rotate(4deg); opacity: 1; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
+        @keyframes streak-pop { 0% { transform: scale(0.6) rotate(-8deg); opacity: 0; } 60% { transform: scale(1.15) rotate(4deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
         .streak-pop { animation: streak-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes streak-fire {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-3px) scale(1.1); }
-        }
+        @keyframes streak-fire { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.1); } }
         .streak-fire { animation: streak-fire 0.6s infinite ease-in-out; }
         #hud-streak-wrap { transition: opacity 0.25s ease; }
-        
-        /* Landscape Mobile Optimization */
-        @media (max-height: 500px) {
-            #game-container { border-radius: 0; max-width: 100%; border: none; }
-            .historic-wall-pattern { padding: 4px !important; }
-            .historic-wall-pattern h1 { font-size: 1.5rem !important; }
-            .historic-wall-pattern p { display: none; }
-            #screen-game .absolute.top-2 { top: 2px !important; }
-            .bg-slate-950.border-t-2 { padding: 4px !important; }
-            #kahoot-grid { padding-top: 60px !important; }
+
+        /* [A.E.G.I.S DYNAMIC THEME ENGINE] */
+        /* Theme: Cyberpunk Neon */
+        body[data-theme="cyber"] {
+            background-color: #020617 !important; background-image: radial-gradient(rgba(34, 211, 238, 0.15) 1.5px, transparent 1.5px) !important;
         }
+        body[data-theme="cyber"] .historic-wall-pattern {
+            background-color: #082f49 !important; background-image: linear-gradient(0deg, transparent 24%, rgba(34, 211, 238, .1) 25%, rgba(34, 211, 238, .1) 26%, transparent 27%, transparent 74%, rgba(34, 211, 238, .1) 75%, rgba(34, 211, 238, .1) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(34, 211, 238, .1) 25%, rgba(34, 211, 238, .1) 26%, transparent 27%, transparent 74%, rgba(34, 211, 238, .1) 75%, rgba(34, 211, 238, .1) 76%, transparent 77%, transparent) !important;
+            border-color: #06b6d4 !important;
+        }
+        body[data-theme="cyber"] .glass-card-amber { border-color: rgba(34,211,238,0.3) !important; box-shadow: 0 0 30px rgba(34,211,238,0.1) !important; }
+        body[data-theme="cyber"] .border-amber-500 { border-color: #06b6d4 !important; }
+        body[data-theme="cyber"] .bg-amber-500 { background-color: #06b6d4 !important; color: #000 !important; }
+        body[data-theme="cyber"] .text-amber-400 { color: #22d3ee !important; }
+        body[data-theme="cyber"] .text-yellow-400 { color: #67e8f9 !important; }
+        body[data-theme="cyber"] .bg-gradient-to-r.from-yellow-300 { background-image: linear-gradient(to right, #67e8f9, #22d3ee, #06b6d4) !important; }
+        body[data-theme="cyber"] .bg-gradient-to-r.from-amber-500 { background-image: linear-gradient(to right, #06b6d4, #3b82f6) !important; }
+        body[data-theme="cyber"] .bg-gradient-to-b.from-\\[\\#261619\\] { background-image: linear-gradient(to bottom, #0f172a, #020617) !important; }
+        body[data-theme="cyber"] .avatar-option.selected { box-shadow: 0 0 20px rgba(34, 211, 238, 0.9) !important; border-color: #06b6d4 !important; background-color: rgba(34, 211, 238, 0.25) !important; }
+        body[data-theme="cyber"] ::-webkit-scrollbar-thumb { background: #06b6d4 !important; }
+
+        /* Theme: Academic Light */
+        body[data-theme="academic"] {
+            background-color: #f1f5f9 !important; background-image: radial-gradient(rgba(59, 130, 246, 0.15) 1.5px, transparent 1.5px) !important; color: #0f172a !important;
+        }
+        body[data-theme="academic"] .text-white, body[data-theme="academic"] .text-slate-100, body[data-theme="academic"] .text-slate-200, body[data-theme="academic"] .text-slate-300, body[data-theme="academic"] .text-slate-400 { color: #1e293b !important; }
+        body[data-theme="academic"] .bg-slate-900, body[data-theme="academic"] .bg-slate-950, body[data-theme="academic"] .bg-[#0f090a] { background-color: #ffffff !important; border-color: #cbd5e1 !important; }
+        body[data-theme="academic"] .bg-slate-800 { background-color: #f8fafc !important; border-color: #e2e8f0 !important; color: #0f172a !important;}
+        body[data-theme="academic"] input.bg-slate-950, body[data-theme="academic"] select.bg-slate-800, body[data-theme="academic"] input.bg-slate-800 { background-color: #f8fafc !important; color: #0f172a !important; border-color: #cbd5e1 !important;}
+        body[data-theme="academic"] .historic-wall-pattern { background-color: #e0f2fe !important; background-image: none !important; border-color: #3b82f6 !important; }
+        body[data-theme="academic"] .border-amber-500 { border-color: #3b82f6 !important; }
+        body[data-theme="academic"] .bg-amber-500 { background-color: #3b82f6 !important; color: #fff !important; }
+        body[data-theme="academic"] .text-amber-400 { color: #2563eb !important; }
+        body[data-theme="academic"] .text-amber-200 { color: #1d4ed8 !important; }
+        body[data-theme="academic"] .text-yellow-400 { color: #1d4ed8 !important; }
+        body[data-theme="academic"] .bg-gradient-to-r.from-yellow-300 { background-image: linear-gradient(to right, #60a5fa, #3b82f6, #1d4ed8) !important; }
+        body[data-theme="academic"] .bg-gradient-to-r.from-amber-500 { background-image: linear-gradient(to right, #3b82f6, #1e40af) !important; }
+        body[data-theme="academic"] .bg-gradient-to-b.from-\\[\\#261619\\] { background-image: linear-gradient(to bottom, #ffffff, #f1f5f9) !important; }
+        body[data-theme="academic"] .glass-card-amber { background: rgba(255, 255, 255, 0.95) !important; border-color: rgba(59,130,246,0.3) !important; box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; }
+        body[data-theme="academic"] .avatar-option.selected { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5) !important; border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.15) !important; }
+        body[data-theme="academic"] ::-webkit-scrollbar-thumb { background: #3b82f6 !important; }
+        body[data-theme="academic"] #ai-chat-history { background-color: #f1f5f9 !important; border-color: #cbd5e1 !important; }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center p-0 md:p-4 text-slate-100 no-select">
+<body class="flex flex-col items-center justify-center p-2 md:p-4 text-slate-100 no-select" data-theme="classic">
 
-    <!-- Initial Signup Modal -->
     <div id="modal-initial-signup" class="fixed inset-0 bg-slate-950/95 z-[200] flex items-center justify-center p-4">
-        <div class="bg-gradient-to-b from-[#261619] to-[#0f090a] border-4 border-amber-500 rounded-3xl max-w-xl w-full shadow-2xl overflow-y-auto max-h-[95vh] text-center flex flex-col relative glow-active">
+        <div class="bg-gradient-to-b from-[#261619] to-[#0f090a] border-4 border-amber-500 rounded-3xl max-w-xl w-full shadow-2xl overflow-y-auto max-h-[95vh] text-center flex flex-col relative glow-active transition-all">
             <div class="relative w-full h-40 md:h-48 bg-slate-900 shrink-0">
-                <img src="https://placehold.co/600x300/451a03/f59e0b?text=Words+Hunter+AR+Hunsa" alt="Cover" class="w-full h-full object-cover opacity-80 border-b-4 border-amber-500" onerror="this.src=''; this.style.backgroundColor='#451a03';">
+                <img src="https://placehold.co/600x300/451a03/f59e0b?text=Words+Hunter+AR+Hunsa" alt="Cover" class="w-full h-full object-cover opacity-80 border-b-4 border-amber-500 transition-all">
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
                 <div class="absolute bottom-4 left-0 right-0 px-4">
-                    <h2 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">ลงชื่อเข้าสู่เกม</h2>
+                    <h2 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] transition-all">ลงชื่อเข้าสู่ระบบ</h2>
                 </div>
             </div>
             <div class="p-6 md:p-8 space-y-4">
-                <p class="text-sm text-slate-300 font-bold">ยินดีต้อนรับสู่ Words Hunter! (กรอกชื่อเพื่อบันทึกสถิติลงคลาวด์)</p>
+                <p class="text-sm text-slate-300 font-bold">ยินดีต้อนรับสู่เครือข่าย Words Hunter! (กรอกชื่อเพื่อบันทึกสถิติลงคลาวด์)</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left text-sm">
                     <div>
-                        <label class="block text-amber-400 font-bold mb-1">🧑‍🎓 ชื่อผู้เล่น (Username):</label>
-                        <input type="text" id="initial-username" placeholder="เช่น น้องกะทิ..." class="w-full bg-slate-950 text-white font-semibold px-4 py-3 rounded-xl border border-amber-500/30 focus:outline-none focus:border-amber-500">
+                        <label class="block text-amber-400 font-bold mb-1">🧑‍🎓 ชื่อผู้เล่น:</label>
+                        <input type="text" id="initial-username" placeholder="เช่น น้องกะทิ..." class="w-full bg-slate-950 text-white font-semibold px-4 py-3 rounded-xl border border-amber-500/30 focus:outline-none focus:border-amber-500 transition-colors">
                     </div>
                     <div>
-                        <label class="block text-amber-400 font-bold mb-1">🏫 ระดับชั้น (Grade):</label>
-                        <input type="text" id="initial-grade" placeholder="เช่น ป.4/2..." class="w-full bg-slate-950 text-white font-semibold px-4 py-3 rounded-xl border border-amber-500/30 focus:outline-none focus:border-amber-500">
+                        <label class="block text-amber-400 font-bold mb-1">🏫 ระดับชั้น:</label>
+                        <input type="text" id="initial-grade" placeholder="เช่น ป.4/2..." class="w-full bg-slate-950 text-white font-semibold px-4 py-3 rounded-xl border border-amber-500/30 focus:outline-none focus:border-amber-500 transition-colors">
                     </div>
                 </div>
                 <div class="text-left mt-2">
@@ -109,39 +134,34 @@
         </div>
     </div>
 
-    <!-- Main Container -->
-    <div id="game-container" class="w-full h-full max-w-7xl glass-card-amber md:rounded-3xl shadow-2xl overflow-hidden relative border border-amber-500/20 flex flex-col">
-        <!-- Header -->
+    <div id="game-container" class="w-full h-full max-w-7xl glass-card-amber rounded-3xl shadow-2xl overflow-hidden relative border border-amber-500/20 flex flex-col">
         <div class="historic-wall-pattern p-4 md:p-6 text-center border-b-4 border-amber-500 relative shrink-0">
-            <h1 class="text-4xl md:text-5xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] tracking-wide">Words Hunter AR Hunsa</h1>
-            <p class="text-xs md:text-sm font-semibold text-amber-100/90 tracking-widest uppercase mt-2">ระบบเรียนรู้คำศัพท์มาตรฐานสากล (A1-B2) & Local Content</p>
+            <h1 class="text-4xl md:text-5xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500 drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] tracking-wide transition-all">Words Hunter AR Hunsa</h1>
+            <p class="text-xs md:text-sm font-semibold text-amber-100/90 tracking-widest uppercase mt-2 transition-all">ระบบเรียนรู้คำศัพท์มาตรฐานสากล (A1-B2)</p>
         </div>
 
-        <!-- Top Bar -->
-        <div class="bg-slate-950/80 border-b border-white/5 px-4 md:px-6 py-3 flex flex-wrap justify-between items-center text-xs md:text-sm font-bold gap-4 shrink-0">
+        <div class="bg-slate-950/80 border-b border-white/5 px-4 md:px-6 py-3 flex flex-wrap justify-between items-center text-xs md:text-sm font-bold gap-4 shrink-0 transition-colors">
             <div class="flex items-center gap-3">
                 <span id="user-status-dot" class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
                 <span id="topbar-avatar" class="text-2xl hidden drop-shadow-md transition-all">👨‍🚀</span>
-                <span id="user-display-name" class="text-amber-200 text-sm md:text-base truncate max-w-[150px] md:max-w-xs">รอการเชื่อมต่อ Cloud...</span>
+                <span id="user-display-name" class="text-amber-200 text-sm md:text-base truncate max-w-[150px] md:max-w-xs transition-colors">รอการเชื่อมต่อ...</span>
             </div>
-            <div class="flex gap-3 md:gap-4 items-center">
-                <button onclick="window.toggleAuthModal()" class="text-cyan-400 hover:text-cyan-300 transition underline font-bold">🔑 โปรไฟล์</button>
+            <div class="flex gap-3 md:gap-4">
+                <button onclick="window.toggleAuthModal()" class="text-cyan-400 hover:text-cyan-300 transition underline font-bold">🔑 โปรไฟล์ (ธีม)</button>
                 <button onclick="window.toggleTeacherConsole()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 md:px-5 py-1.5 rounded-lg font-black transition shadow-lg flex items-center gap-2">⚙️ ตั้งค่า</button>
             </div>
         </div>
 
         <div id="screen-lobby" class="p-4 md:p-10 flex flex-col items-center flex-1 overflow-y-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 w-full max-w-6xl mb-8">
-                
-                <!-- Game Modes Selection -->
-                <div class="bg-slate-950/60 rounded-3xl border border-white/5 p-5 md:p-6 text-left shadow-xl flex flex-col justify-center h-full">
-                    <h3 class="text-2xl md:text-3xl font-black text-amber-400 mb-4 md:mb-6 pb-3 border-b border-white/10 text-center">🎮 เลือกโหมดการเล่น</h3>
+                <div class="bg-slate-950/60 rounded-3xl border border-white/5 p-5 md:p-6 text-left shadow-xl flex flex-col justify-center h-full transition-colors">
+                    <h3 class="text-2xl md:text-3xl font-black text-amber-400 mb-4 md:mb-6 pb-3 border-b border-white/10 text-center transition-colors">🎮 เลือกโหมดการเล่น</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                         <button onclick="window.runStartSequence('ar')" class="bg-gradient-to-br from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">🏃</span><span class="font-black text-lg md:text-xl">เล่นคนเดียว<br><span class="text-sm">(เปิดกล้อง AR)</span></span>
                         </button>
                         <button onclick="window.runStartSequence('kahoot')" class="bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
-                            <span class="text-4xl md:text-5xl mb-1">🖱️</span><span class="font-black text-lg md:text-xl">เล่นคนเดียว<br><span class="text-sm">(คลิกตอบ 4 สี)</span></span>
+                            <span class="text-4xl md:text-5xl mb-1">🖱️</span><span class="font-black text-lg md:text-xl">เล่นคนเดียว<br><span class="text-sm">(จิ้มตอบ 4 สี)</span></span>
                         </button>
                         <button onclick="window.createRoomFirebase()" class="bg-gradient-to-br from-purple-500 to-fuchsia-600 hover:from-purple-400 hover:to-fuchsia-500 text-white rounded-2xl p-3 md:p-4 shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center text-center gap-2">
                             <span class="text-4xl md:text-5xl mb-1">👑</span><span class="font-black text-lg md:text-xl">สร้างห้อง<br><span class="text-sm">(เล่นกับเพื่อน)</span></span>
@@ -156,35 +176,28 @@
                     </div>
                 </div>
 
-                <!-- Tutor AI -->
-                <div class="bg-slate-950/60 rounded-3xl border border-white/5 p-5 md:p-6 text-left flex flex-col shadow-xl h-full">
+                <div class="bg-slate-950/60 rounded-3xl border border-white/5 p-5 md:p-6 text-left flex flex-col shadow-xl h-full transition-colors">
                     <h3 class="text-xl md:text-2xl font-black text-cyan-400 mb-2 pb-3 border-b border-white/10 flex items-center gap-2">💬 ติวเตอร์ย่าโม AI</h3>
-                    <p class="text-xs md:text-sm text-slate-300 mb-4">ลองพิมพ์ซักถามคำศัพท์ หรือประวัติศาสตร์เมืองโคราชได้เลยเด้อจ้า!</p>
-                    <div id="ai-chat-history" class="flex-1 min-h-[120px] max-h-[200px] overflow-y-auto bg-slate-900/90 p-4 rounded-xl border border-white/5 text-xs md:text-sm space-y-3 mb-4">
-                        <div class="text-slate-400 italic">🤖 ย่าโม AI: "พร้อมลุยกันหรือยังจ๊ะ! ถามศัพท์ที่สงสัยมาก่อนได้เลย"</div>
+                    <p class="text-xs md:text-sm text-slate-300 mb-4 transition-colors">ลองพิมพ์ซักถามคำศัพท์ หรือประวัติศาสตร์เมืองโคราชได้เลยเด้อจ้า!</p>
+                    <div id="ai-chat-history" class="flex-1 min-h-[120px] max-h-[200px] overflow-y-auto bg-slate-900/90 p-4 rounded-xl border border-white/5 text-xs md:text-sm space-y-3 mb-4 transition-colors">
+                        <div class="text-slate-400 italic">🤖 ย่าโม AI: "ระบบพร้อมทำงาน! สวัสดีผู้ควบคุม ยินดีต้อนรับสู่เครือข่าย Words Hunter"</div>
                     </div>
                     <div class="flex gap-2">
-                        <input type="text" id="ai-chat-input" placeholder="พิมพ์คุยกับ AI ที่นี่..." class="flex-1 bg-slate-800 border border-white/10 px-3 md:px-4 py-2 md:py-3 rounded-xl text-sm md:text-base font-bold text-white focus:outline-none focus:border-cyan-500" onkeypress="if(event.key==='Enter') window.sendChatMessage()">
+                        <input type="text" id="ai-chat-input" placeholder="พิมพ์คุยกับ AI ที่นี่..." class="flex-1 bg-slate-800 border border-white/10 px-3 md:px-4 py-2 md:py-3 rounded-xl text-sm md:text-base font-bold text-white focus:outline-none focus:border-cyan-500 transition-colors">
                         <button onclick="window.sendChatMessage()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm md:text-base px-4 md:px-6 rounded-xl transition-all">ส่ง</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Leaderboard -->
-            <div class="w-full max-w-6xl bg-slate-950/40 border border-white/10 rounded-3xl p-5 md:p-6 shadow-lg text-left">
+            <div class="w-full max-w-6xl bg-slate-950/40 border border-white/10 rounded-3xl p-5 md:p-6 shadow-lg text-left transition-colors">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 pb-3 border-b border-white/5 gap-4">
-                    <h3 class="text-xl md:text-2xl font-black text-amber-400 flex items-center gap-2 shrink-0">
-                        🏆 กระดานผู้นำระดับชาติ (Top 10)
-                        <span id="lb-sync-status" class="text-[10px] md:text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/50 animate-pulse hidden">Live DB</span>
+                    <h3 class="text-xl md:text-2xl font-black text-amber-400 flex items-center gap-2 shrink-0 transition-colors">
+                        🏆 กระดานผู้นำ (Top 10)
+                        <span id="lb-sync-status" class="text-[10px] md:text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/50 animate-pulse hidden">Live</span>
                     </h3>
                     <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                         <select id="lb-filter-diff" onchange="window.updateLeaderboardCategoryFilter()" class="bg-slate-800 border border-white/20 text-amber-400 px-3 py-1.5 rounded-lg font-bold focus:outline-none text-xs md:text-sm w-full sm:w-auto cursor-pointer hover:border-amber-400 transition-colors">
-                            <option value="A1" selected>🟢 A1 (Beginner)</option>
-                            <option value="A2">🟡 A2 (Elementary)</option>
-                            <option value="B1">🟠 B1 (Intermediate)</option>
-                            <option value="B2">🔴 B2 (Upper-Intermediate)</option>
-                            <option value="KORAT">💖 โคราชบ้านเอ็ง</option>
-                            <option value="ADV">🌋 Adventure Mode</option>
+                            <option value="A1" selected>🟢 A1 (Beginner)</option><option value="A2">🟡 A2 (Elementary)</option><option value="B1">🟠 B1 (Intermediate)</option><option value="B2">🔴 B2 (Upper-Intermediate)</option><option value="KORAT">💖 โคราชบ้านเอ็ง</option><option value="ADV">🌋 Adventure Mode</option>
                         </select>
                         <select id="lb-filter-cat" onchange="window.loadLeaderboardSafe()" class="bg-slate-800 border border-white/20 text-cyan-400 px-3 py-1.5 rounded-lg font-bold focus:outline-none text-xs md:text-sm w-full sm:w-auto cursor-pointer hover:border-cyan-400 transition-colors"></select>
                         <button onclick="window.loadLeaderboardSafe()" class="bg-slate-800 hover:bg-emerald-600/90 text-slate-300 hover:text-white border border-slate-600 hover:border-emerald-500 px-3 py-1.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 font-bold text-xs md:text-sm w-full sm:w-auto">
@@ -195,86 +208,77 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm md:text-base whitespace-nowrap">
                         <thead>
-                            <tr class="bg-slate-900/60 text-amber-300 font-black border-b border-white/5">
+                            <tr class="bg-slate-900/60 text-amber-300 font-black border-b border-white/5 transition-colors">
                                 <th class="p-3 md:p-4 text-center">อันดับ</th><th class="p-3 md:p-4">โปรไฟล์ผู้เล่น</th><th class="p-3 md:p-4 text-center">ระดับ</th>
                                 <th class="p-3 md:p-4 text-center">หมวดหมู่</th><th class="p-3 md:p-4 text-center">คะแนน</th><th class="p-3 md:p-4 text-center">เวลา/ข้อ</th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboard-body">
-                            <tr><td colspan="6" class="p-6 text-center text-slate-400 italic font-bold">ระบบกำลังเชื่อมต่อ Cloud Firestore...</td></tr>
-                        </tbody>
+                        <tbody id="leaderboard-body"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
         <div id="screen-game" class="hidden fixed inset-0 z-[100] bg-slate-950 flex-col w-full h-full">
-            
-            <!-- HUD -->
             <div class="absolute top-2 md:top-4 left-2 right-2 md:left-4 md:right-4 z-20 flex justify-between items-start pointer-events-none gap-2">
-                <div class="bg-slate-900/90 backdrop-blur-md border-2 md:border-4 border-amber-500/50 rounded-2xl p-2 md:p-4 text-white flex flex-col shadow-xl pointer-events-auto min-w-[80px] md:min-w-[120px] text-center">
-                    <span class="text-[8px] md:text-sm text-amber-400 font-extrabold uppercase tracking-widest mb-0.5 md:mb-1">คะแนนสะสม</span>
-                    <span class="text-3xl md:text-5xl font-black text-yellow-400" id="hud-score-p1">0</span>
+                <div class="bg-slate-900/90 backdrop-blur-md border-2 md:border-4 border-amber-500/50 rounded-2xl p-2 md:p-4 text-white flex flex-col shadow-xl pointer-events-auto min-w-[80px] md:min-w-[120px] text-center transition-colors">
+                    <span class="text-[8px] md:text-sm text-amber-400 font-extrabold uppercase tracking-widest mb-0.5 md:mb-1 transition-colors">คะแนนสะสม</span>
+                    <span class="text-3xl md:text-5xl font-black text-yellow-400 transition-colors" id="hud-score-p1">0</span>
                     <div id="hud-streak-wrap" class="mt-1 opacity-0"><span id="hud-streak" class="inline-flex items-center gap-1 text-[10px] md:text-sm font-black text-orange-400">🔥 x0</span></div>
                 </div>
 
-                <div class="flex-1 max-w-3xl mx-1 md:mx-2 bg-gradient-to-r from-amber-800 via-slate-900 to-amber-800 border-2 md:border-4 border-amber-400 text-white rounded-2xl py-1 px-3 md:py-2 md:px-6 text-center shadow-xl pointer-events-auto glow-active" id="hud-instruction-box">
-                    <div class="text-[10px] md:text-sm text-amber-200 font-black uppercase tracking-wider flex justify-center items-center gap-1 md:gap-2 mb-1">
-                        <span class="hidden sm:inline">🔍 ค้นหาคำแปล</span><span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-extrabold" id="hud-question-count">ข้อ 1/10</span>
+                <div class="flex-1 max-w-3xl mx-1 md:mx-2 bg-gradient-to-r from-amber-800 via-slate-900 to-amber-800 border-2 md:border-4 border-amber-400 text-white rounded-2xl py-1 px-3 md:py-2 md:px-6 text-center shadow-xl pointer-events-auto glow-active transition-all" id="hud-instruction-box">
+                    <div class="text-[10px] md:text-sm text-amber-200 font-black uppercase tracking-wider flex justify-center items-center gap-1 md:gap-2 mb-1 transition-colors">
+                        <span class="hidden sm:inline">🔍 ค้นหาคำแปล</span><span class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-extrabold transition-colors" id="hud-question-count">ข้อ 1/10</span>
                     </div>
-                    <div class="text-2xl md:text-4xl lg:text-5xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-white to-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate" id="hud-instruction-text" style="font-family: 'Kanit', sans-serif;">วิเคราะห์</div>
+                    <div class="text-2xl md:text-4xl lg:text-5xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-white to-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] truncate transition-all" id="hud-instruction-text" style="font-family: 'Kanit', sans-serif;">วิเคราะห์</div>
                 </div>
 
-                <div class="bg-slate-900/90 backdrop-blur-md border-2 md:border-4 border-cyan-500/50 rounded-2xl p-2 md:p-4 text-white flex flex-col text-center shadow-xl pointer-events-auto min-w-[80px] md:min-w-[120px]">
+                <div class="bg-slate-900/90 backdrop-blur-md border-2 md:border-4 border-cyan-500/50 rounded-2xl p-2 md:p-4 text-white flex flex-col text-center shadow-xl pointer-events-auto min-w-[80px] md:min-w-[120px] transition-colors">
                     <span class="text-[8px] md:text-sm text-cyan-400 font-extrabold uppercase tracking-wider mb-0.5 md:mb-1">เวลา</span>
                     <span class="text-3xl md:text-5xl font-black text-rose-400 drop-shadow-md" id="hud-timer">20s</span>
                 </div>
             </div>
 
-            <!-- Bonus Banner -->
-            <div id="bonus-banner" class="hidden absolute top-24 md:top-40 left-1/2 transform -translate-x-1/2 z-30 bg-gradient-to-r from-red-600 via-amber-500 to-red-600 border-2 md:border-4 border-yellow-300 text-white rounded-full px-6 md:px-8 py-2 md:py-3 text-center shadow-[0_0_20px_rgba(245,158,11,0.9)] animate-bounce w-[90%] max-w-sm">
-                <div class="text-[10px] md:text-sm font-black uppercase tracking-widest text-yellow-200">🔥 COMBO STREAK 🔥</div><div id="bonus-banner-text" class="text-lg md:text-3xl font-extrabold">ตอบถูกต่อเนื่อง!</div>
+            <div id="bonus-banner" class="hidden absolute top-24 md:top-40 left-1/2 transform -translate-x-1/2 z-30 bg-gradient-to-r from-red-600 via-amber-500 to-red-600 border-2 md:border-4 border-yellow-300 text-white rounded-full px-6 md:px-8 py-2 md:py-3 text-center shadow-[0_0_20px_rgba(245,158,11,0.9)] animate-bounce w-[90%] max-w-sm transition-all">
+                <div class="text-[10px] md:text-sm font-black uppercase tracking-widest text-yellow-200 transition-colors">🔥 COMBO STREAK 🔥</div><div id="bonus-banner-text" class="text-lg md:text-3xl font-extrabold">ตอบถูกต่อเนื่อง!</div>
             </div>
 
-            <!-- Feedback Popup -->
             <div id="feedback-popup" class="hidden absolute inset-0 flex items-center justify-center z-40 bg-black/75 pointer-events-none p-4">
                 <div id="feedback-card" class="bg-slate-900 border-4 border-amber-500 text-center px-8 py-8 md:px-16 md:py-12 rounded-[2rem] md:rounded-[3rem] shadow-[0_0_40px_rgba(0,0,0,1)] transform scale-50 opacity-0 transition-all duration-300 w-full max-w-lg">
-                    <div id="feedback-emoji" class="text-7xl md:text-9xl mb-4 md:mb-6">✅</div><div id="feedback-title" class="text-4xl md:text-7xl font-black text-amber-400">ถูกต้อง!</div>
-                    <div id="feedback-detail" class="text-xl md:text-4xl font-bold text-slate-200 mt-4 md:mt-6 break-words">คำอธิบาย</div>
+                    <div id="feedback-emoji" class="text-7xl md:text-9xl mb-4 md:mb-6">✅</div><div id="feedback-title" class="text-4xl md:text-7xl font-black text-amber-400 transition-colors">ถูกต้อง!</div>
+                    <div id="feedback-detail" class="text-xl md:text-4xl font-bold text-slate-200 mt-4 md:mt-6 break-words transition-colors">คำอธิบาย</div>
                 </div>
             </div>
 
-            <!-- Overlays -->
             <div id="countdown-overlay" class="hidden absolute inset-0 bg-slate-950/90 z-[120] flex-col items-center justify-center pointer-events-none p-4 text-center">
                 <div id="countdown-text" class="text-[100px] md:text-[200px] lg:text-[250px] font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] transition-all duration-300 leading-none">3</div>
                 <div class="text-xl md:text-4xl font-bold text-white mt-4 md:mt-8 tracking-widest" id="countdown-sub">เตรียมตัวให้พร้อม!</div>
             </div>
+
             <div id="transition-overlay" class="hidden absolute inset-0 bg-slate-950/95 z-[130] flex-col items-center justify-center pointer-events-none p-4 text-center">
                 <div class="text-6xl md:text-8xl mb-4 animate-spin-slow">🌀</div>
                 <h2 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-500 drop-shadow-md mb-2">สลับโหมดการเล่น!</h2>
                 <div class="text-2xl md:text-4xl font-bold text-white tracking-widest" id="transition-sub">เตรียมขยับร่างกาย...</div>
             </div>
 
-            <!-- AR Camera Canvas (REMOVED CSS SCALING - Using Native JS Scale for perfect touch bounds) -->
-            <div id="ar-container" class="relative flex-1 w-full bg-slate-900 flex items-center justify-center overflow-hidden">
+            <div id="ar-container" class="relative flex-1 w-full bg-slate-900 flex items-center justify-center overflow-hidden transition-colors">
                 <video id="webcam" autoplay playsinline muted class="absolute pointer-events-none" style="opacity: 0.01; width: 10px; height: 10px;"></video>
                 <canvas id="game-canvas" class="max-w-full max-h-full object-contain" style="touch-action: none;"></canvas>
-                <div id="ai-loading" class="hidden absolute inset-0 bg-slate-950 z-30 flex-col items-center justify-center p-6 text-center">
-                    <div class="relative w-20 h-20 md:w-32 md:h-32 mb-6 md:mb-8"><div class="absolute inset-0 rounded-full border-4 md:border-8 border-white/10"></div><div class="absolute inset-0 rounded-full border-4 md:border-8 border-amber-500 border-t-transparent animate-spin"></div></div>
+                <div id="ai-loading" class="hidden absolute inset-0 bg-slate-950 z-30 flex-col items-center justify-center p-6 text-center transition-colors">
+                    <div class="relative w-20 h-20 md:w-32 md:h-32 mb-6 md:mb-8"><div class="absolute inset-0 rounded-full border-4 md:border-8 border-white/10"></div><div class="absolute inset-0 rounded-full border-4 md:border-8 border-amber-500 border-t-transparent animate-spin transition-colors"></div></div>
                     <h3 class="text-2xl md:text-4xl font-black text-white mb-2 md:mb-4">กำลังเปิดระบบกล้อง AI...</h3>
                     <p class="text-xs md:text-base text-slate-400 max-w-sm">โปรดอนุญาตให้สิทธิ์การเข้าถึงกล้อง ระบบจะโหลดทันทีที่ได้รับอนุญาต</p>
                 </div>
             </div>
 
-            <!-- Kahoot Fallback Canvas -->
-            <div id="kahoot-container" class="hidden flex-1 w-full bg-slate-950 flex-col items-center justify-center p-4 md:p-8 gap-4 md:gap-6 relative overflow-y-auto">
+            <div id="kahoot-container" class="hidden flex-1 w-full bg-slate-950 flex-col items-center justify-center p-4 md:p-8 gap-4 md:gap-6 relative overflow-y-auto transition-colors">
                 <div id="kahoot-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 w-full max-w-6xl pb-4 pt-28 md:pt-32"></div>
             </div>
 
-            <!-- Bottom Control Bar -->
-            <div class="bg-slate-950 border-t-2 md:border-t-4 border-white/10 p-3 md:p-5 flex flex-wrap justify-between items-center text-white gap-2 md:gap-4 z-50 shrink-0">
-                <div class="text-slate-300 font-bold text-xs md:text-xl truncate flex-1">
-                    <span class="hidden sm:inline">🏆 โหมด: </span><span id="current-diff-lbl" class="font-black text-amber-400">-</span> | <span id="current-category-lbl" class="font-black text-cyan-400 hidden sm:inline">-</span>
+            <div class="bg-slate-950 border-t-2 md:border-t-4 border-white/10 p-3 md:p-5 flex flex-wrap justify-between items-center text-white gap-2 md:gap-4 z-50 shrink-0 transition-colors">
+                <div class="text-slate-300 font-bold text-xs md:text-xl truncate flex-1 transition-colors">
+                    <span class="hidden sm:inline">🏆 โหมด: </span><span id="current-diff-lbl" class="font-black text-amber-400 transition-colors">-</span> | <span id="current-category-lbl" class="font-black text-cyan-400 hidden sm:inline transition-colors">-</span>
                     <span id="current-play-mode" class="font-bold text-emerald-400 ml-1 md:ml-2 text-[10px] md:text-base">รอเริ่มเกม...</span>
                 </div>
                 <div class="flex gap-2 md:gap-4">
@@ -284,22 +288,21 @@
             </div>
         </div>
 
-        <!-- Results Screen -->
-        <div id="screen-results" class="hidden fixed inset-0 z-[100] bg-slate-950 overflow-y-auto p-4 md:p-10 text-center flex-col items-center justify-center">
+        <div id="screen-results" class="hidden fixed inset-0 z-[100] bg-slate-950 overflow-y-auto p-4 md:p-10 text-center flex-col items-center justify-center transition-colors">
             <div class="max-w-4xl w-full mx-auto my-auto py-8">
                 <div class="text-6xl md:text-8xl mb-4 md:mb-6 animate-bounce">🏆</div>
-                <h1 class="text-3xl md:text-5xl font-black text-amber-400 mb-2 md:mb-4">สรุปผลการแข่งขัน!</h1>
-                <p class="text-sm md:text-xl text-slate-300 font-bold mb-6 md:mb-10" id="res-mode-label">หมวดหมู่และระดับความยาก</p>
+                <h1 class="text-3xl md:text-5xl font-black text-amber-400 mb-2 md:mb-4 transition-colors">สรุปผลการแข่งขัน!</h1>
+                <p class="text-sm md:text-xl text-slate-300 font-bold mb-6 md:mb-10 transition-colors" id="res-mode-label">หมวดหมู่และระดับความยาก</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mb-6 md:mb-10">
-                    <div class="bg-slate-900 border-2 md:border-4 border-amber-500/30 rounded-2xl md:rounded-3xl p-6 flex flex-col justify-center shadow-xl">
-                        <div class="text-sm md:text-xl text-amber-400 font-black uppercase tracking-wider mb-1 md:mb-2">คะแนนที่ทำได้ของคุณ</div><div class="text-6xl md:text-8xl font-black text-yellow-400" id="res-score-p1">0</div>
+                    <div class="bg-slate-900 border-2 md:border-4 border-amber-500/30 rounded-2xl md:rounded-3xl p-6 flex flex-col justify-center shadow-xl transition-colors">
+                        <div class="text-sm md:text-xl text-amber-400 font-black uppercase tracking-wider mb-1 md:mb-2 transition-colors">คะแนนที่ทำได้ของคุณ</div><div class="text-6xl md:text-8xl font-black text-yellow-400 transition-colors" id="res-score-p1">0</div>
                     </div>
-                    <div class="bg-slate-900 border-2 md:border-4 border-cyan-500/30 rounded-2xl md:rounded-3xl p-6 flex flex-col justify-center shadow-xl">
-                        <div class="text-sm md:text-xl text-cyan-400 font-black uppercase tracking-wider mb-1 md:mb-2">ความเร็วเฉลี่ยต่อข้อ</div><div class="text-5xl md:text-7xl font-black text-cyan-400" id="res-avg-time">0.00s</div>
+                    <div class="bg-slate-900 border-2 md:border-4 border-cyan-500/30 rounded-2xl md:rounded-3xl p-6 flex flex-col justify-center shadow-xl transition-colors">
+                        <div class="text-sm md:text-xl text-cyan-400 font-black uppercase tracking-wider mb-1 md:mb-2 transition-colors">ความเร็วเฉลี่ยต่อข้อ</div><div class="text-5xl md:text-7xl font-black text-cyan-400 transition-colors" id="res-avg-time">0.00s</div>
                     </div>
-                    <div class="bg-slate-900 border-2 md:border-4 border-orange-500/30 rounded-2xl md:rounded-3xl p-6 flex flex-col justify-center shadow-xl">
-                        <div class="text-sm md:text-xl text-orange-400 font-black uppercase tracking-wider mb-1 md:mb-2">คอมโบสูงสุด</div><div class="text-5xl md:text-7xl font-black text-orange-400" id="res-max-streak">🔥 0</div>
+                    <div class="bg-slate-900 border-2 md:border-4 border-orange-500/30 rounded-2xl md:rounded-3xl p-6 flex flex-col justify-center shadow-xl transition-colors">
+                        <div class="text-sm md:text-xl text-orange-400 font-black uppercase tracking-wider mb-1 md:mb-2 transition-colors">คอมโบสูงสุด</div><div class="text-5xl md:text-7xl font-black text-orange-400 transition-colors" id="res-max-streak">🔥 0</div>
                     </div>
                 </div>
 
@@ -310,29 +313,28 @@
             </div>
         </div>
 
-        <!-- Settings (Teacher Console) -->
         <div id="teacher-console-overlay" class="hidden fixed inset-0 bg-slate-950/80 z-[150] flex justify-end">
-            <div class="bg-slate-900 w-full max-w-md h-full shadow-2xl border-l-4 border-amber-500 p-6 overflow-y-auto text-slate-100 flex flex-col justify-between">
+            <div class="bg-slate-900 w-full max-w-md h-full shadow-2xl border-l-4 border-amber-500 p-6 overflow-y-auto text-slate-100 flex flex-col justify-between transition-colors">
                 <div>
                     <div class="flex justify-between items-center mb-6 pb-3 border-b border-white/15">
-                        <h2 class="text-2xl font-black text-amber-400 flex items-center gap-2">⚙️ ตั้งค่าระบบเกม</h2><button onclick="window.toggleTeacherConsole()" class="text-slate-400 hover:text-white font-black text-4xl">×</button>
+                        <h2 class="text-2xl font-black text-amber-400 flex items-center gap-2 transition-colors">⚙️ ตั้งค่าระบบเกม</h2><button onclick="window.toggleTeacherConsole()" class="text-slate-400 hover:text-white font-black text-4xl">×</button>
                     </div>
                     <div id="teacher-control-zone" class="space-y-6">
-                        <div class="bg-slate-950 p-4 rounded-2xl border border-white/10">
-                            <h4 class="text-lg text-yellow-300 font-extrabold mb-3">📚 เลือกระดับและหมวดหมู่</h4>
+                        <div class="bg-slate-950 p-4 rounded-2xl border border-white/10 transition-colors">
+                            <h4 class="text-lg text-yellow-300 font-extrabold mb-3 transition-colors">📚 เลือกระดับและหมวดหมู่</h4>
                             <div class="space-y-3 text-sm md:text-base">
-                                <div><label class="block text-slate-300 font-bold mb-1">ระดับความยาก CEFR:</label><select id="difficulty-input" onchange="window.adjustCategorySelection()" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none"><option value="A1" selected>🟢 A1 (Beginner)</option><option value="A2">🟡 A2 (Elementary)</option><option value="B1">🟠 B1 (Intermediate)</option><option value="B2">🔴 B2 (Upper-Intermediate)</option><option value="KORAT">💖 โคราชบ้านเอ็ง</option></select></div>
-                                <div><label class="block text-slate-300 font-bold mb-1">หมวดหมู่ชุดคำเรียน:</label><select id="vocab-category-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none"></select></div>
-                                <div><label class="block text-slate-300 font-bold mb-1">เวลาต่อข้อ (วินาที):</label><select id="timer-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none"><option value="10">10 วินาที (เร็วมาก)</option><option value="15">15 วินาที</option><option value="20" selected>20 วินาที (มาตรฐาน)</option><option value="30">30 วินาที</option></select></div>
-                                <div><label class="block text-slate-300 font-bold mb-1">รูปแบบคำถาม (ภาษา):</label><select id="question-lang-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none"><option value="th-en" selected>🇹🇭 ถามไทย ➔ 🇬🇧 ตอบอังกฤษ</option><option value="en-th">🇬🇧 ถามอังกฤษ ➔ 🇹🇭 ตอบไทย</option></select></div>
+                                <div><label class="block text-slate-300 font-bold mb-1 transition-colors">ระดับความยาก CEFR:</label><select id="difficulty-input" onchange="window.adjustCategorySelection()" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none transition-colors"><option value="A1" selected>🟢 A1 (Beginner)</option><option value="A2">🟡 A2 (Elementary)</option><option value="B1">🟠 B1 (Intermediate)</option><option value="B2">🔴 B2 (Upper-Intermediate)</option><option value="KORAT">💖 โคราชบ้านเอ็ง</option></select></div>
+                                <div><label class="block text-slate-300 font-bold mb-1 transition-colors">หมวดหมู่ชุดคำเรียน:</label><select id="vocab-category-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none transition-colors"></select></div>
+                                <div><label class="block text-slate-300 font-bold mb-1 transition-colors">เวลาต่อข้อ (วินาที):</label><select id="timer-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none transition-colors"><option value="10">10 วินาที (เร็วมาก)</option><option value="15">15 วินาที</option><option value="20" selected>20 วินาที (มาตรฐาน)</option><option value="30">30 วินาที</option></select></div>
+                                <div><label class="block text-slate-300 font-bold mb-1 transition-colors">รูปแบบคำถาม (ภาษา):</label><select id="question-lang-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none transition-colors"><option value="th-en" selected>🇹🇭 ถามไทย ➔ 🇬🇧 ตอบอังกฤษ</option><option value="en-th">🇬🇧 ถามอังกฤษ ➔ 🇹🇭 ตอบไทย</option></select></div>
                             </div>
                         </div>
-                        <div class="bg-slate-950 p-4 rounded-2xl border border-white/10">
-                            <h4 class="text-lg text-amber-400 font-extrabold mb-3">⚙️ ตั้งค่าระบบ AR (กล้อง)</h4>
+                        <div class="bg-slate-950 p-4 rounded-2xl border border-white/10 transition-colors">
+                            <h4 class="text-lg text-amber-400 font-extrabold mb-3 transition-colors">⚙️ ตั้งค่าระบบ AR (กล้อง)</h4>
                             <div class="space-y-3 text-sm md:text-base">
-                                <div><label class="block text-slate-300 font-bold mb-1">จำนวนตัวเลือก (2-6):</label><input type="number" id="custom-target-count" value="4" min="2" max="6" class="w-full bg-slate-800 px-3 py-2 rounded-lg text-white font-bold border border-white/20 focus:outline-none"></div>
-                                <div><label class="block text-slate-300 font-bold mb-1">รูปแบบเป้าหมาย (โหมด AR):</label><select id="moving-target-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none"><option value="false" selected>🛑 นิ่งอยู่กับที่ (มาตรฐาน)</option><option value="true">☄️ ลอยเด้งไปมา (ท้าทาย)</option></select></div>
-                                <div><label class="block text-slate-300 font-bold mb-1">ส่วนตรวจจับ (AI Tracking):</label><select id="tracking-target-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none"><option value="all" selected>⭐ ทั้งหมด (นิ้วชี้ซ้าย, ขวา, ลำตัว)</option><option value="hands">👆 เฉพาะนิ้วชี้ (มือ)</option><option value="body">👤 เฉพาะลำตัว</option></select></div>
+                                <div><label class="block text-slate-300 font-bold mb-1 transition-colors">จำนวนตัวเลือก (2-6):</label><input type="number" id="custom-target-count" value="4" min="2" max="6" class="w-full bg-slate-800 px-3 py-2 rounded-lg text-white font-bold border border-white/20 focus:outline-none transition-colors"></div>
+                                <div><label class="block text-slate-300 font-bold mb-1 transition-colors">รูปแบบเป้าหมาย (โหมด AR):</label><select id="moving-target-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none transition-colors"><option value="false" selected>🛑 นิ่งอยู่กับที่ (มาตรฐาน)</option><option value="true">☄️ ลอยเด้งไปมา (ท้าทาย)</option></select></div>
+                                <div><label class="block text-slate-300 font-bold mb-1 transition-colors">ส่วนตรวจจับ (AI Tracking):</label><select id="tracking-target-input" class="w-full bg-slate-800 border border-white/20 text-white px-3 py-2 rounded-lg font-bold focus:outline-none transition-colors"><option value="all" selected>⭐ ทั้งหมด (นิ้วชี้ซ้าย, ขวา, ลำตัว)</option><option value="hands">👆 เฉพาะนิ้วชี้ (มือ)</option><option value="body">👤 เฉพาะลำตัว</option></select></div>
                             </div>
                         </div>
                     </div>
@@ -340,25 +342,32 @@
             </div>
         </div>
 
-        <!-- Auth Modal -->
         <div id="modal-auth" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
-            <div class="bg-slate-900 border-2 border-amber-500 p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl relative text-white max-h-[95vh] overflow-y-auto">
+            <div class="bg-slate-900 border-2 border-amber-500 p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl relative text-white max-h-[95vh] overflow-y-auto transition-colors">
                 <button onclick="window.toggleAuthModal()" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
-                <h2 class="text-xl md:text-2xl font-black text-amber-400 text-center mb-4 md:mb-6 pb-2 md:pb-3 border-b border-white/10">🎓 แก้ไขข้อมูลผู้เล่น</h2>
+                <h2 class="text-xl md:text-2xl font-black text-amber-400 text-center mb-4 md:mb-6 pb-2 md:pb-3 border-b border-white/10 transition-colors">🎓 โปรไฟล์ส่วนตัว</h2>
                 <div class="space-y-4 md:space-y-5 mb-6 md:mb-8 text-sm md:text-base">
-                    <div><label class="block text-slate-300 font-bold mb-1 md:mb-2">ชื่อนักเรียน (Username):</label><input type="text" id="auth-username" class="w-full bg-slate-950 text-white font-bold px-3 py-2 md:px-4 md:py-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500"></div>
-                    <div><label class="block text-slate-300 font-bold mb-1 md:mb-2">ระดับชั้น (Grade):</label><input type="text" id="auth-grade" class="w-full bg-slate-950 text-white font-bold px-3 py-2 md:px-4 md:py-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500"></div>
-                    <div class="text-left mt-2"><label class="block text-amber-400 font-bold mb-2 text-sm">🎭 เปลี่ยนรูปโปรไฟล์ประจำตัว:</label><div id="avatar-container-edit" class="flex flex-wrap gap-2 justify-center bg-slate-950 p-4 rounded-xl border border-white/10 shadow-inner"></div></div>
+                    <div><label class="block text-slate-300 font-bold mb-1 md:mb-2 transition-colors">ชื่อผู้เล่น:</label><input type="text" id="auth-username" class="w-full bg-slate-950 text-white font-bold px-3 py-2 md:px-4 md:py-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500 transition-colors"></div>
+                    <div><label class="block text-slate-300 font-bold mb-1 md:mb-2 transition-colors">ระดับชั้น:</label><input type="text" id="auth-grade" class="w-full bg-slate-950 text-white font-bold px-3 py-2 md:px-4 md:py-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500 transition-colors"></div>
+                    <!-- [A.E.G.I.S THEME SELECTOR] -->
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1 md:mb-2 transition-colors">🎨 ธีมหน้าจอ (Theme):</label>
+                        <select id="auth-theme" class="w-full bg-slate-950 text-white font-bold px-3 py-2 md:px-4 md:py-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-500 transition-colors" onchange="window.changeTheme(this.value)">
+                            <option value="classic">🔥 โคราชคลาสสิก (Classic Amber)</option>
+                            <option value="cyber">🌌 ไซเบอร์สเปซ (Cyberpunk Neon)</option>
+                            <option value="academic">🏫 สถาบันวิชาการ (Academic Light)</option>
+                        </select>
+                    </div>
+                    <div class="text-left mt-2"><label class="block text-amber-400 font-bold mb-2 text-sm transition-colors">🎭 เปลี่ยนรูปโปรไฟล์ประจำตัว:</label><div id="avatar-container-edit" class="flex flex-wrap gap-2 justify-center bg-slate-950 p-4 rounded-xl border border-white/10 shadow-inner transition-colors"></div></div>
                 </div>
                 <button onclick="window.updateProfileSafe()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl">💾 บันทึกการเปลี่ยนแปลง</button>
             </div>
         </div>
 
-        <!-- Quit Confirmation -->
         <div id="modal-quit-confirm" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
-            <div class="bg-slate-900 border-2 border-white/10 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl">
-                <div class="text-5xl md:text-6xl mb-3 md:mb-4 animate-bounce">⚠️</div><h3 class="text-2xl md:text-3xl font-bold text-white mb-2">ต้องการออกจากเกม?</h3>
-                <p class="text-sm md:text-lg text-slate-400 mb-6 md:mb-8">คะแนนที่เก็บมาในรอบนี้จะไม่ถูกบันทึกนะจ๊ะ</p>
+            <div class="bg-slate-900 border-2 border-white/10 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl transition-colors">
+                <div class="text-5xl md:text-6xl mb-3 md:mb-4 animate-bounce">⚠️</div><h3 class="text-2xl md:text-3xl font-bold text-white mb-2 transition-colors">ต้องการออกจากเกม?</h3>
+                <p class="text-sm md:text-lg text-slate-400 mb-6 md:mb-8 transition-colors">คะแนนที่เก็บมาในรอบนี้จะไม่ถูกบันทึกนะจ๊ะ</p>
                 <div class="flex gap-3 md:gap-4 text-base md:text-lg font-bold">
                     <button onclick="window.confirmQuit(true)" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-3 md:py-4 rounded-xl transition">ออกเลย</button>
                     <button onclick="window.confirmQuit(false)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 md:py-4 rounded-xl transition">เล่นต่อ</button>
@@ -366,47 +375,44 @@
             </div>
         </div>
         
-        <!-- Join Room Modal -->
         <div id="modal-join-room" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center p-4">
-            <div class="bg-slate-900 border-2 border-cyan-500 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl relative">
+            <div class="bg-slate-900 border-2 border-cyan-500 p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl relative transition-colors">
                 <button onclick="window.hideModal('modal-join-room')" class="absolute top-4 right-5 text-slate-400 hover:text-white font-bold text-3xl">×</button>
-                <h3 class="text-2xl md:text-3xl font-bold text-white mb-4">เข้าร่วมห้องเพื่อน</h3><p class="text-sm md:text-base text-slate-400 mb-4">กรุณากรอกรหัสห้อง 6 หลักเพื่อเข้าร่วม:</p>
-                <input type="text" id="join-room-input" maxlength="6" class="w-full bg-slate-950 text-white font-bold text-center text-4xl tracking-[0.5em] px-4 py-4 rounded-xl border border-white/10 focus:outline-none focus:border-cyan-500 mb-6" placeholder="------">
+                <h3 class="text-2xl md:text-3xl font-bold text-white mb-4 transition-colors">เข้าร่วมห้องเพื่อน</h3><p class="text-sm md:text-base text-slate-400 mb-4 transition-colors">กรุณากรอกรหัสห้อง 6 หลักเพื่อเข้าร่วม:</p>
+                <input type="text" id="join-room-input" maxlength="6" class="w-full bg-slate-950 text-white font-bold text-center text-4xl tracking-[0.5em] px-4 py-4 rounded-xl border border-white/10 focus:outline-none focus:border-cyan-500 mb-6 transition-colors" placeholder="------">
                 <button onclick="window.submitJoinRoomSafe()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-3 md:py-4 rounded-xl transition-all text-lg md:text-xl shadow-lg">เข้าร่วมเลย!</button>
             </div>
         </div>
 
-        <!-- Lobby Waiting Room -->
         <div id="modal-lobby" class="hidden fixed inset-0 bg-slate-950/95 z-[250] items-center justify-center p-4">
-            <div class="bg-slate-900 border-4 border-amber-500 p-6 md:p-8 rounded-3xl w-full max-w-3xl text-center shadow-[0_0_40px_rgba(245,158,11,0.3)] relative flex flex-col max-h-[95vh]">
+            <div class="bg-slate-900 border-4 border-amber-500 p-6 md:p-8 rounded-3xl w-full max-w-3xl text-center shadow-[0_0_40px_rgba(245,158,11,0.3)] relative flex flex-col max-h-[95vh] transition-colors">
                 <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-6 shrink-0">
-                    <h3 class="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500">ห้องพักนักล่าศัพท์</h3><button onclick="window.cancelRoomSafe()" class="text-slate-400 hover:text-rose-500 font-bold text-4xl transition">×</button>
+                    <h3 class="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500 transition-colors">ห้องพักนักล่าศัพท์</h3><button onclick="window.cancelRoomSafe()" class="text-slate-400 hover:text-rose-500 font-bold text-4xl transition">×</button>
                 </div>
-                <div class="bg-slate-950 border-2 border-white/10 rounded-2xl py-6 mb-8 shrink-0 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div><p class="text-sm md:text-base text-slate-400 font-bold mb-2 uppercase tracking-widest">รหัสห้อง (Room PIN)</p>
-                    <span id="lobby-room-id" class="text-6xl md:text-8xl font-black text-white tracking-[0.2em] drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">------</span>
+                <div class="bg-slate-950 border-2 border-white/10 rounded-2xl py-6 mb-8 shrink-0 relative overflow-hidden transition-colors">
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div><p class="text-sm md:text-base text-slate-400 font-bold mb-2 uppercase tracking-widest transition-colors">รหัสห้อง (Room PIN)</p>
+                    <span id="lobby-room-id" class="text-6xl md:text-8xl font-black text-white tracking-[0.2em] drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-colors">------</span>
                 </div>
                 <div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mb-8">
-                    <div class="flex-1 w-full bg-slate-800/50 border-2 border-amber-500/50 rounded-2xl p-6 flex flex-col items-center justify-center relative shadow-inner h-48 md:h-64">
-                        <span class="absolute top-3 left-3 bg-amber-500 text-slate-900 text-xs font-black px-2 py-1 rounded-md uppercase">หัวหน้าห้อง</span>
-                        <div id="lobby-host-avatar" class="text-6xl md:text-8xl mb-3 drop-shadow-xl animate-bounce">⏳</div><div id="lobby-host-name" class="text-xl md:text-2xl font-bold text-white truncate w-full px-2">กำลังรอ...</div>
+                    <div class="flex-1 w-full bg-slate-800/50 border-2 border-amber-500/50 rounded-2xl p-6 flex flex-col items-center justify-center relative shadow-inner h-48 md:h-64 transition-colors">
+                        <span class="absolute top-3 left-3 bg-amber-500 text-slate-900 text-xs font-black px-2 py-1 rounded-md uppercase transition-colors">หัวหน้าห้อง</span>
+                        <div id="lobby-host-avatar" class="text-6xl md:text-8xl mb-3 drop-shadow-xl animate-bounce">⏳</div><div id="lobby-host-name" class="text-xl md:text-2xl font-bold text-white truncate w-full px-2 transition-colors">กำลังรอ...</div>
                     </div>
                     <div class="shrink-0 flex items-center justify-center">
-                        <div class="w-16 h-16 md:w-20 md:h-20 bg-rose-600 rounded-full flex items-center justify-center text-2xl md:text-3xl font-black text-white border-4 border-slate-900 shadow-[0_0_20px_rgba(225,29,72,0.8)] z-10 transform -rotate-12">VS</div>
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-rose-600 rounded-full flex items-center justify-center text-2xl md:text-3xl font-black text-white border-4 border-slate-900 shadow-[0_0_20px_rgba(225,29,72,0.8)] z-10 transform -rotate-12 transition-colors">VS</div>
                     </div>
-                    <div class="flex-1 w-full bg-slate-800/50 border-2 border-cyan-500/50 rounded-2xl p-6 flex flex-col items-center justify-center relative shadow-inner h-48 md:h-64">
-                        <span class="absolute top-3 right-3 bg-cyan-500 text-slate-900 text-xs font-black px-2 py-1 rounded-md uppercase">ผู้ท้าชิง</span>
-                        <div id="lobby-joiner-avatar" class="text-6xl md:text-8xl mb-3 drop-shadow-xl opacity-50">👤</div><div id="lobby-joiner-name" class="text-xl md:text-2xl font-bold text-slate-400 truncate w-full px-2">รอเพื่อนเข้าร่วม...</div>
+                    <div class="flex-1 w-full bg-slate-800/50 border-2 border-cyan-500/50 rounded-2xl p-6 flex flex-col items-center justify-center relative shadow-inner h-48 md:h-64 transition-colors">
+                        <span class="absolute top-3 right-3 bg-cyan-500 text-slate-900 text-xs font-black px-2 py-1 rounded-md uppercase transition-colors">ผู้ท้าชิง</span>
+                        <div id="lobby-joiner-avatar" class="text-6xl md:text-8xl mb-3 drop-shadow-xl opacity-50">👤</div><div id="lobby-joiner-name" class="text-xl md:text-2xl font-bold text-slate-400 truncate w-full px-2 transition-colors">รอเพื่อนเข้าร่วม...</div>
                     </div>
                 </div>
                 <div id="lobby-action-zone" class="shrink-0"></div>
             </div>
         </div>
 
-        <div id="toast-notification" class="fixed bottom-6 right-6 z-[300] bg-slate-900 border-2 border-amber-500/50 text-white font-bold rounded-xl md:rounded-2xl px-4 py-3 md:px-6 md:py-4 shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2 md:gap-3 max-w-[90vw]">
+        <div id="toast-notification" class="fixed bottom-6 right-6 z-[300] bg-slate-900 border-2 border-amber-500/50 text-white font-bold rounded-xl md:rounded-2xl px-4 py-3 md:px-6 md:py-4 shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2 md:gap-3 max-w-[90vw] transition-colors">
             <span class="text-xl md:text-3xl shrink-0" id="toast-icon">✨</span><span class="text-sm md:text-xl break-words" id="toast-message">แจ้งเตือน</span>
         </div>
-    </div>
 
     <script>
         // Database
@@ -438,14 +444,14 @@
                 categories: {
                     "academic_verbs": { title: "🏃 กริยาวิชาการ", words: [{en:"Acknowledge",th:"ยอมรับ"}, {en:"Regulate",th:"ควบคุม"}, {en:"Incorporate",th:"รวมเข้า"}, {en:"Distinguish",th:"แยกแยะ"}, {en:"Dominate",th:"ครอบงำ"}, {en:"Analyze",th:"วิเคราะห์"}, {en:"Interpret",th:"ตีความ"}, {en:"Investigate",th:"สืบสวน"}, {en:"Maintain",th:"รักษาไว้"}] },
                     "academic_nouns": { title: "📦 นามวิชาการ", words: [{en:"Alternative",th:"ทางเลือก"}, {en:"Requirement",th:"ข้อกำหนด"}, {en:"Efficiency",th:"ประสิทธิภาพ"}, {en:"Resolution",th:"แก้ปัญหา"}, {en:"Emphasis",th:"การเน้นย้ำ"}, {en:"Evidence",th:"หลักฐาน"}, {en:"Phenomenon",th:"ปรากฏการณ์"}, {en:"Consequence",th:"ผลลัพธ์"}, {en:"Hypothesis",th:"สมมติฐาน"}] },
-                    "idioms": { title: "🗣️ สำนวนและวลี (Idioms)", words: [{en:"piece of cake",th:"เรื่องกล้วยๆ"}, {en:"break a leg",th:"โชคดีนะ"}, {en:"under the weather",th:"รู้สึกไม่สบาย"}, {en:"bite the bullet",th:"สู้ทนต่อไป"}, {en:"call it a day",th:"เลิกงาน/พอแค่นี้"}] }
+                    "idioms": { title: "🗣️ สำนวนและวลี (Idioms)", words: [{en:"Piece of cake",th:"เรื่องกล้วยๆ"}, {en:"Break a leg",th:"โชคดีนะ"}, {en:"Under the weather",th:"รู้สึกไม่สบาย"}, {en:"Call it a day",th:"เลิกงาน/พอแค่นี้"}, {en:"Bite the bullet",th:"กัดฟันทน"}] }
                 }
             },
             "KORAT": {
                 name: "💖 โคราชบ้านเอ็ง (Local)",
                 categories: {
-                    "culture": { title: "🗺️ วัฒนธรรมและสถานที่", words: [{en:"Monument",th:"อนุสาวรีย์"}, {en:"Gate",th:"ประตูเมือง"}, {en:"Sanctuary",th:"ปราสาท/ศาสนสถาน"}, {en:"Statue",th:"รูปปั้น"}, {en:"History",th:"ประวัติศาสตร์"}, {en:"Culture",th:"วัฒนธรรม"}, {en:"Festival",th:"เทศกาล"}, {en:"Kingdom",th:"อาณาจักร"}, {en:"Legend",th:"ตำนาน"}] },
-                    "tourism": { title: "🎒 ท่องเที่ยวและของฝาก", words: [{en:"Tourist",th:"นักท่องเที่ยว"}, {en:"Noodles",th:"เส้นหมี่"}, {en:"Silk",th:"ผ้าไหม"}, {en:"Pottery",th:"เครื่องปั้นดินเผา"}, {en:"National Park",th:"อุทยานแห่งชาติ"}, {en:"Waterfall",th:"น้ำตก"}, {en:"Souvenir",th:"ของที่ระลึก"}, {en:"Restaurant",th:"ร้านอาหาร"}, {en:"Local",th:"ท้องถิ่น"}] }
+                    "culture": { title: "🗺️ วัฒนธรรม", words: [{en:"Monument",th:"อนุสาวรีย์"}, {en:"Gate",th:"ประตูเมือง"}, {en:"Sanctuary",th:"ปราสาท/ศาสนสถาน"}, {en:"Statue",th:"รูปปั้น"}, {en:"History",th:"ประวัติศาสตร์"}, {en:"Culture",th:"วัฒนธรรม"}, {en:"Festival",th:"เทศกาล"}, {en:"Kingdom",th:"อาณาจักร"}, {en:"Legend",th:"ตำนาน"}] },
+                    "tourism": { title: "🎒 ท่องเที่ยว", words: [{en:"Tourist",th:"นักท่องเที่ยว"}, {en:"Noodles",th:"เส้นหมี่"}, {en:"Silk",th:"ผ้าไหม"}, {en:"Pottery",th:"เครื่องปั้นดินเผา"}, {en:"National Park",th:"อุทยานแห่งชาติ"}, {en:"Waterfall",th:"น้ำตก"}, {en:"Souvenir",th:"ของที่ระลึก"}, {en:"Restaurant",th:"ร้านอาหาร"}, {en:"Local",th:"ท้องถิ่น"}] }
                 }
             }
         };
@@ -453,7 +459,7 @@
         const avatarList = ['🦊','🥷','🧑‍💻','🐼','🦁','🧙‍♂️','🧛‍♂️','🐉','👽','🤖','👻','💀','🎃','🦄','🦖'];
         let selectedAvatar = '🦊'; 
 
-        // [A.E.G.I.S Audio Engine]
+        // Audio Engine (Mobile Graceful Unlock)
         let isAudioUnlocked = false;
         const AudioContext = window.AudioContext || window.webkitAudioContext; let audioCtx = null;
         const gameBGM = new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3");
@@ -466,7 +472,7 @@
 
         async function unlockAudioContext() {
             if(isAudioUnlocked) return;
-            try { await initAudio(); await gameBGM.play(); gameBGM.pause(); gameBGM.currentTime = 0; isAudioUnlocked = true; } catch(e) {}
+            try { await initAudio(); await gameBGM.play(); gameBGM.pause(); gameBGM.currentTime = 0; isAudioUnlocked = true; } catch(e) { console.warn("Pending user interaction for audio"); }
         }
         document.body.addEventListener('touchstart', unlockAudioContext, {once:true, passive:true});
         document.body.addEventListener('pointerdown', unlockAudioContext, {once:true, passive:true});
@@ -476,23 +482,35 @@
                 await initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
                 osc.connect(gain); gain.connect(audioCtx.destination); const now = audioCtx.currentTime;
 
-                if (type === 'success') { osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.1); osc.frequency.setValueAtTime(783.99, now + 0.2); gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4); osc.start(now); osc.stop(now + 0.4); } 
-                else if (type === 'fail') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(196.00, now); osc.frequency.exponentialRampToValueAtTime(98.00, now + 0.3); gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3); osc.start(now); osc.stop(now + 0.3); } 
-                else if (type === 'timeup') { osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(600, now + 0.15); osc.frequency.setValueAtTime(400, now + 0.3); osc.frequency.setValueAtTime(600, now + 0.45); gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6); osc.start(now); osc.stop(now + 0.6); } 
-                else if (type === 'gameover') { osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.2); osc.frequency.setValueAtTime(1046.50, now + 0.4); gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 1.5); osc.start(now); osc.stop(now + 1.5); } 
-                else if (type === 'click' || type === 'tick') { osc.type = 'sine'; osc.frequency.setValueAtTime(type === 'click' ? 600 : 800, now); gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); } 
-                else if (type === 'combo') { osc.type = 'triangle'; osc.frequency.setValueAtTime(660, now); osc.frequency.setValueAtTime(880, now + 0.08); osc.frequency.setValueAtTime(1100, now + 0.16); gain.gain.setValueAtTime(0.25, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35); osc.start(now); osc.stop(now + 0.35); }
+                if (type === 'success') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.1); osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4); osc.start(now); osc.stop(now + 0.4);
+                } else if (type === 'fail') {
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(196.00, now); osc.frequency.exponentialRampToValueAtTime(98.00, now + 0.3); 
+                    gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3); osc.start(now); osc.stop(now + 0.3);
+                } else if (type === 'timeup') {
+                    osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(600, now + 0.15); osc.frequency.setValueAtTime(400, now + 0.3); osc.frequency.setValueAtTime(600, now + 0.45);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6); osc.start(now); osc.stop(now + 0.6);
+                } else if (type === 'gameover') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.2); osc.frequency.setValueAtTime(1046.50, now + 0.4);
+                    gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 1.5); osc.start(now); osc.stop(now + 1.5);
+                } else if (type === 'click' || type === 'tick') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(type === 'click' ? 600 : 800, now); gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1);
+                } else if (type === 'combo') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(660, now); osc.frequency.setValueAtTime(880, now + 0.08); osc.frequency.setValueAtTime(1100, now + 0.16);
+                    gain.gain.setValueAtTime(0.25, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35); osc.start(now); osc.stop(now + 0.35);
+                }
             } catch (err) {}
         }
 
-        // [A.E.G.I.S Core State Machine]
+        // [A.E.G.I.S State Machine]
         let gameConfig = { difficulty: "A1", category: "nouns", targetCount: 4, duration: 20, trackingTarget: "all", questionLang: "th-en", movingTargets: false };
         let gameState = {
             scoreP1: 0, timeLeft: 20, isPaused: false, gameActive: false,
             currentQuestion: null, options: [], targets: [], availableVocabs: [], 
             successfulTaps: 0, tapTimes: [], gameTimerInterval: null,
             lastTapTime: 0, questionIndex: 1, maxQuestions: 10,
-            player1Name: "ผู้ทดสอบ", currentUser: null, isTeacherVerified: false,
+            player1Name: "ผู้ทดสอบ", currentUser: null, 
             isKahootMode: true, isRoomHost: false, streak: 0, maxStreak: 0,
             isAdventureMode: false, currentAdventureStyle: 'ar'
         };
@@ -509,12 +527,11 @@
         let lastAiFrameTime = 0; 
         let renderLoopId = null; 
 
-        // [A.E.G.I.S BUGFIX: Timer Overlap Guardrail]
+        // [A.E.G.I.S Core Overhaul: Centralized Timers & Threading]
         function clearGameTimer() {
             if (gameState.gameTimerInterval) { clearInterval(gameState.gameTimerInterval); gameState.gameTimerInterval = null; }
         }
 
-        // [A.E.G.I.S BUGFIX: Webcam Thread Hang & Memory Leak Fix]
         async function killCameraAndAI() {
             stopGameLoops(); clearGameTimer();
             let waitCount = 0; while(isProcessingPose && waitCount < 20) { await new Promise(r => setTimeout(r, 25)); waitCount++; }
@@ -530,7 +547,15 @@
         }
         window.addEventListener('resize', resizeDrawingBuffer); window.addEventListener('orientationchange', () => { setTimeout(resizeDrawingBuffer, 500); });
 
-        // [A.E.G.I.S BUGFIX: Flawless Canvas Scaling & Interaction]
+        // [A.E.G.I.S DYNAMIC THEME SUPPORT: Get current primary color for canvas drawing]
+        function getThemeColor(type) {
+            const theme = document.body.getAttribute('data-theme') || 'classic';
+            if (theme === 'cyber') return type === 'primary' ? '#06b6d4' : '#22d3ee';
+            if (theme === 'academic') return type === 'primary' ? '#3b82f6' : '#60a5fa';
+            return type === 'primary' ? '#f59e0b' : '#fbbf24'; // Classic Amber
+        }
+
+        // [A.E.G.I.S Scaling Fix]
         function getCanvasMousePos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
             if (rect.width === 0 || rect.height === 0 || canvas.width === 0 || canvas.height === 0) return { x: 0, y: 0 };
@@ -540,7 +565,8 @@
             const offsetX = (rect.width - actualWidth) / 2; const offsetY = (rect.height - actualHeight) / 2;
             
             let x = (e.clientX - rect.left - offsetX) / scale; let y = (e.clientY - rect.top - offsetY) / scale; 
-            return { x, y }; // Native coords, X is NOT inverted here because Canvas CSS is normal
+            x = canvas.width - x; // Invert X for mirroring
+            return { x, y }; 
         }
 
         canvasElement.addEventListener('pointerdown', (e) => {
@@ -555,9 +581,7 @@
         canvasElement.addEventListener('pointerup', () => { simulatedPointer = null; });
         canvasElement.addEventListener('pointerleave', () => { simulatedPointer = null; });
         canvasElement.addEventListener('pointercancel', () => { simulatedPointer = null; });
-    </script>
 
-    <script>
         window.selectAvatar = function(emoji, containerId) {
             try { initAudio(); playSound('click'); } catch(e){} selectedAvatar = emoji;
             const scope = containerId ? document.getElementById(containerId) : document; const options = (scope || document).querySelectorAll('.avatar-option');
@@ -575,18 +599,32 @@
 
         window.hideModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } }
         window.showModal = function(id) { const modal = document.getElementById(id); if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); } }
-        
         window.showToast = function(message, icon = "✨") {
             const toast = document.getElementById('toast-notification'); document.getElementById('toast-icon').innerText = icon; document.getElementById('toast-message').innerText = message;
             toast.classList.remove('translate-y-20', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100');
             setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
         }
 
+        // [A.E.G.I.S THEME CONTROLLER]
+        window.changeTheme = function(themeName) {
+            document.body.setAttribute('data-theme', themeName);
+            if(gameState.currentUser) {
+                gameState.currentUser.theme = themeName;
+                localStorage.setItem('word_hunter_user', JSON.stringify(gameState.currentUser));
+            }
+            playSound('tick');
+        }
+
         window.toggleAuthModal = function() {
             playSound('click'); const modal = document.getElementById('modal-auth');
             if (modal.classList.contains('hidden')) {
                 buildAvatarSelector('avatar-container-edit');
-                if (gameState.currentUser) { document.getElementById('auth-username').value = gameState.currentUser.username || ""; document.getElementById('auth-grade').value = gameState.currentUser.grade || ""; if(gameState.currentUser.photoURL) { window.selectAvatar(gameState.currentUser.photoURL, 'avatar-container-edit'); } }
+                if (gameState.currentUser) { 
+                    document.getElementById('auth-username').value = gameState.currentUser.username || ""; 
+                    document.getElementById('auth-grade').value = gameState.currentUser.grade || ""; 
+                    if(gameState.currentUser.photoURL) { window.selectAvatar(gameState.currentUser.photoURL, 'avatar-container-edit'); }
+                    if(gameState.currentUser.theme) { document.getElementById('auth-theme').value = gameState.currentUser.theme; }
+                }
                 showModal('modal-auth');
             } else { hideModal('modal-auth'); }
         }
@@ -662,9 +700,7 @@
                 return false;
             }
         }
-    </script>
 
-    <script>
         function startGameLoops() { if (isLoopRunning) return; isLoopRunning = true; lastAiFrameTime = performance.now(); runRenderLoop(lastAiFrameTime); runAiLoop(); }
         function stopGameLoops() { isLoopRunning = false; if (renderLoopId) { cancelAnimationFrame(renderLoopId); renderLoopId = null; } }
 
@@ -682,6 +718,7 @@
 
             playSound('click'); await initAudio(); clearGameTimer();
             gameState.isAdventureMode = true; gameState.currentAdventureStyle = Math.random() > 0.5 ? 'ar' : 'kahoot'; 
+            
             document.getElementById('live-pause-btn').classList.remove('hidden'); gameConfig.duration = parseInt(document.getElementById('timer-input').value || 20);
             const trackingTargetEl = document.getElementById('tracking-target-input'); if (trackingTargetEl) gameConfig.trackingTarget = trackingTargetEl.value;
             const langEl = document.getElementById('question-lang-input'); if (langEl) gameConfig.questionLang = langEl.value;
@@ -713,7 +750,7 @@
             const langEl = document.getElementById('question-lang-input'); if (langEl) gameConfig.questionLang = langEl.value;
             const movingTargetEl = document.getElementById('moving-target-input'); if (movingTargetEl) gameConfig.movingTargets = (movingTargetEl.value === 'true');
 
-            activeVocabList = [...vocabEngine[gameConfig.difficulty].categories[gameConfig.category].words];
+            let activeVocabList = [...vocabEngine[gameConfig.difficulty].categories[gameConfig.category].words];
             document.getElementById('current-diff-lbl').innerText = vocabEngine[gameConfig.difficulty].name; document.getElementById('current-category-lbl').innerText = vocabEngine[gameConfig.difficulty].categories[gameConfig.category].title;
 
             document.getElementById('screen-lobby').classList.add('hidden'); const screenGame = document.getElementById('screen-game'); screenGame.classList.remove('hidden'); screenGame.classList.add('flex');
@@ -752,8 +789,13 @@
             const steps = ["3", "2", "1", "GO!"];
             for (let i = 0; i < steps.length; i++) {
                 textEl.innerText = steps[i];
-                if (steps[i] === "GO!") { textEl.className = "text-8xl md:text-9xl font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in leading-none"; } 
-                else { textEl.className = "text-[120px] md:text-[180px] font-black text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,1)] animate-pop-in leading-none"; }
+                if (steps[i] === "GO!") { 
+                    textEl.className = "text-8xl md:text-9xl font-black drop-shadow-[0_0_30px_rgba(255,255,255,0.5)] animate-pop-in leading-none"; 
+                    textEl.style.color = getThemeColor('primary'); 
+                } else { 
+                    textEl.className = "text-[120px] md:text-[180px] font-black drop-shadow-[0_0_30px_rgba(255,255,255,0.5)] animate-pop-in leading-none"; 
+                    textEl.style.color = getThemeColor('primary'); 
+                }
                 if(i < 3) playSound('tick'); textEl.classList.remove('animate-pop-in'); void textEl.offsetWidth; textEl.classList.add('animate-pop-in'); await new Promise(r => setTimeout(r, 1000));
             }
             playSound('success'); gameBGM.currentTime = 0; gameBGM.play().catch(e => console.warn("BGM Autoplay blocked:", e)); overlay.classList.remove('flex'); overlay.classList.add('hidden');
@@ -799,7 +841,7 @@
             gameState.scoreP1 = Math.max(0, gameState.scoreP1 - 5); gameState.streak = 0; window.updateStreakHUD(); document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
 
             const popup = document.getElementById('feedback-popup'); const card = document.getElementById('feedback-card');
-            document.getElementById('feedback-emoji').innerText = "⏱️"; const title = document.getElementById('feedback-title'); title.innerText = `หมดเวลา!`; title.className = "text-4xl md:text-7xl font-black text-rose-500";
+            document.getElementById('feedback-emoji').innerText = "⏱️"; const title = document.getElementById('feedback-title'); title.innerText = `หมดเวลา!`; title.className = "text-4xl md:text-7xl font-black text-rose-500 transition-colors";
             const isEnTh = gameConfig.questionLang === 'en-th'; document.getElementById('feedback-detail').innerText = `เฉลย: "${gameState.currentQuestion.en}" = "${gameState.currentQuestion.th}" (-5 แต้ม)`;
 
             popup.classList.remove('hidden'); card.classList.remove('scale-50', 'opacity-0'); card.classList.add('scale-100', 'opacity-100');
@@ -811,10 +853,10 @@
             document.getElementById('hud-question-count').innerText = `ข้อ ${gameState.questionIndex}/10`;
             gameState.timeLeft = gameConfig.duration; document.getElementById('hud-timer').innerText = `${gameConfig.duration}s`;
 
-            if (!gameState.availableVocabs || gameState.availableVocabs.length === 0) { gameState.availableVocabs = gameState.isAdventureMode ? compileAdventureVocab() : shuffleArray(activeVocabList); }
+            if (!gameState.availableVocabs || gameState.availableVocabs.length === 0) { gameState.availableVocabs = gameState.isAdventureMode ? compileAdventureVocab() : shuffleArray(vocabEngine[gameConfig.difficulty].categories[gameConfig.category].words); }
             const correctVocab = gameState.availableVocabs.pop(); gameState.currentQuestion = correctVocab;
             
-            let fullList = gameState.isAdventureMode ? compileAdventureVocab() : activeVocabList;
+            let fullList = gameState.isAdventureMode ? compileAdventureVocab() : vocabEngine[gameConfig.difficulty].categories[gameConfig.category].words;
             gameConfig.targetCount = gameState.isKahootMode ? 4 : gameConfig.targetCount;
             const targetLength = Math.min(gameConfig.targetCount, fullList.length); const distractors = shuffleArray(fullList.filter(v => v.en !== correctVocab.en));
             let selection = [correctVocab]; for (let i = 0; i < targetLength - 1; i++) { if (distractors[i]) { selection.push(distractors[i]); } }
@@ -829,7 +871,7 @@
 
         function buildKahootGrid() {
             const grid = document.getElementById('kahoot-grid'); grid.innerHTML = '';
-            const bgColors = ['bg-red-500 hover:bg-red-600', 'bg-blue-500 hover:bg-blue-600', 'bg-yellow-500 hover:bg-yellow-600', 'bg-green-500 hover:bg-green-600', 'bg-purple-500 hover:bg-purple-600', 'bg-cyan-500 hover:bg-cyan-600'];
+            const bgColors = ['bg-rose-500 hover:bg-rose-600', 'bg-blue-500 hover:bg-blue-600', 'bg-emerald-500 hover:bg-emerald-600', 'bg-amber-500 hover:bg-amber-600', 'bg-purple-500 hover:bg-purple-600', 'bg-cyan-500 hover:bg-cyan-600'];
 
             gameState.options.forEach((vocab, index) => {
                 const btn = document.createElement('button'); const colorClass = bgColors[index % bgColors.length];
@@ -851,18 +893,18 @@
         function mapTargetsPositions() {
             if (!gameState.options || gameState.options.length === 0) return;
             const width = canvasElement.width || 1280; const height = canvasElement.height || 720;
-            const radius = gameConfig.targetCount > 4 ? 45 : 65; const padding = radius + 20; 
+            const radius = gameConfig.targetCount > 4 ? 45 : 65; const paddingX = radius + 40; const paddingTop = 140; const paddingBot = radius + 20; 
             gameState.targets = [];
 
-            const isOverlapping = (x, y) => { for (let t of gameState.targets) { if (Math.hypot(t.x - x, t.y - y) < radius * 2.2) return true; } return false; };
+            const isOverlapping = (x, y) => { for (let t of gameState.targets) { if (Math.hypot(t.x - x, t.y - y) < radius * 2.5) return true; } return false; };
 
             gameState.options.forEach((vocab, index) => {
                 let x, y; let attempts = 0; let foundPosition = false;
                 while (!foundPosition && attempts < 150) {
-                    x = padding + Math.random() * Math.max(0, width - 2 * padding); y = 120 + padding + Math.random() * Math.max(0, height - 120 - 2 * padding);
+                    x = paddingX + Math.random() * Math.max(0, width - 2 * paddingX); y = paddingTop + Math.random() * Math.max(0, height - paddingTop - paddingBot);
                     if (!isOverlapping(x, y)) foundPosition = true; attempts++;
                 }
-                if (!foundPosition) { x = padding + Math.random() * Math.max(0, width - 2 * padding); y = 120 + padding + Math.random() * Math.max(0, height - 120 - 2 * padding); }
+                if (!foundPosition) { x = paddingX + Math.random() * Math.max(0, width - 2 * paddingX); y = paddingTop + Math.random() * Math.max(0, height - paddingTop - paddingBot); }
                 
                 const vx = (Math.random() > 0.5 ? 1 : -1) * (40 + Math.random() * 60); const vy = (Math.random() > 0.5 ? 1 : -1) * (40 + Math.random() * 60);
                 gameState.targets.push({ x: x, y: y, vx: vx, vy: vy, radius: radius, vocab: vocab, isCorrect: vocab.en === gameState.currentQuestion.en, hoverProgress: 0 });
@@ -887,22 +929,20 @@
             renderLoopId = requestAnimationFrame(runRenderLoop);
         }
 
-        // [A.E.G.I.S BUGFIX: Canvas Mirroring Logic - Restored for Old UI]
         function renderGameCanvas(dt) {
             if (!ctx) return;
             const cw = canvasElement.width; const ch = canvasElement.height;
             
-            // Draw Mirrored Video
             if (videoElement.readyState >= 2) { 
                 if (cw !== videoElement.videoWidth && videoElement.videoWidth > 0) { resizeDrawingBuffer(); }
-                ctx.save(); ctx.scale(-1, 1); ctx.drawImage(videoElement, -cw, 0, cw, ch); ctx.restore(); // Video is mirrored, Context is restored normal
-            } else { ctx.fillStyle = '#0c080d'; ctx.fillRect(0, 0, cw, ch); }
+                ctx.save(); ctx.scale(-1, 1); ctx.drawImage(videoElement, -cw, 0, cw, ch); ctx.restore();
+            } else { 
+                ctx.fillStyle = '#0c080d'; ctx.fillRect(0, 0, cw, ch); 
+            }
 
             let touchPoints = [];
-            // Simulated pointer (Mouse/Touch) coordinates are already direct (no need to flip because Canvas CSS is normal)
             if (simulatedPointer) { touchPoints.push(simulatedPointer); drawInteractivePointer(simulatedPointer.x, simulatedPointer.y, `🔴 ${simulatedPointer.label}`, "#ef4444"); }
 
-            // AI Points must be flipped horizontally (cw - x) to match the mirrored video
             if (currentPoses && currentPoses.length > 0) {
                 const kp = currentPoses[0].keypoints;
                 const lWrist = kp.find(k => k.name === 'left_wrist'); const rWrist = kp.find(k => k.name === 'right_wrist');
@@ -933,17 +973,16 @@
             gameState.targets.forEach(target => drawTargetNode(target));
         }
 
-        // Removed scale(-1, 1) here so Text reads normally L-R
         function drawInteractivePointer(x, y, label, hex) {
             ctx.beginPath(); ctx.arc(x, y, 15, 0, 2 * Math.PI); ctx.fillStyle = hex; ctx.fill();
             ctx.lineWidth = 4; ctx.strokeStyle = '#ffffff'; ctx.stroke();
             ctx.fillStyle = '#ffffff'; ctx.font = 'bold 18px Kanit'; ctx.shadowColor = 'black'; ctx.shadowBlur = 6; ctx.textAlign = 'center'; ctx.fillText(label, x, y - 25);
         }
 
-        // Removed scale(-1, 1) here so Text reads normally L-R
         function drawTargetNode(target) {
             const { x, y, radius, vocab, hoverProgress } = target;
-            ctx.save(); ctx.beginPath(); ctx.arc(x, y, radius + 8, 0, 2 * Math.PI); ctx.strokeStyle = hoverProgress > 0 ? '#f59e0b' : '#3b82f6'; ctx.lineWidth = 8; ctx.stroke();
+            const primaryColor = getThemeColor('primary');
+            ctx.save(); ctx.beginPath(); ctx.arc(x, y, radius + 8, 0, 2 * Math.PI); ctx.strokeStyle = hoverProgress > 0 ? primaryColor : '#3b82f6'; ctx.lineWidth = 8; ctx.stroke();
             ctx.beginPath(); ctx.arc(x, y, radius, 0, 2 * Math.PI); ctx.fillStyle = 'rgba(15, 23, 42, 0.9)'; ctx.fill();
 
             if (hoverProgress > 0) {
@@ -953,7 +992,7 @@
 
             ctx.fillStyle = '#ffffff'; const size = radius < 55 ? '20px' : '28px'; ctx.font = `bold ${size} 'Kanit', sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,1)'; ctx.shadowBlur = 6; 
             const isEnTh = gameConfig.questionLang === 'en-th'; ctx.fillText(isEnTh ? vocab.th : vocab.en, x, y - 5); 
-            ctx.fillStyle = '#67e8f9'; ctx.font = 'bold 14px Kanit'; ctx.fillText("แตะสิ!", x, y + 25); ctx.restore();
+            ctx.fillStyle = primaryColor; ctx.font = 'bold 14px Kanit'; ctx.fillText("แตะสิ!", x, y + 25); ctx.restore();
         }
 
         function processCollisions(touchPoints, dt) {
@@ -974,12 +1013,12 @@
             const basePts = 10; const isEnTh = gameConfig.questionLang === 'en-th';
             if (target.isCorrect) {
                 gameState.streak++; if (gameState.streak > gameState.maxStreak) gameState.maxStreak = gameState.streak; const comboBonus = getStreakBonus(gameState.streak); const totalPts = basePts + comboBonus;
-                playSound('success'); gameState.scoreP1 += totalPts; document.getElementById('feedback-emoji').innerText = comboBonus > 0 ? "🔥" : "✅"; const title = document.getElementById('feedback-title'); title.innerText = `ยอดเยี่ยม!`; title.className = "text-4xl md:text-7xl font-black text-emerald-400";
+                playSound('success'); gameState.scoreP1 += totalPts; document.getElementById('feedback-emoji').innerText = comboBonus > 0 ? "🔥" : "✅"; const title = document.getElementById('feedback-title'); title.innerText = `ยอดเยี่ยม!`; title.className = "text-4xl md:text-7xl font-black text-emerald-400 transition-colors";
                 const bonusText = comboBonus > 0 ? ` <span class="text-orange-400">(+โบนัสคอมโบ ${comboBonus})</span>` : ''; document.getElementById('feedback-detail').innerHTML = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}" (+${totalPts} แต้ม)${bonusText}`;
                 window.updateStreakHUD(); showComboBanner(gameState.streak);
             } else {
                 gameState.streak = 0; window.updateStreakHUD(); playSound('fail'); const deduction = 5; gameState.scoreP1 = Math.max(0, gameState.scoreP1 - deduction);
-                document.getElementById('feedback-emoji').innerText = "❌"; const title = document.getElementById('feedback-title'); title.innerText = `ผิดนะจ๊ะ!`; title.className = "text-4xl md:text-7xl font-black text-rose-500";
+                document.getElementById('feedback-emoji').innerText = "❌"; const title = document.getElementById('feedback-title'); title.innerText = `ผิดนะจ๊ะ!`; title.className = "text-4xl md:text-7xl font-black text-rose-500 transition-colors";
                 document.getElementById('feedback-detail').innerHTML = `"${isEnTh ? target.vocab.en : target.vocab.th}" แปลว่า "${isEnTh ? target.vocab.th : target.vocab.en}"<br><span class="text-emerald-400 text-2xl md:text-4xl mt-2 block">(เฉลยข้อนี้: ${isEnTh ? gameState.currentQuestion.th : gameState.currentQuestion.en})</span><br>หัก ${deduction} แต้ม`;
             }
             document.getElementById('hud-score-p1').innerText = gameState.scoreP1;
@@ -1002,8 +1041,6 @@
 
             document.getElementById('res-mode-label').innerText = `ระดับ CEFR: ${diffLabel} | หมวด: ${catLabel}`; document.getElementById('res-score-p1').innerText = `${gameState.scoreP1}`; document.getElementById('res-avg-time').innerText = `${avgTimeStr}s`; const maxStreakEl = document.getElementById('res-max-streak'); if (maxStreakEl) maxStreakEl.innerText = `🔥 ${gameState.maxStreak}`;
         }
-
-        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
         async function loadAiModel() {
             const el = document.getElementById('ai-loading'); if (isAiModelLoaded) { if (el) { el.classList.add('hidden'); el.classList.remove('flex'); } return true; }
@@ -1044,24 +1081,38 @@
                     let foundWord = null; for (const groupKey in vocabEngine) { for (const catKey in vocabEngine[groupKey].categories) { const words = vocabEngine[groupKey].categories[catKey].words; const match = words.find(w => w.en.toLowerCase() === q || q.includes(w.en.toLowerCase()) || w.th.includes(query)); if (match) { foundWord = match; break; } } if (foundWord) break; }
                     if (foundWord) { reply = `✨ คำศัพท์ "${foundWord.en}" ในภาษาไทยแปลว่า "${foundWord.th}" จ้า! จำไปใช้ในเกมได้เลยนะ`; } else { const defaults = ["โอ้... คำนี้ย่ายังไม่มีในพจนานุกรมจ้า ลองถามคำศัพท์ภาษาอังกฤษคำอื่น หรือเรื่องเมืองโคราชดูสิเด้อ!", "อืม... ย่าไม่ค่อยเข้าใจจ้า ลองพิมพ์คำศัพท์สั้นๆ มาให้ย่าแปลดูไหม?"]; reply = defaults[Math.floor(Math.random() * defaults.length)]; }
                 }
-                appendChatMessage(`🤖 ย่าโม AI: ${reply}`, "text-amber-200 font-semibold bg-slate-800 p-3 rounded-lg border border-white/10");
+                const isAcademic = document.body.getAttribute('data-theme') === 'academic';
+                const aiMsgColor = isAcademic ? "text-slate-800 font-semibold bg-white p-3 rounded-lg border border-slate-300 shadow-sm" : "text-amber-200 font-semibold bg-slate-800 p-3 rounded-lg border border-white/10 shadow-sm";
+                appendChatMessage(`🤖 ย่าโม AI: ${reply}`, aiMsgColor);
             }, 800);
         }
 
-        function appendChatMessage(text, className) { const history = document.getElementById('ai-chat-history'); const msg = document.createElement('div'); msg.className = `leading-relaxed ${className}`; msg.innerText = text; history.appendChild(msg); history.scrollTop = history.scrollHeight; return msg; }
+        function appendChatMessage(text, className) { const history = document.getElementById('ai-chat-history'); const msg = document.createElement('div'); msg.className = `leading-relaxed ${className} transition-colors`; msg.innerText = text; history.appendChild(msg); history.scrollTop = history.scrollHeight; return msg; }
 
         window.renderLeaderboardUI = function(dataArray = null) {
             const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = ''; let leaderboard = dataArray || [];
-            if (leaderboard.length === 0) { tbody.innerHTML = `<tr><td colspan=\"6\" class=\"p-6 text-center text-slate-400 italic font-bold\">ยังไม่มีข้อมูลในระบบ หรือกำลังโหลด...</td></tr>`; return; }
+            if (leaderboard.length === 0) { tbody.innerHTML = `<tr><td colspan=\"6\" class=\"p-6 text-center text-slate-400 italic font-bold transition-colors\">ยังไม่มีข้อมูลในระบบ หรือกำลังโหลด...</td></tr>`; return; }
+            function escapeHtml(str) { return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+            
             leaderboard.forEach((record, index) => {
                 let rankIcon = `${index + 1}`; if (index === 0) rankIcon = '🥇'; else if (index === 1) rankIcon = '🥈'; else if (index === 2) rankIcon = '🥉';
                 const tr = document.createElement('tr'); tr.className = "border-b border-white/5 hover:bg-slate-800/40 transition-colors"; const avatar = record.photoURL || '👨‍🚀';
-                tr.innerHTML = `<td class="p-4 text-center font-black text-amber-400 text-xl">${rankIcon}</td><td class="p-4 font-bold text-white flex items-center gap-2"><span class="text-2xl">${avatar}</span> ${escapeHtml(record.name)} <span class="text-xs text-slate-400 font-normal">(${escapeHtml(record.grade)})</span></td><td class="p-4 text-center text-slate-300 font-bold">${escapeHtml(record.difficulty)}</td><td class="p-4 text-center text-cyan-300 text-xs">${escapeHtml(record.category)}</td><td class="p-4 text-center font-black text-yellow-400 text-xl">${record.score}</td><td class="p-4 text-center text-emerald-400 text-sm font-bold">${escapeHtml(record.avgTime)}</td>`;
+                
+                const isAcademic = document.body.getAttribute('data-theme') === 'academic';
+                const rankColor = isAcademic ? "text-blue-600" : "text-amber-400";
+                const nameColor = isAcademic ? "text-slate-800" : "text-white";
+                const gradeColor = isAcademic ? "text-slate-500" : "text-slate-400";
+                const diffColor = isAcademic ? "text-slate-600" : "text-slate-300";
+                const catColor = isAcademic ? "text-cyan-700" : "text-cyan-300";
+                const scoreColor = isAcademic ? "text-blue-500" : "text-yellow-400";
+                const timeColor = isAcademic ? "text-emerald-600" : "text-emerald-400";
+
+                tr.innerHTML = `<td class="p-4 text-center font-black ${rankColor} text-xl transition-colors">${rankIcon}</td><td class="p-4 font-bold ${nameColor} flex items-center gap-2 transition-colors"><span class="text-2xl">${avatar}</span> ${escapeHtml(record.name)} <span class="text-xs ${gradeColor} font-normal transition-colors">(${escapeHtml(record.grade)})</span></td><td class="p-4 text-center ${diffColor} font-bold transition-colors">${escapeHtml(record.difficulty)}</td><td class="p-4 text-center ${catColor} text-xs transition-colors">${escapeHtml(record.category)}</td><td class="p-4 text-center font-black ${scoreColor} text-xl transition-colors">${record.score}</td><td class="p-4 text-center ${timeColor} text-sm font-bold transition-colors">${escapeHtml(record.avgTime)}</td>`;
                 tbody.appendChild(tr);
             });
         }
 
-        window.renderLeaderboardError = function(message) { const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = `<tr><td colspan=\"6\" class=\"p-6 text-center text-rose-400 font-bold bg-rose-900/20 rounded-xl\">${message}</td></tr>`; }
+        window.renderLeaderboardError = function(message) { const tbody = document.getElementById('leaderboard-body'); tbody.innerHTML = `<tr><td colspan=\"6\" class=\"p-6 text-center text-rose-400 font-bold bg-rose-900/20 rounded-xl transition-colors\">${message}</td></tr>`; }
 
         window.shareResult = function() {
             playSound('click'); const text = `ฉันทำได้ ${gameState.scoreP1} คะแนน (คอมโบสูงสุด x${gameState.maxStreak}) ในเกม Words Hunter AR Hunsa! มาประลองความเร็วกัน!`;
@@ -1072,7 +1123,13 @@
         window.addEventListener('DOMContentLoaded', () => {
             window.adjustCategorySelection(); window.updateLeaderboardCategoryFilter(); buildAvatarSelector('avatar-container-signup'); buildAvatarSelector('avatar-container-edit'); 
             const savedUser = localStorage.getItem('word_hunter_user');
-            if (savedUser) { try { const profile = JSON.parse(savedUser); document.getElementById('initial-username').value = profile.username || ""; document.getElementById('initial-grade').value = profile.grade || ""; if(profile.photoURL) { selectedAvatar = profile.photoURL; window.selectAvatar(profile.photoURL, 'avatar-container-signup'); } } catch(e) {} }
+            if (savedUser) { 
+                try { 
+                    const profile = JSON.parse(savedUser); document.getElementById('initial-username').value = profile.username || ""; document.getElementById('initial-grade').value = profile.grade || ""; 
+                    if(profile.photoURL) { selectedAvatar = profile.photoURL; window.selectAvatar(profile.photoURL, 'avatar-container-signup'); }
+                    if(profile.theme) { document.body.setAttribute('data-theme', profile.theme); document.getElementById('auth-theme').value = profile.theme; }
+                } catch(e) {} 
+            }
             window.showModal('modal-initial-signup');
         });
     </script>
@@ -1083,7 +1140,8 @@
             else {
                 const username = document.getElementById('initial-username').value.trim(); const grade = document.getElementById('initial-grade').value.trim();
                 if (!username || !grade) { window.showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️"); return; }
-                const profile = { username, grade, photoURL: selectedAvatar, uid: 'LOCAL_' + Date.now() }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                const currentTheme = document.body.getAttribute('data-theme') || 'classic';
+                const profile = { username, grade, photoURL: selectedAvatar, theme: currentTheme, uid: 'LOCAL_' + Date.now() }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
                 document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; document.getElementById('topbar-avatar').classList.remove('hidden');
                 window.hideModal('modal-initial-signup'); window.showToast(`ยินดีต้อนรับ คุณ ${username}! (ออฟไลน์)`, "🎉");
             }
@@ -1092,9 +1150,10 @@
             if (window.WordHunterFirebase && typeof window.WordHunterFirebase.updateProfile === 'function') { window.WordHunterFirebase.updateProfile(); } 
             else {
                 const username = document.getElementById('auth-username').value.trim(); const grade = document.getElementById('auth-grade').value.trim();
+                const theme = document.getElementById('auth-theme').value;
                 if (!username || !grade) { showToast("กรุณากรอกข้อมูลให้ครบจ้า!", "⚠️"); return; }
-                const profile = { ...gameState.currentUser, username, grade, photoURL: selectedAvatar }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
-                document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; hideModal('modal-auth'); showToast("อัปเดตข้อมูลผู้เล่นเรียบร้อย! (Local)", "✅");
+                const profile = { ...gameState.currentUser, username, grade, photoURL: selectedAvatar, theme: theme }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; window.changeTheme(theme); hideModal('modal-auth'); showToast("อัปเดตข้อมูลผู้เล่นเรียบร้อย! (Local)", "✅");
             }
         };
         window.createRoomFirebase = function() { if (window.WordHunterFirebase && typeof window.WordHunterFirebase.createRoom === 'function') window.WordHunterFirebase.createRoom(); else { if(window.showToast) window.showToast("ระบบ Multiplayer ต้องการอินเทอร์เน็ต!", "⚠️"); } };
@@ -1110,7 +1169,7 @@
         import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // [A.E.G.I.S BUGFIX: Strict Schema Implementation included]
+        // [A.E.G.I.S Firebase Integration: Secure Initialization & Fallbacks]
         window.WordHunterFirebase = {
             app: null, db: null, auth: null, currentRoomId: null, unsubscribeLobby: null, isProcessing: false, isCanvasEnv: false, appId: "default-app-id",
             config: { apiKey: "AIzaSyAKAPwkT-WefQ4KWCLrdLJtl7DHfNgmdq8", authDomain: "word-hunter-ar-hunsa.firebaseapp.com", projectId: "word-hunter-ar-hunsa", storageBucket: "word-hunter-ar-hunsa.firebasestorage.app", messagingSenderId: "443417643469", appId: "1:443417643469:web:d41dc7cfe744d8783bdc84" },
@@ -1119,11 +1178,11 @@
                 try {
                     if (typeof __firebase_config !== 'undefined') { this.config = JSON.parse(__firebase_config); this.isCanvasEnv = true; this.appId = typeof __app_id !== 'undefined' ? __app_id : this.appId; }
                     this.app = initializeApp(this.config); this.db = getFirestore(this.app); this.auth = getAuth(this.app);
-                    try { if (this.isCanvasEnv && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(this.auth, __initial_auth_token); } else { await signInAnonymously(this.auth); } } catch (authErr) { }
+                    try { if (this.isCanvasEnv && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(this.auth, __initial_auth_token); } else { await signInAnonymously(this.auth); } } catch (authErr) { console.warn("Auth error, enabling offline mode", authErr); this.db = null; }
                     const savedUser = localStorage.getItem('word_hunter_user');
                     if (savedUser) { try { const profile = JSON.parse(savedUser); gameState.currentUser = profile; gameState.player1Name = profile.username; selectedAvatar = profile.photoURL || '🦊'; document.getElementById('user-display-name').innerText = `${profile.username} (${profile.grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; document.getElementById('topbar-avatar').classList.remove('hidden'); document.getElementById('user-status-dot').className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse"; window.hideModal('modal-initial-signup'); } catch(e) {} }
-                    await this.loadLeaderboard();
-                } catch (error) { console.warn("[Firebase Debug]: ❌ Init Error: ", error); }
+                    if(this.db) { await this.loadLeaderboard(); } else { if (window.renderLeaderboardError) window.renderLeaderboardError("⚠️ Offline Mode (Cloud DB Unreachable)"); }
+                } catch (error) { console.warn("[A.E.G.I.S Debug]: ❌ Firebase Init Error: ", error); }
             },
 
             getCollectionPath: function(colName) { if (this.isCanvasEnv) return `artifacts/${this.appId}/public/data/${colName}`; return colName; },
@@ -1132,28 +1191,30 @@
             executeInitialSignup: async function() {
                 if (!this.db) return; if (this.isProcessing) return; this.isProcessing = true;
                 const usernameInput = document.getElementById('initial-username').value.trim(); const gradeInput = document.getElementById('initial-grade').value.trim();
+                const currentTheme = document.body.getAttribute('data-theme') || 'classic';
                 if (!usernameInput || !gradeInput) { if (window.showToast) window.showToast("กรุณากรอกชื่อและชั้นเรียนก่อนเริ่มเด้อจ้า!", "⚠️"); this.isProcessing = false; return; }
                 if (window.showToast) window.showToast("กำลังเข้าสู่ระบบ...", "⏳");
                 try {
                     let savedUser = null; try { savedUser = JSON.parse(localStorage.getItem('word_hunter_user')); } catch(e) {}
                     const uid = (savedUser && savedUser.uid && savedUser.uid.startsWith('PLAYER_')) ? savedUser.uid : 'PLAYER_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-                    const profileData = { uid: String(uid), username: String(usernameInput), email: "no-login@local", grade: String(gradeInput), photoURL: String(selectedAvatar || '🦊'), createdAt: new Date().toISOString() };
+                    const profileData = { uid: String(uid), username: String(usernameInput), email: "no-login@local", grade: String(gradeInput), photoURL: String(selectedAvatar || '🦊'), theme: currentTheme, createdAt: new Date().toISOString() };
                     const userRef = doc(this.db, this.getCollectionPath('users'), uid); await setDoc(userRef, profileData, { merge: true });
                     if (typeof gameState !== 'undefined') { gameState.currentUser = profileData; gameState.player1Name = profileData.username; }
                     localStorage.setItem('word_hunter_user', JSON.stringify(profileData));
                     document.getElementById('user-display-name').innerText = `${profileData.username} (${profileData.grade})`; document.getElementById('topbar-avatar').innerText = profileData.photoURL; document.getElementById('topbar-avatar').classList.remove('hidden'); document.getElementById('user-status-dot').className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
                     if (window.hideModal) window.hideModal('modal-initial-signup'); if (window.showToast) window.showToast(`ยินดีต้อนรับ คุณ ${profileData.username}!`, "🎉");
-                } catch (error) { console.error("[Firebase Debug]: ❌ Signup Flow Error:", error); if (window.showToast) window.showToast("เกิดข้อผิดพลาดในการเข้าสู่ระบบ", "❌"); } finally { this.isProcessing = false; }
+                } catch (error) { console.error("[A.E.G.I.S Debug]: ❌ Signup Flow Error:", error); if (window.showToast) window.showToast("เกิดข้อผิดพลาดในการเข้าสู่ระบบ", "❌"); } finally { this.isProcessing = false; }
             },
 
             updateProfile: async function() {
                 if (window.playSound) window.playSound('click'); if (!this.db || !gameState.currentUser) return; if (this.isProcessing) return; this.isProcessing = true;
                 const username = document.getElementById('auth-username').value.trim(); const grade = document.getElementById('auth-grade').value.trim();
+                const theme = document.getElementById('auth-theme').value;
                 if (!username || !grade) { if(window.showToast) window.showToast("กรุณากรอกข้อมูลให้ครบจ้า!", "⚠️"); this.isProcessing = false; return; }
                 try {
-                    const profile = { ...gameState.currentUser, username: String(username), grade: String(grade), photoURL: String(selectedAvatar) }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
-                    const userRef = doc(this.db, this.getCollectionPath('users'), profile.uid); await updateDoc(userRef, { username: profile.username, grade: profile.grade, photoURL: profile.photoURL });
-                    document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar;
+                    const profile = { ...gameState.currentUser, username: String(username), grade: String(grade), photoURL: String(selectedAvatar), theme: theme }; gameState.currentUser = profile; gameState.player1Name = username; localStorage.setItem('word_hunter_user', JSON.stringify(profile));
+                    const userRef = doc(this.db, this.getCollectionPath('users'), profile.uid); await updateDoc(userRef, { username: profile.username, grade: profile.grade, photoURL: profile.photoURL, theme: profile.theme });
+                    document.getElementById('user-display-name').innerText = `${username} (${grade})`; document.getElementById('topbar-avatar').innerText = selectedAvatar; window.changeTheme(theme);
                     if(window.hideModal) window.hideModal('modal-auth'); if(window.showToast) window.showToast("อัปเดตข้อมูลผู้เล่นเรียบร้อย!", "✅");
                 } catch(e) { console.error("Update profile error", e); } finally { this.isProcessing = false; }
             },
@@ -1164,7 +1225,7 @@
                     const lbCollection = collection(this.db, this.getCollectionPath('leaderboard'));
                     const record = { uid: String(gameState.currentUser.uid), name: String(name), grade: String(gameState.currentUser.grade), difficulty: String(diffLabel), category: String(catLabel), score: Number(score), avgTime: String(avgTime + "s"), photoURL: String(gameState.currentUser.photoURL || '🦊'), timestamp: new Date().toISOString() };
                     await addDoc(lbCollection, record); this.loadLeaderboard();
-                } catch (e) { console.error("[Firebase Debug]: ❌ Save score error:", e); }
+                } catch (e) { console.error("[A.E.G.I.S Debug]: ❌ Save score error:", e); }
             },
 
             loadLeaderboard: async function() {
@@ -1183,7 +1244,7 @@
                     const liveBadge = document.getElementById('lb-sync-status'); if(liveBadge) liveBadge.classList.remove('hidden');
                     if (window.renderLeaderboardUI) window.renderLeaderboardUI(top10);
                 } catch (e) {
-                    console.error("[Firebase Debug]: ❌ Load Leaderboard Error:", e);
+                    console.error("[A.E.G.I.S Debug]: ❌ Load Leaderboard Error:", e);
                     if (window.renderLeaderboardError) window.renderLeaderboardError("❌ โหลดข้อมูลล้มเหลว โปรดตรวจสอบอินเทอร์เน็ต");
                 }
             },
@@ -1223,7 +1284,7 @@
                         if (docSnap.exists()) { const data = docSnap.data(); this.renderLobbyState(data); if (data.status === "playing") { this.forceCleanup(); if (window.hideModal) window.hideModal('modal-lobby'); if (window.runStartSequence) window.runStartSequence('kahoot'); } } 
                         else { this.forceCleanup(); if (window.hideModal) window.hideModal('modal-lobby'); if (window.showToast) window.showToast("ห้องถูกยกเลิกแล้ว", "⚠️"); }
                     });
-                } catch (error) { console.error("[Firebase Debug]: ❌ Create Room Error:", error); if (window.showToast) window.showToast("สร้างห้องล้มเหลว", "❌"); } finally { this.isProcessing = false; }
+                } catch (error) { console.error("[A.E.G.I.S Debug]: ❌ Create Room Error:", error); if (window.showToast) window.showToast("สร้างห้องล้มเหลว", "❌"); } finally { this.isProcessing = false; }
             },
 
             openJoinModal: function() {
@@ -1252,7 +1313,7 @@
                             });
                         } else { if (window.showToast) window.showToast("ห้องนี้กำลังเล่นอยู่หรือปิดไปแล้วครับ", "⏳"); }
                     } else { if (window.showToast) window.showToast("ไม่พบรหัสห้องนี้ในระบบ!", "❌"); }
-                } catch (error) { console.error("[Firebase Debug]: ❌ Join Room Error:", error); if (window.showToast) window.showToast("เข้าร่วมห้องล้มเหลว", "❌"); } finally { this.isProcessing = false; }
+                } catch (error) { console.error("[A.E.G.I.S Debug]: ❌ Join Room Error:", error); if (window.showToast) window.showToast("เข้าร่วมห้องล้มเหลว", "❌"); } finally { this.isProcessing = false; }
             },
 
             startGameAsHost: async function() { if(!this.currentRoomId || !this.db) return; if(window.playSound) window.playSound('click'); try { const roomRef = doc(this.db, this.getCollectionPath('room'), this.currentRoomId); await updateDoc(roomRef, { status: "playing" }); } catch (error) {} },
@@ -1264,7 +1325,7 @@
                         const roomRef = doc(this.db, this.getCollectionPath('room'), this.currentRoomId);
                         if(gameState.isRoomHost) { await deleteDoc(roomRef); if (window.showToast) window.showToast("ยุบห้องแล้ว", "🗑️"); } 
                         else { await updateDoc(roomRef, { joinerId: "", joinerPhotoURL: "" }); if (window.showToast) window.showToast("ออกจากห้องแล้ว", "🚪"); }
-                    } catch (error) { console.error("[Firebase Debug]: ❌ Cancel Room Error:", error); }
+                    } catch (error) { console.error("[A.E.G.I.S Debug]: ❌ Cancel Room Error:", error); }
                 }
                 this.currentRoomId = null;
             }
